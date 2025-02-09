@@ -274,8 +274,8 @@ void Configurable::load(SDClass &sd, const char *filename) {
 }
 
 
-void Configurable::configure(Stream &stream, unsigned long timeout,
-			     bool echo, bool detailed) {
+void Configurable::execute(Stream &stream, unsigned long timeout,
+			   bool echo, bool detailed) {
   if (disabled(StreamInput))
     return;
   int def = 0;
@@ -339,7 +339,7 @@ void Configurable::configure(Stream &stream, unsigned long timeout,
 	    iaction[i] < NActions) {
 	  def = i;
 	  stream.println();
-	  Actions[iaction[i]]->configure(stream, 0, echo, detailed);
+	  Actions[iaction[i]]->execute(stream, 0, echo, detailed);
 	  break;
 	}
 	else if (strcmp(pval, "q") == 0) {

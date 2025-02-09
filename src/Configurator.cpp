@@ -42,8 +42,8 @@ void Configurator::load(SDClass &sd) {
 }
 
 
-void Configurator::configure(Stream &stream, unsigned long timeout,
-			     bool echo, bool detailed) {
-  Configurable::configure(stream, timeout, echo, detailed);
+void Configurator::execute(Stream &stream, unsigned long timeout,
+			   bool echo, bool detailed) {
+  Configurable::execute(stream, timeout, echo, detailed);
 }
 

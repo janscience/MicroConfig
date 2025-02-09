@@ -2,10 +2,10 @@
   Parameter - Actions with configurable name-value pairs of various types.
   Created by Jan Benda, October 22, 2023.
 
-  For various types of inputs (strings, enums, numbers), specialized
-  classes are provided (see list below). For each type there are three
-  classes.  The Base*Parameter classes provide most of the
-  infrastructure needed for handling a specific type. The
+  For various types of inputs (strings, enums, booleans, numbers),
+  specialized classes are provided (see list below). For each type
+  there are three classes.  The Base*Parameter classes provide most of
+  the infrastructure needed for handling a specific type. The
   Base*Parameter class is inherited by two classes. An instance of the
   *Parameter class owns the value, and it has to be retrieved by
   calling value().  The *PointerParameter class just stores a pointer
@@ -64,12 +64,12 @@ class Parameter : public Action {
   /* Save the parameter's key and value to file. */
   virtual void save(File &file, size_t indent=0, size_t w=0) const;
   
-  /* Interactive configuration via Serial stream.
+  /* Interactive configuration via serial stream.
      Returns from initial menu after timeout milliseconds.
      If echo, print out received input.
      If detailed provide additional infos for GUI applications. */
-  virtual void configure(Stream &stream=Serial, unsigned long timeout=0,
-			 bool echo=true, bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 
   /* Parse the string val and set the parameter accordingly.  If
      StreamOutput is enabled, report the new value together with name
@@ -91,7 +91,7 @@ class Parameter : public Action {
   virtual void listSelection(Stream &stream) const {};
 
   /* Return in str some instructions for interactive input,
-     e.g. a valid range for numbers. Used for the prompt in configure().
+     e.g. a valid range for numbers. Used for the prompt in execute().
      If detailed provide more infos for a GUI. */
   virtual void instructions(char *str, bool detailed) const;
 

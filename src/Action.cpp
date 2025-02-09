@@ -108,6 +108,6 @@ void Action::report(Stream &stream, size_t indent,
 }
 
 
-void Action::configure(Stream &stream, unsigned long timeout,
-		       bool echo, bool detailed) {
+void Action::execute(Stream &stream, unsigned long timeout,
+		     bool echo, bool detailed) {
 }

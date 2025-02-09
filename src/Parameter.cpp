@@ -31,8 +31,8 @@ void Parameter::save(File &file, size_t indent, size_t w) const {
 }
 
 
-void Parameter::configure(Stream &stream, unsigned long timeout,
-			  bool echo, bool detailed) {
+void Parameter::execute(Stream &stream, unsigned long timeout,
+			bool echo, bool detailed) {
   if (disabled(SetValue | StreamIO))
     return;
   int w = strlen(name());

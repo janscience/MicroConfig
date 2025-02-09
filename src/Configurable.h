@@ -52,12 +52,12 @@ class Configurable : public Action {
      accordingly. */
   void load(SDClass &sd, const char *filename);
   
-  /* Interactive configuration via Serial stream.
+  /* Interactive menu via serial stream.
      Returns from initial menu after timeout milliseconds.
      If echo, print out received input.
      If detailed provide additional infos for GUI applications. */
-  virtual void configure(Stream &stream=Serial, unsigned long timeout=0,
-			 bool echo=true, bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 
   /* Set the provided name-value pair and report on stream. */
   virtual void set(const char *val, const char *name,

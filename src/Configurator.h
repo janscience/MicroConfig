@@ -38,9 +38,9 @@ class Configurator : public Configurable {
      the Actions. */
   void load(SDClass &sd);
 
-  /* Interactive configuration via Serial stream. */
-  void configure(Stream &stream=Serial, unsigned long timeout=0,
-		 bool echo=true, bool detailed=false);
+  /* Interactive menu via serial stream. */
+  void execute(Stream &stream=Serial, unsigned long timeout=0,
+	       bool echo=true, bool detailed=false);
 
   /* The main menu, i.e. pointer to the last Configurator instance. */
   static Configurator *MainConfig;

@@ -98,13 +98,14 @@ class Action {
      FileOutput must be enabled. */
   virtual void save(File &file, size_t indent=0, size_t w=0) const {};
   
-  /* Interactive configuration of this action via serial stream.
+  /* Execute this action with user interactions via serial stream.
      StreamInput and StreamOutput must be enabled.
      Returns from initial menu after timeout milliseconds.
      If echo, print out received input.
-     If detailed provide additional infos for GUI applications. */
-  virtual void configure(Stream &stream=Serial, unsigned long timeout=0,
-			 bool echo=true, bool detailed=false);
+     If detailed provide additional infos for GUI applications.
+     Default does nothing. */
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 
   /* Parse the string val and configure the action accordingly.
      SetValue must be enabled. If StreamOutput is enabled,
