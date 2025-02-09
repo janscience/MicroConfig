@@ -14,6 +14,7 @@ NumberParameter<uint32_t> Rate(aisettings, "SamplingRate", 48000, 1, 1000000, "%
 void setup() {
   Serial.begin(9600);
   while (!Serial && millis() < 2000) {};
+  printMicroConfigBanner();
   SD.begin(BUILTIN_SDCARD);
   config.setConfigFile(CFG_FILE);
   config.load(SD);
