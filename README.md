@@ -12,6 +12,8 @@ Configuration menus for microcontrollers.
 - Configures key-value pairs, with values being strings, enums, integer types, floats.
 - Numerical types with units and unit conversion.
 - Object-oriented and templated interface.
+- Predefined menu for reporting, saving, loading and erasing configuration file.
+- Predefined menu for uploading firmware.
 
 
 ## Libraries
@@ -20,6 +22,8 @@ Configuration menus for microcontrollers.
 - [Parameter](src/Parameter.h): Actions with configurable name-value pairs of various types.
 - [Configurable](src/Configurable.h): A collection of Actions and Parameters.
 - [Configurator](src/Configuration.h): Configure configurable class instances from a configuration file.
+- [FirmwareUpdate](src/FirmwareUpdate.h): Upload hex file from SD card.
+- [MicroConfigBanner](src/MicroConfigBanner.h): ASCII art banner and MicroConfig version for output streams.
 
 
 ## Examples
