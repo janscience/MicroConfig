@@ -1,0 +1,98 @@
+/*
+  ConfigurationMenu - Actions and menu for managing configurations.
+  Created by Jan Benda, February 9th, 2025.
+*/
+
+#ifndef ConfigurationMenu_h
+#define ConfigurationMenu_h
+
+
+#include <SD.h>
+#include <MicroConfig.h>
+
+
+class ReportConfigAction : public Action {
+
+ public:
+
+  /* Initialize and add to default menu. */
+  ReportConfigAction(const char *name);
+
+  /* Initialize and add to menu. */
+  ReportConfigAction(Menu &menu, const char *name);
+
+  /* Report the configuration settings. */
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
+};
+
+
+class SDConfigAction : public Action {
+
+ public:
+
+  /* Initialize and add to default menu. */
+  SDConfigAction(const char *name, SDClass &sd);
+
+  /* Initialize and add to menu. */
+  SDConfigAction(Menu &menu, const char *name, SDClass &sd);
+
+ protected:
+
+  SDClass &SDC; 
+};
+
+
+class SaveConfigAction : public SDConfigAction {
+
+ public:
+
+  using SDConfigAction::SDConfigAction;
+
+  /* Save the configuration settings to configuration file. */
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
+};
+
+
+class LoadConfigAction : public SDConfigAction {
+
+ public:
+
+  using SDConfigAction::SDConfigAction;
+
+  /* Load the configuration settings from configuration file. */
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
+};
+
+
+class RemoveConfigAction : public SDConfigAction {
+
+ public:
+
+  using SDConfigAction::SDConfigAction;
+
+  /* Remove the configuration file from SD card. */
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
+};
+
+
+class ConfigurationMenu : public Menu {
+
+public:
+
+  ConfigurationMenu(SDClass &sd);
+
+protected:
+
+  ReportConfigAction ReportAct;
+  SaveConfigAction SaveAct;
+  LoadConfigAction LoadAct;
+  RemoveConfigAction RemoveAct;
+  
+};
+
+
+#endif
