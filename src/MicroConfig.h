@@ -5,3 +5,5 @@
 #include <HelpAction.h>
 #include <ConfigurationMenu.h>
 #include <MicroConfigBanner.h>
+#include <FirmwareUpdate.h>
+#include <FirmwareMenu.h>

@@ -10,6 +10,7 @@ NumberParameter<float> FileTime(settings, "FileTime", 30.0, 1.0, 8640.0, "%.0f",
 Menu aisettings("Analog input");          // analog input menu
 NumberParameter<uint32_t> Rate(aisettings, "SamplingRate", 48000, 1, 1000000, "%.1f", "Hz", "kHz");
 ConfigurationMenu configuration_menu(SD); // interactively report, save, load and remove configuration file
+FirmwareMenu firmware_menu(SD);
 HelpAction help_act(config, "Help");
 
 

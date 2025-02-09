@@ -1,3 +1,4 @@
+#include <Configurator.h>
 #include <ConfigurationMenu.h>
 
 
@@ -13,12 +14,12 @@ void ReportConfigAction::execute(Stream &stream, unsigned long timeout,
 }
 
 
-SDConfigAction::SDConfigAction(const char *name, SDClass &sd) :
-  SDConfigAction(*Configurator::MainConfig->Config, name, sd) {
+SDClassAction::SDClassAction(const char *name, SDClass &sd) :
+  SDClassAction(*Configurator::MainConfig->Config, name, sd) {
 }
 
 
-SDConfigAction::SDConfigAction(Menu &menu, const char *name, SDClass &sd) : 
+SDClassAction::SDClassAction(Menu &menu, const char *name, SDClass &sd) : 
   Action(menu, name, StreamInput),
   SDC(sd) {
 }

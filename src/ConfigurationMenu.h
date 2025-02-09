@@ -8,7 +8,8 @@
 
 
 #include <SD.h>
-#include <MicroConfig.h>
+#include <Action.h>
+#include <Menu.h>
 
 
 class ReportConfigAction : public Action {
@@ -27,15 +28,15 @@ class ReportConfigAction : public Action {
 };
 
 
-class SDConfigAction : public Action {
+class SDClassAction : public Action {
 
  public:
 
   /* Initialize and add to default menu. */
-  SDConfigAction(const char *name, SDClass &sd);
+  SDClassAction(const char *name, SDClass &sd);
 
   /* Initialize and add to menu. */
-  SDConfigAction(Menu &menu, const char *name, SDClass &sd);
+  SDClassAction(Menu &menu, const char *name, SDClass &sd);
 
  protected:
 
@@ -43,11 +44,11 @@ class SDConfigAction : public Action {
 };
 
 
-class SaveConfigAction : public SDConfigAction {
+class SaveConfigAction : public SDClassAction {
 
  public:
 
-  using SDConfigAction::SDConfigAction;
+  using SDClassAction::SDClassAction;
 
   /* Save the configuration settings to configuration file. */
   virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
@@ -55,11 +56,11 @@ class SaveConfigAction : public SDConfigAction {
 };
 
 
-class LoadConfigAction : public SDConfigAction {
+class LoadConfigAction : public SDClassAction {
 
  public:
 
-  using SDConfigAction::SDConfigAction;
+  using SDClassAction::SDClassAction;
 
   /* Load the configuration settings from configuration file. */
   virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
@@ -67,11 +68,11 @@ class LoadConfigAction : public SDConfigAction {
 };
 
 
-class RemoveConfigAction : public SDConfigAction {
+class RemoveConfigAction : public SDClassAction {
 
  public:
 
-  using SDConfigAction::SDConfigAction;
+  using SDClassAction::SDClassAction;
 
   /* Remove the configuration file from SD card. */
   virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
