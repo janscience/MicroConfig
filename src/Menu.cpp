@@ -1,5 +1,5 @@
 #include <Configurator.h>
-#include <Configurable.h>
+#include <Menu.h>
 
 
 void reboot_board() {
@@ -15,7 +15,7 @@ void reboot_board() {
 }
 
 
-Configurable::Configurable(const char *name, int roles) :
+Menu::Menu(const char *name, int roles) :
   Action(name, roles),
   NActions(0) {
   if (Configurator::MainConfig != NULL)
@@ -23,13 +23,13 @@ Configurable::Configurable(const char *name, int roles) :
 }
 
 
-Configurable::Configurable(Configurable &menu, const char *name, int roles) :
+Menu::Menu(Menu &menu, const char *name, int roles) :
   Action(menu, name, roles),
   NActions(0) {
 }
 
 
-void Configurable::add(Action *act) {
+void Menu::add(Action *act) {
   if (NActions >= MaxActions) {
     Serial.printf("ERROR! Number of maximum Actions exceeded in %s!\n",
 		  name());
@@ -40,7 +40,7 @@ void Configurable::add(Action *act) {
 }
 
 
-void Configurable::move(const Action *action, size_t index) {
+void Menu::move(const Action *action, size_t index) {
   Serial.println("MOVE");
   if (index >= NActions)
     return;
@@ -71,7 +71,7 @@ void Configurable::move(const Action *action, size_t index) {
 }
 
 
-Action *Configurable::action(const char *name) {
+Action *Menu::action(const char *name) {
   size_t inx = strlen(name);
   char lname[strlen(name)+1];
   for (size_t k=0; k<strlen(name)+1; k++) {
@@ -97,22 +97,22 @@ Action *Configurable::action(const char *name) {
 }
 
 
-void Configurable::enable(const char *name, int roles) {
+void Menu::enable(const char *name, int roles) {
   Action *act = action(name);
   if (act != NULL)
     act->enable(roles);
 }
 
 
-void Configurable::disable(const char *name, int roles) {
+void Menu::disable(const char *name, int roles) {
   Action *act = action(name);
   if (act != NULL)
     act->disable(roles);
 }
 
 
-void Configurable::report(Stream &stream, size_t indent,
-			  size_t w, bool descend) const {
+void Menu::report(Stream &stream, size_t indent,
+		  size_t w, bool descend) const {
   if (disabled(StreamIO))
     return;
   // write actions to serial:
@@ -137,7 +137,7 @@ void Configurable::report(Stream &stream, size_t indent,
 }
 
 
-void Configurable::save(File &file, size_t indent, size_t w) const {
+void Menu::save(File &file, size_t indent, size_t w) const {
   // longest name:
   size_t ww = 0;
   for (size_t j=0; j<NActions; j++) {
@@ -154,7 +154,7 @@ void Configurable::save(File &file, size_t indent, size_t w) const {
 }
 
 
-bool Configurable::save(SDClass &sd, const char *filename) const {
+bool Menu::save(SDClass &sd, const char *filename) const {
   File file = sd.open(filename, FILE_WRITE_BEGIN);
   if (!file) {
     Serial.printf("ERROR! Configuration file \"%s\" cannot be written to SD card.\n",
@@ -168,7 +168,7 @@ bool Configurable::save(SDClass &sd, const char *filename) const {
 }
 
 
-void Configurable::load(SDClass &sd, const char *filename) {
+void Menu::load(SDClass &sd, const char *filename) {
   Action *act = NULL;
   const size_t nline = 128;
   char line[nline];
@@ -274,8 +274,8 @@ void Configurable::load(SDClass &sd, const char *filename) {
 }
 
 
-void Configurable::execute(Stream &stream, unsigned long timeout,
-			   bool echo, bool detailed) {
+void Menu::execute(Stream &stream, unsigned long timeout,
+		   bool echo, bool detailed) {
   if (disabled(StreamInput))
     return;
   int def = 0;
@@ -352,8 +352,8 @@ void Configurable::execute(Stream &stream, unsigned long timeout,
 }
 
 
-void Configurable::set(const char *val, const char *name,
-		       Stream &stream) {
+void Menu::set(const char *val, const char *name,
+	       Stream &stream) {
   Action *act = action(name);
   if (act == NULL) {
     if (enabled(StreamOutput))

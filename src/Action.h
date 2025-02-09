@@ -11,7 +11,7 @@
 #include <SD.h>
 
 
-class Configurable;
+class Menu;
 class Configurator;
 
 
@@ -41,7 +41,7 @@ class Action {
   Action(const char *name, int roles=AllRoles);
 
   /* Initialize action with name and supported roles and add it to menu. */
-  Action(Configurable &menu, const char *name, int roles=AllRoles);
+  Action(Menu &menu, const char *name, int roles=AllRoles);
 
   /* The name identifying the action. */
   const char *name() const { return Name; }
@@ -50,10 +50,10 @@ class Action {
   void setName(const char *name);
 
   /* The parent menu of this action. */
-  Configurable *parent() const { return Parent; };
+  Menu *parent() const { return Parent; };
 
   /* Set the parent of this action. */
-  void setParent(Configurable *parent) { Parent = parent; };
+  void setParent(Menu *parent) { Parent = parent; };
 
   /* The root menu of this action. */
   Configurator *root();
@@ -124,7 +124,7 @@ class Action {
 
   size_t Indentation;
 
-  Configurable *Parent;
+  Menu *Parent;
   
 };
 

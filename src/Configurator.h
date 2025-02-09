@@ -1,5 +1,5 @@
 /*
-  Configurator - configure configurable class instances from a configuration file.
+  Configurator - configure menus from a configuration file.
   Created by Jan Benda, May 26th, 2021.
 */
 
@@ -7,10 +7,10 @@
 #define Configurator_h
 
 
-#include <Configurable.h>
+#include <Menu.h>
 
 
-class Configurator : public Configurable {
+class Configurator : public Menu {
 
  public:
 
@@ -45,8 +45,8 @@ class Configurator : public Configurable {
   /* The main menu, i.e. pointer to the last Configurator instance. */
   static Configurator *MainConfig;
 
-  /* The submenu where Configurables are automatically added to. */
-  Configurable *Config;
+  /* The submenu where Menus are automatically added to. */
+  Menu *Config;
 
   
  private:

@@ -1,4 +1,4 @@
-#include <Configurable.h>
+#include <Menu.h>
 #include <Configurator.h>
 #include <Action.h>
 
@@ -36,7 +36,7 @@ Action::Action(const char *name, int roles) :
 }
 
 
-Action::Action(Configurable &menu, const char *name, int roles) :
+Action::Action(Menu &menu, const char *name, int roles) :
   Action(name, roles) {
   menu.add(this);
 }

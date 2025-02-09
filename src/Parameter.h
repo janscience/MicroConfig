@@ -14,9 +14,9 @@
   class instance.
 
   Via the constructors, parameter classes get their name and are added
-  to a Configurable. Via the value() and the valueStr() member functions,
+  to a Menu. Via the value() and the valueStr() member functions,
   the current value can be obtained directly or as a string representation.
-  Everything else is handled by the Configurable class.
+  Everything else is handled by the Menu class.
 
   All classes support selections. These are lists of valid
   values. When provided, values can be chosen from these selections
@@ -45,7 +45,7 @@
 #include <Action.h>
 
 
-class Configurable;
+class Menu;
 
 
 /* Base class for configurable parameters, i.e. name-value pairs. */
@@ -55,7 +55,7 @@ class Parameter : public Action {
 
   /* Initialize parameter with identifying name, n selections
      and add it to menu. */
-  Parameter(Configurable &menu, const char *name, size_t n=0);
+  Parameter(Menu &menu, const char *name, size_t n=0);
 
   /* Report the parameter's name and value on serial stream. */
   virtual void report(Stream &stream=Serial, size_t indent=0,
@@ -124,11 +124,11 @@ class BaseStringParameter : public Parameter {
  public:
   
   /* Initialize parameter with identifying name and add it to menu. */
-  BaseStringParameter(Configurable &menu, const char *name);
+  BaseStringParameter(Menu &menu, const char *name);
   
   /* Initialize parameter with identifying name, list of n selections,
      and add it to menu. */
-  BaseStringParameter(Configurable &menu, const char *name,
+  BaseStringParameter(Menu &menu, const char *name,
 		      const char **selection, size_t n);
 
   /* Provide a selection of n input values. */
@@ -163,7 +163,7 @@ class StringParameter : public BaseStringParameter {
   
   /* Initialize parameter with identifying name, value, list of n
      selections and add it to menu. */
-  StringParameter(Configurable &menu, const char *name,
+  StringParameter(Menu &menu, const char *name,
 		  const char str[N],
 		  const char **selection=0, size_t n=0);
 
@@ -201,7 +201,7 @@ class StringPointerParameter : public BaseStringParameter {
   
   /* Initialize parameter with identifying name, pointer str to value
      variable, list of n selections, and add it to menu. */
-  StringPointerParameter(Configurable &menu, const char *name,
+  StringPointerParameter(Menu &menu, const char *name,
 			 char (*str)[N], const char **selection=0,
 			 size_t n=0);
 
@@ -237,7 +237,7 @@ class BaseEnumParameter : public BaseStringParameter {
   
   /* Initialize parameter with identifying name, list of n enum values
      and coresponding string representations, and add it to menu. */
-  BaseEnumParameter(Configurable &menu, const char *name,
+  BaseEnumParameter(Menu &menu, const char *name,
 		    const T *enums, const char **selection, size_t n);
 
   /* Provide a selection of n enums with corresponding string
@@ -268,7 +268,7 @@ class EnumParameter : public BaseEnumParameter<T> {
   /* Initialize parameter with identifying name, value, list of n enum
      values and coresponding string representations, and add to
      menu. */
-  EnumParameter(Configurable &menu, const char *name, T val,
+  EnumParameter(Menu &menu, const char *name, T val,
 		const T *enums, const char **selection, size_t n);
 
   /* Return the enum value. */
@@ -304,7 +304,7 @@ class EnumPointerParameter : public BaseEnumParameter<T> {
   /* Initialize parameter with identifying name, value, list of n enum
      values and coresponding string representations, and add to
      menu. */
-  EnumPointerParameter(Configurable &menu, const char *name, T *val,
+  EnumPointerParameter(Menu &menu, const char *name, T *val,
 		       const T *enums, const char **selection,
 		       size_t n);
 
@@ -339,7 +339,7 @@ class BoolParameter : public EnumParameter<bool> {
   
   /* Initialize parameter with identifying name, value, and add to
      menu. */
-  BoolParameter(Configurable &menu, const char *name, bool val);
+  BoolParameter(Menu &menu, const char *name, bool val);
   
 };
 
@@ -351,7 +351,7 @@ class BoolPointerParameter : public EnumPointerParameter<bool> {
   
   /* Initialize parameter with identifying name, value, and add to
      menu. */
-  BoolPointerParameter(Configurable &menu, const char *name, bool *val);
+  BoolPointerParameter(Menu &menu, const char *name, bool *val);
   
 };
 
@@ -364,14 +364,14 @@ class BaseNumberParameter : public Parameter {
   
   /* Initialize parameter with identifying name,
      format string, unit, and selection, and add it to menu. */
-  BaseNumberParameter(Configurable &menu, const char *name,
+  BaseNumberParameter(Menu &menu, const char *name,
 		      const char *format, const char *unit=0,
 		      const char *outunit=0, const T *selection=0,
 		      size_t n=0);
   
   /* Initialize parameter with identifying name,
      minimum, maximum, format string, and unit, and add it to menu. */
-  BaseNumberParameter(Configurable &menu, const char *name,
+  BaseNumberParameter(Menu &menu, const char *name,
 		      T minimu, T maximum, const char *format,
 		      const char *unit=0, const char *outunit=0);
 
@@ -463,14 +463,14 @@ class NumberParameter : public BaseNumberParameter<T> {
   
   /* Initialize parameter with identifying name, value,
      format string, unit, and selection, and add it to menu. */
-  NumberParameter(Configurable &menu, const char *name, T value,
+  NumberParameter(Menu &menu, const char *name, T value,
 		  const char *format, const char *unit=0,
 		  const char *outunit=0, const T *selection=0,
 		  size_t n=0);
   
   /* Initialize parameter with identifying name, value,
      minimum and maximum, format string, unit, and add it to menu. */
-  NumberParameter(Configurable &menu, const char *name, T value,
+  NumberParameter(Menu &menu, const char *name, T value,
 		  T minimum, T maximum, const char *format,
 		  const char *unit=0, const char *outunit=0);
 
@@ -520,14 +520,14 @@ class NumberPointerParameter : public BaseNumberParameter<T> {
   
   /* Initialize parameter with identifying name, pointer to value,
      format string, unit, and selection, and add it to menu. */
-  NumberPointerParameter(Configurable &menu, const char *name, T *value,
+  NumberPointerParameter(Menu &menu, const char *name, T *value,
 			 const char *format, const char *unit=0,
 			 const char *outunit=0, const T *selection=0,
 			 size_t n=0);
   
   /* Initialize parameter with identifying name, pointer to value,
      minimum, maximum, format string, and unit, and add it to menu. */
-  NumberPointerParameter(Configurable &menu, const char *name, T *value,
+  NumberPointerParameter(Menu &menu, const char *name, T *value,
 			 T minimum, T maximum, const char *format,
 			 const char *unit=0, const char *outunit=0);
 
@@ -570,7 +570,7 @@ class NumberPointerParameter : public BaseNumberParameter<T> {
 
 
 template<int N>
-StringParameter<N>::StringParameter(Configurable &menu, const char *name,
+StringParameter<N>::StringParameter(Menu &menu, const char *name,
 				    const char str[N],
 				    const char **selection, size_t n) :
   BaseStringParameter(menu, name, selection, n) {
@@ -619,7 +619,7 @@ void StringParameter<N>::valueStr(char *str) const {
 
 
 template<int N>
-StringPointerParameter<N>::StringPointerParameter(Configurable &menu,
+StringPointerParameter<N>::StringPointerParameter(Menu &menu,
 						  const char *name,
 						  char (*str)[N],
 						  const char **selection,
@@ -671,7 +671,7 @@ void StringPointerParameter<N>::valueStr(char *str) const {
 
 
 template<class T>
-BaseEnumParameter<T>::BaseEnumParameter(Configurable &menu,
+BaseEnumParameter<T>::BaseEnumParameter(Menu &menu,
 					const char *name,
 					const T *enums,
 					const char **selection,
@@ -719,7 +719,7 @@ const char *BaseEnumParameter<T>::enumStr(T val) const {
 
 
 template<class T>
-EnumParameter<T>::EnumParameter(Configurable &menu, const char *name,
+EnumParameter<T>::EnumParameter(Menu &menu, const char *name,
 				T val, const T *enums,
 				const char **selection, size_t n) :
   BaseEnumParameter<T>(menu, name, enums, selection, n),
@@ -774,7 +774,7 @@ void EnumParameter<T>::valueStr(char *str) const {
 
 
 template<class T>
-EnumPointerParameter<T>::EnumPointerParameter(Configurable &menu,
+EnumPointerParameter<T>::EnumPointerParameter(Menu &menu,
 					      const char *name,
 					      T *val, const T *enums,
 					      const char **selection,
@@ -831,7 +831,7 @@ void EnumPointerParameter<T>::valueStr(char *str) const {
 
 
 template<class T>
-BaseNumberParameter<T>::BaseNumberParameter(Configurable &menu,
+BaseNumberParameter<T>::BaseNumberParameter(Menu &menu,
 					    const char *name,
 					    const char *format,
 					    const char *unit,
@@ -862,7 +862,7 @@ BaseNumberParameter<T>::BaseNumberParameter(Configurable &menu,
 
 
 template<class T>
-BaseNumberParameter<T>::BaseNumberParameter(Configurable &menu,
+BaseNumberParameter<T>::BaseNumberParameter(Menu &menu,
 					    const char *name,
 					    T minimum, T maximum,
 					    const char *format,
@@ -1039,7 +1039,7 @@ void BaseNumberParameter<T>::valueStr(T val, char *str, bool use_special) const 
 
 
 template<class T>
-NumberParameter<T>::NumberParameter(Configurable &menu, const char *name,
+NumberParameter<T>::NumberParameter(Menu &menu, const char *name,
 				    T number, const char *format,
 				    const char *unit,
 				    const char *outunit,
@@ -1051,7 +1051,7 @@ NumberParameter<T>::NumberParameter(Configurable &menu, const char *name,
 
 
 template<class T>
-NumberParameter<T>::NumberParameter(Configurable &menu, const char *name,
+NumberParameter<T>::NumberParameter(Menu &menu, const char *name,
 				    T number, T minimum, T maximum,
 				    const char *format, const char *unit,
 				    const char *outunit) :
@@ -1133,7 +1133,7 @@ void NumberParameter<T>::valueStr(char *str) const {
 
 
 template<class T>
-NumberPointerParameter<T>::NumberPointerParameter(Configurable &menu,
+NumberPointerParameter<T>::NumberPointerParameter(Menu &menu,
 						  const char *name,
 						  T *number,
 						  const char *format,
@@ -1148,7 +1148,7 @@ NumberPointerParameter<T>::NumberPointerParameter(Configurable &menu,
 
 
 template<class T>
-NumberPointerParameter<T>::NumberPointerParameter(Configurable &menu,
+NumberPointerParameter<T>::NumberPointerParameter(Menu &menu,
 						  const char *name,
 						  T *number,
 						  T minimum, T maximum,

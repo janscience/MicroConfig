@@ -10,7 +10,7 @@ Configurator::Configurator() :
 
 
 Configurator::Configurator(const char *name) :
-  Configurable(name),
+  Menu(name),
   Config(this) {
   MainConfig = this;
   strncpy(ConfigFile, "teerec.cfg", MaxFile);
@@ -28,22 +28,22 @@ void Configurator::setConfigFile(const char *fname) {
 
 void Configurator::report(Stream &stream, size_t indent,
 			  size_t w, bool descend) const {
-  Config->Configurable::report(stream, indent, w, descend);
+  Config->Menu::report(stream, indent, w, descend);
 }
 
 
 bool Configurator::save(SDClass &sd) const {
-  return Config->Configurable::save(sd, ConfigFile);
+  return Config->Menu::save(sd, ConfigFile);
 }
 
 
 void Configurator::load(SDClass &sd) {
-  Config->Configurable::load(sd, ConfigFile);
+  Config->Menu::load(sd, ConfigFile);
 }
 
 
 void Configurator::execute(Stream &stream, unsigned long timeout,
 			   bool echo, bool detailed) {
-  Configurable::execute(stream, timeout, echo, detailed);
+  Menu::execute(stream, timeout, echo, detailed);
 }
 

@@ -4,10 +4,10 @@
 #define CFG_FILE "micro.cfg"             // name of configuration file
 
 Configurator config;                     // main menu
-Configurable settings("Settings");       // settings sub menu
+Menu settings("Settings");               // settings sub menu
 StringParameter<64> Path(settings, "Path", "recordings/");
 NumberParameter<float> FileTime(settings, "FileTime", 30.0, 1.0, 8640.0, "%.0f", "s");
-Configurable aisettings("Analog input");  // analog input sub menu
+Menu aisettings("Analog input");         // analog input sub menu
 NumberParameter<uint32_t> Rate(aisettings, "SamplingRate", 48000, 1, 1000000, "%.1f", "Hz", "kHz");
 
 

@@ -1,30 +1,30 @@
 /*
-  Configurable - A collection of Actions
+  Menu - A menu of actions and parameters
   Created by Jan Benda, July 8th, 2021.
 */
 
-#ifndef Configurable_h
-#define Configurable_h
+#ifndef Menu_h
+#define Menu_h
 
 
 #include <SD.h>
 #include <Action.h>
 
 
-class Configurable : public Action {
+class Menu : public Action {
 
  public:
 
   /* Initialize configuration section name and add it to default menu. */
-  Configurable(const char *name, int roles=AllRoles);
+  Menu(const char *name, int roles=AllRoles);
 
   /* Initialize configuration section name and add it to menu. */
-  Configurable(Configurable &menu, const char *name, int roles=AllRoles);
+  Menu(Menu &menu, const char *name, int roles=AllRoles);
 
-  /* Add an action to this Configurable. */
+  /* Add an action to this Menu. */
   void add(Action *action);
 
-  /* Move action that was already added to this Configurable to index. */
+  /* Move action that was already added to this Menu to index. */
   void move(const Action *action, size_t index);
 
   /* Return the Action matching name. */

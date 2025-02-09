@@ -1,4 +1,4 @@
 #include <Action.h>
 #include <Parameter.h>
-#include <Configurable.h>
+#include <Menu.h>
 #include <Configurator.h>

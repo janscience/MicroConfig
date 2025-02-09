@@ -1,9 +1,9 @@
 #include <SDWriter.h>
-#include <Configurable.h>
+#include <Menu.h>
 #include <Parameter.h>
 
 
-Parameter::Parameter(Configurable &menu, const char *name, size_t n) :
+Parameter::Parameter(Menu &menu, const char *name, size_t n) :
   Action(menu, name, SetValue | AllRoles),
   NSelection(n) {
   TypeStr[0] = '\0';
@@ -179,13 +179,13 @@ float Parameter::changeUnit(float val, const char *oldunit,
 }
 
 
-BaseStringParameter::BaseStringParameter(Configurable &menu, const char *name) :
+BaseStringParameter::BaseStringParameter(Menu &menu, const char *name) :
   Parameter(menu, name),
   Selection(0) {
 }
 
 
-BaseStringParameter::BaseStringParameter(Configurable &menu,
+BaseStringParameter::BaseStringParameter(Menu &menu,
 					 const char *name,
 					 const char **selection,
 					 size_t n) :
@@ -220,13 +220,13 @@ const char *BaseStringParameter::YesNoStrings[2] = {"no", "yes"};
 const bool BaseStringParameter::BoolEnums[2] = {false, true};
 
 
-BoolParameter::BoolParameter(Configurable &menu, const char *name, bool val) :
+BoolParameter::BoolParameter(Menu &menu, const char *name, bool val) :
   EnumParameter<bool>(menu, name, val, BoolEnums, YesNoStrings, 2) {
   strcpy(TypeStr, "boolean");
 }
 
 
-BoolPointerParameter::BoolPointerParameter(Configurable &menu,
+BoolPointerParameter::BoolPointerParameter(Menu &menu,
 					   const char *name, bool *val) :
   EnumPointerParameter<bool>(menu, name, val, BoolEnums, YesNoStrings, 2) {
   strcpy(TypeStr, "boolean");
