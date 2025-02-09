@@ -9,6 +9,7 @@ StringParameter<64> Path(settings, "Path", "recordings/");
 NumberParameter<float> FileTime(settings, "FileTime", 30.0, 1.0, 8640.0, "%.0f", "s");
 Menu aisettings("Analog input");         // analog input sub menu
 NumberParameter<uint32_t> Rate(aisettings, "SamplingRate", 48000, 1, 1000000, "%.1f", "Hz", "kHz");
+HelpAction help_act(config, "Help");
 
 
 void setup() {
