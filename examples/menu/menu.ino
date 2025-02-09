@@ -1,7 +1,7 @@
 #include <SD.h>
 #include <MicroConfig.h>
 
-#define CFG_FILE "micro.cfg"              // name of configuration file
+#define CFG_FILE "micro.cfg"              // name of configuration file5
 
 Configurator config;                      // main menu
 Menu settings("Settings");                // settings menu

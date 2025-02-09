@@ -13,8 +13,8 @@ void printMicroConfigBanner(const char *software, Stream &stream) {
   stream.println();
   if (software == NULL)
     software = MICROCONFIG_SOFTWARE;
-  if (strlen(software) > 6 && strncmp(software, "MicroConfig", 6) == 0)
-    software = software + 7;
+  if (strlen(software) > 11 && strncmp(software, "MicroConfig", 11) == 0)
+    software = software + 12;
   stream.print(software);
   stream.println(" by Benda-Lab");
   stream.println("--------------------------------------------------------");
