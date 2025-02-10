@@ -2,8 +2,11 @@
 #include <Menu.h>
 
 
-void reboot_board() {
-#if defined(TEENSY4)
+void reboot_board(Stream &stream) {
+  stream.println();
+  stream.println("REBOOT NOW!");
+  delay(10);
+#if defined(__IMXRT1062__) // Teensy 4.0/4.1
   SCB_AIRCR = 0x05FA0004;
 #else
   // from https://github.com/joepasquariello/FlasherX :
@@ -319,7 +322,7 @@ void Menu::execute(Stream &stream, unsigned long timeout,
 	continue;
       }
       if (strcmp(pval, "reboot") == 0)
-	reboot_board();
+	reboot_board(stream);
       else if (strcmp(pval, "detailed on") == 0)
 	detailed = true;
       else if (strcmp(pval, "detailed off") == 0)
