@@ -13,7 +13,7 @@ Configurator::Configurator(const char *name) :
   Menu(name),
   Config(this) {
   MainConfig = this;
-  strncpy(ConfigFile, "teerec.cfg", MaxFile);
+  strncpy(ConfigFile, "micro.cfg", MaxFile);
   ConfigFile[MaxFile-1] = '\0';
   disableSupported(StreamOutput);
   disableSupported(FileIO);

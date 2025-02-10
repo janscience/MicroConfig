@@ -152,7 +152,7 @@ Settings:
   Select [1]:
 ```
 
-To change "FileTime" enter `2`:
+To change the value of "FileTime" enter `2`:
 
 ```txt
 FileTime        : 30s
@@ -171,7 +171,7 @@ Settings:
 The `[2]` in square brackets indicates the default input when you just
 hit enter. It is set to the menu entry that you entered previously.
 
-`q` brings you up one level, that is back to the main menu. There
+`q` brings you up one level, that is back to the main menu. There,
 enter `3` to enter the configuration menu:
 
 ```txt
