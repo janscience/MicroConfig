@@ -1,5 +1,5 @@
 /*
-  Action - base class for configurable menu entries.
+  Action - base class for executable or configurable menu entries.
   Created by Jan Benda, November 7, 2023.
 */
 
