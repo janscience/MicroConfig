@@ -17,10 +17,13 @@ class Menu : public Action {
 
  public:
 
-  /* Initialize configuration section name and add it to default menu. */
+  /* Initialize top level menu with name "Menu". */
+  Menu();
+
+  /* Initialize top level menu with name and roles. */
   Menu(const char *name, int roles=AllRoles);
 
-  /* Initialize configuration section name and add it to menu. */
+  /* Initialize menu with name and roles and add it to menu. */
   Menu(Menu &menu, const char *name, int roles=AllRoles);
 
   /* Add an action to this Menu. */
@@ -38,6 +41,12 @@ class Menu : public Action {
   /* Disable the roles of the action matching name. */
   void disable(const char *name, int roles=AllRoles);
 
+  /* Name of the configuration file or NULL if not set. */
+  const char *configFile() const;
+
+  /* Set name of the configuration file (only a pointer to fname is stored). */
+  void setConfigFile(const char *fname);
+
   /* Report name on stream. If descend, also display name and values
      of children. */
   virtual void report(Stream &stream=Serial, size_t indent=0,
@@ -48,11 +57,11 @@ class Menu : public Action {
 
   /* Save current setting to configuration file on SD card.
      Return true on success. */
-  bool save(SDClass &sd, const char *filename) const;
+  bool save(SDClass &sd) const;
 
   /* Read configuration file from SD card and configure all actions
      accordingly. */
-  void load(SDClass &sd, const char *filename);
+  void load(SDClass &sd);
   
   /* Interactive menu via serial stream.
      Returns from initial menu after timeout milliseconds.
@@ -71,6 +80,7 @@ protected:
   static const size_t MaxActions = 32;
   size_t NActions;
   Action *Actions[MaxActions];
+  const char *ConfigFile;
 
 };
 

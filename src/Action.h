@@ -13,7 +13,6 @@
 class File;
 class SDClass;
 class Menu;
-class Configurator;
 
 
 class Action {
@@ -51,13 +50,19 @@ class Action {
   void setName(const char *name);
 
   /* The parent menu of this action. */
-  Menu *parent() const { return Parent; };
+  const Menu *parent() const { return Parent; };
+
+  /* The parent menu of this action. */
+  Menu *parent() { return Parent; };
 
   /* Set the parent of this action. */
   void setParent(Menu *parent) { Parent = parent; };
 
   /* The root menu of this action. */
-  Configurator *root();
+  const Menu *root() const;
+
+  /* The root menu of this action. */
+  Menu *root();
 
   /* Return this Action if name matches its name. */
   virtual Action *action(const char *name);

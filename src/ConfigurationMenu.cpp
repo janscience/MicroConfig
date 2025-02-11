@@ -1,4 +1,3 @@
-#include <Configurator.h>
 #include <ConfigurationMenu.h>
 
 
@@ -11,11 +10,6 @@ void ReportConfigAction::execute(Stream &stream, unsigned long timeout,
 				 bool echo, bool detailed) {
   root()->report(stream);
   stream.println();
-}
-
-
-SDClassAction::SDClassAction(const char *name, SDClass &sd) :
-  SDClassAction(*Configurator::MainConfig->Config, name, sd) {
 }
 
 
@@ -82,8 +76,8 @@ void RemoveConfigAction::execute(Stream &stream, unsigned long timeout,
 }
 
 
-ConfigurationMenu::ConfigurationMenu(SDClass &sd) :
-  Menu("Configuration", Action::StreamInput),
+ConfigurationMenu::ConfigurationMenu(Menu &menu, SDClass &sd) :
+  Menu(menu, "Configuration", Action::StreamInput),
   ReportAct(*this, "Print configuration"),
   SaveAct(*this,"Save configuration", sd),
   LoadAct(*this, "Load configuration", sd),

@@ -3,9 +3,9 @@
 
 #define CFG_FILE "micro.cfg"               // name of configuration file
 
-Configurator config;                       // main menu
+Menu config;                               // main menu
 
-Menu settings("Settings");                 // settings menu
+Menu settings(config, "Settings");         // settings menu
 StringParameter<64> Path(                     // string parameter with max 64 characters
 		                     settings,            // add it to settings menu
                          "Path",              // name
@@ -19,7 +19,7 @@ NumberParameter<float> FileTime(              // float parameter
                                 "%.0f",       // format string
                                 "s");         // unit of the value
 
-Menu aisettings("Analog input");           // analog input menu
+Menu aisettings(config, "Analog input");    // analog input menu
 NumberParameter<uint32_t> Rate(               // unit32_t parameter
                                aisettings,    // add it to aisettings menu
 			                         "SamplingRate",// name 
@@ -30,8 +30,8 @@ NumberParameter<uint32_t> Rate(               // unit32_t parameter
 			                         "Hz",          // unit of the internal value
 			                         "kHz");        // use this unit in user interactions
 			       
-ConfigurationMenu configuration_menu(SD);  // interactively report, save, load and remove configuration file
-FirmwareMenu firmware_menu(SD);            // menu for uploading hex files from SD card
+ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
+FirmwareMenu firmware_menu(config, SD);    // menu for uploading hex files from SD card
 HelpAction help_act(config, "Help");       // action showing how to use the menu
 
 

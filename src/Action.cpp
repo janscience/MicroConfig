@@ -1,6 +1,5 @@
 #include <SD.h>
 #include <Menu.h>
-#include <Configurator.h>
 #include <Action.h>
 
 
@@ -49,11 +48,19 @@ void Action::setName(const char *name) {
 }
 
 
-Configurator *Action::root() {
+const Menu *Action::root() const {
+  const Action *act = this;
+  while (act->parent() != NULL)
+    act = act->parent();
+  return static_cast<const Menu*>(act);
+}
+
+
+Menu *Action::root() {
   Action *act = this;
   while (act->parent() != NULL)
     act = act->parent();
-  return static_cast<Configurator*>(act);
+  return static_cast<Menu*>(act);
 }
 
 

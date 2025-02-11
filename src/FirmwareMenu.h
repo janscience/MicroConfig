@@ -40,7 +40,7 @@ class FirmwareMenu : public Menu {
 
 public:
 
-  FirmwareMenu(SDClass &sdcard);
+  FirmwareMenu(Menu &menu, SDClass &sdcard);
 
 protected:
 

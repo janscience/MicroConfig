@@ -16,9 +16,6 @@ class ReportConfigAction : public Action {
 
  public:
 
-  /* Initialize and add to default menu. */
-  ReportConfigAction(const char *name);
-
   /* Initialize and add to menu. */
   ReportConfigAction(Menu &menu, const char *name);
 
@@ -31,9 +28,6 @@ class ReportConfigAction : public Action {
 class SDClassAction : public Action {
 
  public:
-
-  /* Initialize and add to default menu. */
-  SDClassAction(const char *name, SDClass &sd);
 
   /* Initialize and add to menu. */
   SDClassAction(Menu &menu, const char *name, SDClass &sd);
@@ -84,7 +78,7 @@ class ConfigurationMenu : public Menu {
 
 public:
 
-  ConfigurationMenu(SDClass &sd);
+  ConfigurationMenu(Menu &menu, SDClass &sd);
 
 protected:
 

@@ -20,8 +20,8 @@ void UpdateFirmwareAction::execute(Stream &stream, unsigned long timeout,
 }
 
 
-FirmwareMenu::FirmwareMenu(SDClass &sdcard) :
-  Menu("Firmware", Action::StreamInput),
+FirmwareMenu::FirmwareMenu(Menu &menu, SDClass &sdcard) :
+  Menu(menu, "Firmware", Action::StreamInput),
   ListAct(*this, "List available updates", sdcard),
   UpdateAct(*this, "Update firmware", sdcard) {
 }

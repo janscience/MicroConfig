@@ -1,5 +1,4 @@
 #include <SD.h>
-#include <Configurator.h>
 #include <Menu.h>
 
 
@@ -19,17 +18,24 @@ void reboot_board(Stream &stream) {
 }
 
 
+Menu::Menu() :
+  Menu("Menu") {
+}
+
+
 Menu::Menu(const char *name, int roles) :
   Action(name, roles),
-  NActions(0) {
-  if (Configurator::MainConfig != NULL)
-    Configurator::MainConfig->Config->add(this);
+  NActions(0),
+  ConfigFile(NULL) {
+  disableSupported(StreamOutput);
+  disableSupported(FileIO);
 }
 
 
 Menu::Menu(Menu &menu, const char *name, int roles) :
   Action(menu, name, roles),
-  NActions(0) {
+  NActions(0),
+  ConfigFile(NULL) {
 }
 
 
@@ -115,6 +121,18 @@ void Menu::disable(const char *name, int roles) {
 }
 
 
+const char *Menu::configFile() const {
+  if (ConfigFile == NULL)
+    return root()->configFile();
+  return ConfigFile;
+}
+
+
+void Menu::setConfigFile(const char *fname) {
+  ConfigFile = fname;
+}
+
+
 void Menu::report(Stream &stream, size_t indent,
 		  size_t w, bool descend) const {
   if (disabled(StreamIO))
@@ -158,11 +176,15 @@ void Menu::save(File &file, size_t indent, size_t w) const {
 }
 
 
-bool Menu::save(SDClass &sd, const char *filename) const {
-  File file = sd.open(filename, FILE_WRITE_BEGIN);
+bool Menu::save(SDClass &sd) const {
+  if (configFile() == NULL) {
+    Serial.println("ERROR! No configuration file name specified.");
+    return false;
+  }
+  File file = sd.open(configFile(), FILE_WRITE_BEGIN);
   if (!file) {
     Serial.printf("ERROR! Configuration file \"%s\" cannot be written to SD card.\n",
-		  filename);
+		  configFile());
     Serial.println("       SD not inserted or SD card full.");
     return false;
   }
@@ -172,18 +194,22 @@ bool Menu::save(SDClass &sd, const char *filename) const {
 }
 
 
-void Menu::load(SDClass &sd, const char *filename) {
+void Menu::load(SDClass &sd) {
+  if (configFile() == NULL) {
+    Serial.println("ERROR! No configuration file name specified.");
+    return;
+  }
   Action *act = NULL;
   const size_t nline = 128;
   char line[nline];
   char sections[nline];
-  File file = sd.open(filename, FILE_READ);
+  File file = sd.open(configFile(), FILE_READ);
   if (!file || file.available() < 10) {
     Serial.printf("Configuration file \"%s\" not found or empty.\n\n",
-		  filename);
+		  configFile());
     return;
   }
-  Serial.printf("Read configuration file \"%s\" ...\n", filename);
+  Serial.printf("Read configuration file \"%s\" ...\n", configFile());
   sections[0] = '\0';
   int indent = 0;
   int previndent = -1;

@@ -14,9 +14,6 @@ class HelpAction : public Action {
 
  public:
 
-  /* Initialize and add to default menu. */
-  HelpAction(const char *name);
-
   /* Initialize and add to menu. */
   HelpAction(Menu &menu, const char *name);
 

@@ -1,11 +1,6 @@
 #include <HelpAction.h>
 
 
-HelpAction::HelpAction(const char *name) :
-  HelpAction(*Configurator::MainConfig->Config, name) {
-}
-
-
 HelpAction::HelpAction(Menu &menu, const char *name) :
   Action(menu, name, StreamInput) {
 }

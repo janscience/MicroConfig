@@ -45,7 +45,7 @@ file on the SD card:
 #include <SD.h>
 #include <MicroConfig.h>
 
-Configurator config;
+Menu config;
 ```
 
 Next we add a menu with name "Settings" to the main menu.  This menu
@@ -58,12 +58,12 @@ properties of the parameters. In particular, numerical types take
 minimum and maximum values, a format string, and a unit:
 
 ```c
-Menu settings("Settings");                 // settings menu
-StringParameter<64> Path(                     // string parameter with max 64 characters
+Menu settings(config, "Settings");          // settings menu
+StringParameter<64> Path(                   // string parameter with max 64 characters
 		         settings,            // add it to settings menu
                          "Path",              // name
                          "recordings/");      // value
-NumberParameter<float> FileTime(              // float parameter
+NumberParameter<float> FileTime(            // float parameter
                                 settings,     // add it to settings menu
                                 "FileTime",   // name
                                 30.0,         // value
@@ -80,8 +80,8 @@ this parameter also in other units, like for example, "mHz", "MHz" or
 "GHz". All these inputs are then converted to "Hz".
 
 ```c
-Menu aisettings("Analog input");           // analog input menu
-NumberParameter<uint32_t> Rate(               // unit32_t parameter
+Menu aisettings(config, "Analog input");    // analog input menu
+NumberParameter<uint32_t> Rate(             // unit32_t parameter
                                aisettings,    // add it to aisettings menu
 			       "SamplingRate",// name 
 			       48000,         // value (in Hz)
@@ -240,7 +240,6 @@ Nice and easy, isn't it?
 - [Action](src/Action.h): Base class for executable or configurable menu entries.
 - [Parameter](src/Parameter.h): Actions with configurable name-value pairs of various types.
 - [Menu](src/Menu.h): A menu of actions and parameters.
-- [Configurator](src/Configuration.h): Configure menus from a configuration file.
 
 ### Help and configuration menu
 
