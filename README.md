@@ -22,14 +22,14 @@ C++ code.
 
 ## ToDo
 
-[ ] Make the [serialmonitor.py](utils/serialmonitor.py) and the
-    general aspects of the [logger configuration
-    GUI](https://github.com/janscience/TeeGrid/blob/main/utils/loggerconf.py)
-    a proper python package.
-[ ] In unit conversion do not only check the prefix but also the unit itself.
-[ ] Support transfer of configuration to another micro controller via
-    a serial stream.
-[ ] Store and retrieve configuration to EEPROM in a compact way.
+- [ ] Make the [serialmonitor.py](utils/serialmonitor.py) and the
+      general aspects of the [logger configuration
+      GUI](https://github.com/janscience/TeeGrid/blob/main/utils/loggerconf.py)
+      a proper python package.
+- [ ] In unit conversion do not only check the prefix but also the unit itself.
+- [ ] Support transfer of configuration to another micro controller via
+      a serial stream.
+- [ ] Store and retrieve configuration to EEPROM in a compact way.
 
 
 ## Usage
