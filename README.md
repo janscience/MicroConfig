@@ -103,7 +103,6 @@ HelpAction help_act(config, "Help");       // action showing how to use the menu
 ```
 
 The main code initializes the Serial stream and the builtin SD card,
-tells the main menu the name of the configuration file to be used,
 loads the configuration file from SD card (if available), and executes
 the main menu.
 
