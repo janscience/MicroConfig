@@ -28,7 +28,7 @@ void SaveConfigAction::execute(Stream &stream, unsigned long timeout,
     save = Action::yesno("Do you want to overwrite the configuration file?",
 			 true, echo, stream);
   }
-  if (save && root()->save(SDC))
+  if (save && root()->save(stream, &SDC))
     stream.printf("Saved configuration to file \"%s\" on SD card.\n",
 		  root()->configFile());
   stream.println();
@@ -49,7 +49,7 @@ void LoadConfigAction::execute(Stream &stream, unsigned long timeout,
 			 true, echo, stream);
   stream.println();
   if (r)
-    root()->load(SDC);
+    root()->load(stream, &SDC);
 }
 
 

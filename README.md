@@ -38,14 +38,15 @@ The following example code is essentially the [menu](examples/menu/menu.ino)
 example.
 
 First, include the `M̀icroConfig.h` header and define the main menu
-`config`.  Also include `SD.h` needed for handling the configuration
-file on the SD card:
+`config` with configuration file "micro.cfg" on default SD card.  Also
+include `SD.h` needed for handling the configuration file on the SD
+card:
 
 ```c
 #include <SD.h>
 #include <MicroConfig.h>
 
-Menu config;
+Menu config("micro.cfg", &SD);
 ```
 
 Next we add a menu with name "Settings" to the main menu.  This menu
@@ -96,8 +97,8 @@ Finally, let's add the predefined menus for handling the configuration
 file, firmware updates, and printing a help message:
 
 ```c
-ConfigurationMenu configuration_menu(SD);  // interactively report, save, load and remove configuration file
-FirmwareMenu firmware_menu(SD);            // menu for uploading hex files from SD card
+ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
+FirmwareMenu firmware_menu(config, SD);            // menu for uploading hex files from SD card
 HelpAction help_act(config, "Help");       // action showing how to use the menu
 ```
 
@@ -112,8 +113,7 @@ void setup() {
   while (!Serial && millis() < 2000) {};
   printMicroConfigBanner();                // print a nice banner
   SD.begin(BUILTIN_SDCARD);                // initialize SD card
-  config.setConfigFile("micro.cfg");       // use "micro.cfg" as configuration file 
-  config.load(SD);                         // load configuration file from SD card
+  config.load();                           // load configuration file from SD card
   if (Serial)
     config.execute(Serial, 10000);         // execute the main menu, 10s timeout
   config.report();                         // report the parameter settings

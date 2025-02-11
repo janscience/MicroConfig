@@ -18,15 +18,17 @@ void reboot_board(Stream &stream) {
 }
 
 
-Menu::Menu() :
-  Menu("Menu") {
+Menu::Menu(const char *fname, SDClass *sd) :
+  Menu("Menu", AllRoles) {
+  setConfigFile(fname, sd);
 }
 
 
 Menu::Menu(const char *name, int roles) :
   Action(name, roles),
   NActions(0),
-  ConfigFile(NULL) {
+  ConfigFile(NULL),
+  SDC(NULL) {
   disableSupported(StreamOutput);
   disableSupported(FileIO);
 }
@@ -128,8 +130,9 @@ const char *Menu::configFile() const {
 }
 
 
-void Menu::setConfigFile(const char *fname) {
+void Menu::setConfigFile(const char *fname, SDClass *sd) {
   ConfigFile = fname;
+  SDC = sd;
 }
 
 
@@ -176,16 +179,22 @@ void Menu::save(File &file, size_t indent, size_t w) const {
 }
 
 
-bool Menu::save(SDClass &sd) const {
-  if (configFile() == NULL) {
-    Serial.println("ERROR! No configuration file name specified.");
+bool Menu::save(Stream &stream, SDClass *sd) const {
+  if (sd == NULL)
+    sd = SDC;
+  if (sd == NULL) {
+    stream.println("ERROR! No SD card for saving configuration file specified.");
     return false;
   }
-  File file = sd.open(configFile(), FILE_WRITE_BEGIN);
+  if (configFile() == NULL) {
+    stream.println("ERROR! No configuration file name specified.");
+    return false;
+  }
+  File file = sd->open(configFile(), FILE_WRITE_BEGIN);
   if (!file) {
-    Serial.printf("ERROR! Configuration file \"%s\" cannot be written to SD card.\n",
+    stream.printf("ERROR! Configuration file \"%s\" cannot be written to SD card.\n",
 		  configFile());
-    Serial.println("       SD not inserted or SD card full.");
+    stream.println("       SD not inserted or SD card full.");
     return false;
   }
   save(file);
@@ -194,22 +203,28 @@ bool Menu::save(SDClass &sd) const {
 }
 
 
-void Menu::load(SDClass &sd) {
+void Menu::load(Stream &stream, SDClass *sd) {
+  if (sd == NULL)
+    sd = SDC;
+  if (sd == NULL) {
+    stream.println("ERROR! No SD card for saving configuration file specified.");
+    return;
+  }
   if (configFile() == NULL) {
-    Serial.println("ERROR! No configuration file name specified.");
+    stream.println("ERROR! No configuration file name specified.");
     return;
   }
   Action *act = NULL;
   const size_t nline = 128;
   char line[nline];
   char sections[nline];
-  File file = sd.open(configFile(), FILE_READ);
+  File file = sd->open(configFile(), FILE_READ);
   if (!file || file.available() < 10) {
-    Serial.printf("Configuration file \"%s\" not found or empty.\n\n",
+    stream.printf("Configuration file \"%s\" not found or empty.\n\n",
 		  configFile());
     return;
   }
-  Serial.printf("Read configuration file \"%s\" ...\n", configFile());
+  stream.printf("Read configuration file \"%s\" ...\n", configFile());
   sections[0] = '\0';
   int indent = 0;
   int previndent = -1;
@@ -286,7 +301,7 @@ void Menu::load(SDClass &sd) {
 	previndent = indent;
 	act = action(sections);
 	if (act == NULL)
-	  Serial.printf("  no configuration candidate for section \"%s\" found.\n", sections);
+	  stream.printf("  no configuration candidate for section \"%s\" found.\n", sections);
       }
       else if (act) {
 	for (int i=strlen(val)-1; i>=0; i--) {
@@ -295,12 +310,12 @@ void Menu::load(SDClass &sd) {
 	    break;
 	  }
 	}
-	act->set(val, key);
+	act->set(val, key, stream);
       }
     }
   }
   file.close();
-  Serial.println();
+  stream.println();
 }
 
 

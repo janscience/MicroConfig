@@ -17,8 +17,9 @@ class Menu : public Action {
 
  public:
 
-  /* Initialize top level menu with name "Menu". */
-  Menu();
+  /* Initialize top level menu with name "Menu",
+     name of configuration file fname on SD card sd. */
+  Menu(const char *fname, SDClass *sd=0);
 
   /* Initialize top level menu with name and roles. */
   Menu(const char *name, int roles=AllRoles);
@@ -44,8 +45,9 @@ class Menu : public Action {
   /* Name of the configuration file or NULL if not set. */
   const char *configFile() const;
 
-  /* Set name of the configuration file (only a pointer to fname is stored). */
-  void setConfigFile(const char *fname);
+  /* Set name of the configuration file (only a pointer to fname is stored)
+     and optional SD card on which to store the config file. */
+  void setConfigFile(const char *fname, SDClass *sd=0);
 
   /* Report name on stream. If descend, also display name and values
      of children. */
@@ -56,12 +58,16 @@ class Menu : public Action {
   virtual void save(File &file, size_t indent=0, size_t w=0) const;
 
   /* Save current setting to configuration file on SD card.
-     Return true on success. */
-  bool save(SDClass &sd) const;
+     Report errors and success on stream.
+     Return true on success.
+     If sd is NULL write to default SD card provided via setConfigFile(). */
+  bool save(Stream &stream=Serial, SDClass *sd=0) const;
 
   /* Read configuration file from SD card and configure all actions
-     accordingly. */
-  void load(SDClass &sd);
+     accordingly.
+     Report errors and success on stream.
+     If sd is NULL read from default SD card provided via setConfigFile(). */
+  void load(Stream &stream=Serial, SDClass *sd=0);
   
   /* Interactive menu via serial stream.
      Returns from initial menu after timeout milliseconds.
@@ -81,7 +87,8 @@ protected:
   size_t NActions;
   Action *Actions[MaxActions];
   const char *ConfigFile;
-
+  SDClass *SDC;
+  
 };
 
 

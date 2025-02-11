@@ -1,9 +1,7 @@
 #include <SD.h>
 #include <MicroConfig.h>
 
-#define CFG_FILE "micro.cfg"               // name of configuration file
-
-Menu config;                               // main menu
+Menu config("micro.cfg", &SD);             // main menu with configuration file on SD card
 
 Menu settings(config, "Settings");         // settings menu
 StringParameter<64> Path(                     // string parameter with max 64 characters
@@ -40,8 +38,7 @@ void setup() {
   while (!Serial && millis() < 2000) {};
   printMicroConfigBanner();
   SD.begin(BUILTIN_SDCARD);
-  config.setConfigFile(CFG_FILE);
-  config.load(SD);
+  config.load();
   if (Serial)
     config.execute(Serial, 10000);
   config.report();
