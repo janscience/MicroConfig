@@ -10,6 +10,9 @@
 #include <Menu.h>
 
 
+class SDClass;
+
+
 class Configurator : public Menu {
 
  public:

@@ -1,3 +1,4 @@
+#include <SD.h>
 #include <Configurator.h>
 
 

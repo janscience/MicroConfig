@@ -1,3 +1,4 @@
+#include <SD.h>
 #include <Menu.h>
 #include <Configurator.h>
 #include <Action.h>

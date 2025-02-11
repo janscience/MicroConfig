@@ -8,9 +8,10 @@
 
 
 #include <Arduino.h>
-#include <SD.h>
 
 
+class File;
+class SDClass;
 class Menu;
 class Configurator;
 

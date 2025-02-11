@@ -7,8 +7,10 @@
 #define Menu_h
 
 
-#include <SD.h>
 #include <Action.h>
+
+
+class SDClass;
 
 
 class Menu : public Action {
