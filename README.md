@@ -20,14 +20,26 @@ C++ code.
 - Predefined menu for uploading firmware.
 
 
+## ToDo
+
+[ ] Make the [serialmonitor.py](utils/serialmonitor.py) and the
+    general aspects of the [logger configuration
+    GUI](https://github.com/janscience/TeeGrid/blob/main/utils/loggerconf.py)
+    a proper python package.
+[ ] In unit conversion do not only check the prefix but also the unit itself.
+[ ] Support transfer of configuration to another micro controller via
+    a serial stream.
+[ ] Store and retrieve configuration to EEPROM in a compact way.
+
+
 ## Usage
 
-The following example code is essentially the [menu](examples/menu)
+The following example code is essentially the [menu](examples/menu/menu.ino)
 example.
 
 First, include the `M̀icroConfig.h` header and define the main menu
-`config`.  Also include the `SD.h` needed for handling the
-configuration file on the SD card.
+`config`.  Also include `SD.h` needed for handling the configuration
+file on the SD card:
 
 ```c
 #include <SD.h>
@@ -36,16 +48,14 @@ configuration file on the SD card.
 Configurator config;
 ```
 
-Add a menu with name "Settings" to the main menu.  This menu gets two
-paraemters, one a string type defining the path on the SD card where
-to store recording files, and one floating point number defining the
-duration of a recording. All parameters take as first arguments the
-menu where they are added to, their name, and their value in the
-respective type. Further arguments provide additional properties of
-the paraemters. In particular, numerical type take minimum and maximum
-values, a format string, and a unit. The user may specify this
-parameter also in other time units, like "min" or "h". The entered
-value is then converted to "s".
+Next we add a menu with name "Settings" to the main menu.  This menu
+gets two parameters, one a string type defining a path on the SD
+card where to store recording files, and one a floating point number
+defining the duration of a recording. All parameters take as first
+arguments the menu where they are added to, their name, and their
+value in the respective type. Further arguments provide additional
+properties of the parameters. In particular, numerical types take
+minimum and maximum values, a format string, and a unit:
 
 ```c
 Menu settings("Settings");                 // settings menu
@@ -63,7 +73,7 @@ NumberParameter<float> FileTime(              // float parameter
                                 "s");         // unit of the value
 ```
 
-Add another menu with name "Analog input". This menu gets an integer
+We add another menu with name "Analog input". This menu gets an integer
 type parameter that internally stores its values in "Hz", but uses
 "kHz" when interacting with the user. The user may enter values to
 this parameter also in other units, like for example, "mHz", "MHz" or
@@ -91,7 +101,10 @@ FirmwareMenu firmware_menu(SD);            // menu for uploading hex files from 
 HelpAction help_act(config, "Help");       // action showing how to use the menu
 ```
 
-The main code initializes the Serial stream and the builtin SD card, tells the main menu the name of the configuration file to be used, loads the configuration file from SD card (if available), and executes the main menu.
+The main code initializes the Serial stream and the builtin SD card,
+tells the main menu the name of the configuration file to be used,
+loads the configuration file from SD card (if available), and executes
+the main menu.
 
 ```c
 void setup() {
@@ -111,9 +124,6 @@ void loop() {
 }
 
 ```
-
-If there is no user input over the serial stream for more than 10s,
-then the menu is aborted and the program continues.
 
 Compile and upload this sketch. Then watch the output with the serial
 monitor of the Arduino IDE or with the provided
@@ -142,8 +152,13 @@ Menu:
   Select: 
 ```
 
-Nice banner, right? And a nicely formatted menu. `...` indicate submenus.
-Type in `1` followed by return to enter the "Settings" menu:
+Nice banner, right? And a nicely formatted menu. `...` indicates a submenu.
+
+If there is no user input over the serial stream for more than 10s,
+then the menu is aborted and the program continues.
+
+So, type in `1` followed by return quickly enough to enter the
+"Settings" menu:
 
 ```txt
 Settings:
@@ -159,7 +174,11 @@ FileTime        : 30s
 Enter new value  (between 1s and 8640s): 
 ```
 
-Enter a new value, for example `5min`, and the menu reports `300s`:
+Numerical parameter support unit conversion, the user may specify a
+new value in a different unit. Here, the time can be also specified in
+"min" or "h", for example. The entered value is then converted to
+"s". Without specifying a unit, the default "s" is assumed.  We enter
+`5min`, and the menu correctly reports `300s`:
 
 ```txt
 Settings:
@@ -193,12 +212,12 @@ Analog input:
   SamplingRate: 48.0kHz
 ```
 
-`2` saves the current configuration to the SD card. The content looks
-exactly like the one we just have printed. This output is compatible
-with YAML files, if you care. But more importantly, this output format
-is well readable by humans, and can be easily edited in any text
-editor. If there is already a configuration file, you get a
-confirmation message like this:
+`2` saves the current configuration to the SD card. The content of the
+configuration file looks exactly like the one we just have
+printed. This output is compatible with YAML files, if you care. But
+more importantly, this output format is well readable by humans, and
+can be easily edited in any text editor. If there is already a
+configuration file, you get a confirmation message like this:
 
 ```txt
 Configuration file "micro.cfg" already exists on SD card.
