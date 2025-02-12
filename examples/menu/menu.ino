@@ -27,7 +27,7 @@ NumberParameter<uint32_t> Rate(               // unit32_t parameter
 			                         "%.1f",        // format string (for kHz)
 			                         "Hz",          // unit of the internal value
 			                         "kHz");        // use this unit in user interactions
-			       
+
 ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
 FirmwareMenu firmware_menu(config, SD);    // menu for uploading hex files from SD card
 HelpAction help_act(config, "Help");       // action showing how to use the menu
@@ -48,4 +48,3 @@ void setup() {
 void loop() {
   delay(100);
 }
-

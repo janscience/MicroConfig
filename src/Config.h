@@ -17,9 +17,12 @@ class Config : public Menu {
 
  public:
 
+  /* Initialize top level menu with name "Menu". */
+  Config();
+
   /* Initialize top level menu with name "Menu" and
      name of configuration file fname on SD card sd. */
-  Config(const char *fname, SDClass *sd=0);
+  Config(const char *fname, SDClass *sd);
 
   /* Initialize top level menu with name and roles. */
   Config(const char *name, int roles=AllRoles);

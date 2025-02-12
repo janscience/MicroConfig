@@ -2,8 +2,13 @@
 #include <Config.h>
 
 
-Config::Config(const char *fname, SDClass *sd) :
+Config::Config() :
   Menu("Menu", AllRoles) {
+}
+
+
+Config::Config(const char *fname, SDClass *sd) :
+  Config() {
   setConfigFile(fname, sd);
 }
 

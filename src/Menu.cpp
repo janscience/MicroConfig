@@ -197,6 +197,7 @@ void Menu::execute(Stream &stream, unsigned long timeout,
       elapsedMillis time = 0;
       while ((stream.available() == 0) && (timeout == 0 || time < timeout)) {
 	yield();
+	delay(1);
       }
       if (stream.available() == 0) {
 	// timeout:

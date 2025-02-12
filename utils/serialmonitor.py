@@ -101,6 +101,7 @@ def read_teensy(device, key_input):
                     sys.stdout.write(b'\n')
                 else:
                     sys.stdout.write(x.decode('latin1'))
+                sys.stdout.flush()
             sleep(0.01)
         except (OSError, serial.serialutil.SerialException):
             print()
