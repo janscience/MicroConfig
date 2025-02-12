@@ -10,6 +10,7 @@
 #include <Action.h>
 #include <Parameter.h>
 #include <Menu.h>
+#include <Config.h>
 
 #include <HelpAction.h>
 #include <ConfigurationMenu.h>

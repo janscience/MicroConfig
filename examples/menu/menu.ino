@@ -1,7 +1,7 @@
 #include <SD.h>
 #include <MicroConfig.h>
 
-Menu config("micro.cfg", &SD);             // main menu with configuration file on SD card
+Config config("micro.cfg", &SD);           // main menu with configuration file on SD card
 
 Menu settings(config, "Settings");         // settings menu
 StringParameter<64> Path(                     // string parameter with max 64 characters

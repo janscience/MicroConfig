@@ -17,10 +17,6 @@ class Menu : public Action {
 
  public:
 
-  /* Initialize top level menu with name "Menu",
-     name of configuration file fname on SD card sd. */
-  Menu(const char *fname, SDClass *sd=0);
-
   /* Initialize top level menu with name and roles. */
   Menu(const char *name, int roles=AllRoles);
 
@@ -42,12 +38,11 @@ class Menu : public Action {
   /* Disable the roles of the action matching name. */
   void disable(const char *name, int roles=AllRoles);
 
-  /* Name of the configuration file or NULL if not set. */
-  const char *configFile() const;
-
-  /* Set name of the configuration file (only a pointer to fname is stored)
-     and optional SD card on which to store the config file. */
-  void setConfigFile(const char *fname, SDClass *sd=0);
+  /* Name of the configuration file.
+     For the Menu class this simply returns NULL,
+     because it does not own a configuration file name.
+     See the Config class for a menu with configuration file. */
+  virtual const char *configFile() const;
 
   /* Report name on stream. If descend, also display name and values
      of children. */
@@ -58,16 +53,15 @@ class Menu : public Action {
   virtual void save(File &file, size_t indent=0, size_t w=0) const;
 
   /* Save current setting to configuration file on SD card.
-     Report errors and success on stream.
-     Return true on success.
-     If sd is NULL write to default SD card provided via setConfigFile(). */
-  bool save(Stream &stream=Serial, SDClass *sd=0) const;
+     The Config class implements this, for the Menu class it simply returns false,
+     because it does not own a configuration file name. */
+  virtual bool save(Stream &stream=Serial, SDClass *sd=0) const;
 
   /* Read configuration file from SD card and configure all actions
      accordingly.
-     Report errors and success on stream.
-     If sd is NULL read from default SD card provided via setConfigFile(). */
-  void load(Stream &stream=Serial, SDClass *sd=0);
+     The Config class implements this, for the Menu class it does nothing,
+     because it does not own a configuration file name. */
+  virtual void load(Stream &stream=Serial, SDClass *sd=0);
   
   /* Interactive menu via serial stream.
      Returns from initial menu after timeout milliseconds.
@@ -86,8 +80,6 @@ protected:
   static const size_t MaxActions = 32;
   size_t NActions;
   Action *Actions[MaxActions];
-  const char *ConfigFile;
-  SDClass *SDC;
   
 };
 

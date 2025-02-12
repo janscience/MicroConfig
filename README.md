@@ -239,6 +239,7 @@ Nice and easy, isn't it?
 - [Action](src/Action.h): Base class for executable or configurable menu entries.
 - [Parameter](src/Parameter.h): Actions with configurable name-value pairs of various types.
 - [Menu](src/Menu.h): A menu of actions and parameters.
+- [Config](src/Config.h): Menu with configuration file.
 
 ### Help and configuration menu
 
