@@ -14,8 +14,6 @@ Config::Config(const char *name, int roles) :
 
 
 const char *Config::configFile() const {
-  if (ConfigFile == NULL)
-    return root()->configFile();
   return ConfigFile;
 }
 
