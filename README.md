@@ -17,7 +17,7 @@ C++ code.
 - Numerical types with units and unit conversion.
 - Object-oriented and templated interface.
 - Predefined menu for reporting, saving, loading and erasing configuration file.
-- Predefined menu for uploading firmware.
+- Predefined menu for uploading firmware based on [FlasherX](https://github.com/joepasquariello/FlasherX).
 
 
 ## ToDo
@@ -104,7 +104,8 @@ HelpAction help_act(config, "Help");       // action showing how to use the menu
 
 The main code initializes the Serial stream and the builtin SD card,
 loads the configuration file from SD card (if available), and executes
-the main menu.
+the main menu. In the end of setup() we retrieve the values from the
+configuration menu. Note the respective formatting types. 
 
 ```c
 void setup() {
@@ -116,6 +117,11 @@ void setup() {
   if (Serial)
     config.execute(Serial, 10000);         // execute the main menu, 10s timeout
   config.report();                         // report the parameter settings
+  Serial.println();
+  Serial.println("Configuration values:");
+  Serial.printf("  path: %s\n", Path.value());
+  Serial.printf("  file time: %g\n", FileTime.value());
+  Serial.printf("  sampling rate: %d\n", Rate.value());
 }
 
 
@@ -189,7 +195,7 @@ Settings:
 The `[2]` in square brackets indicates the default input when you just
 hit enter. It is set to the menu entry that you entered previously.
 
-`q` brings you up one level, that is back to the main menu. There,
+`q` brings you up one level, here back to the main menu. There,
 enter `3` to enter the configuration menu:
 
 ```txt
@@ -225,6 +231,18 @@ Do you want to overwrite the configuration file? [Y/n]
 
 Hit `ỳ` or `enter` (the capital `Y` indicates the default) to
 overwrite the existing configuration file.
+
+Entering `h` brings you home to the top-level menu. Now enter `q` to
+exit the configuration menu. The call to `config,report()` prints
+again the current configuration. The following lines use the `value()`
+function of the configuration parameters to retrieve the values in the
+respective types and units:
+
+```txt
+path: recordings/
+file time: 300
+sampling rate: 48000
+```
 
 Nice and easy, isn't it?
 

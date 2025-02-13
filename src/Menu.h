@@ -80,6 +80,7 @@ protected:
   static const size_t MaxActions = 32;
   size_t NActions;
   Action *Actions[MaxActions];
+  bool GoHome;
   
 };
 

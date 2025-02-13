@@ -10,6 +10,7 @@ void HelpAction::execute(Stream &stream, unsigned long timeout,
 			 bool echo, bool detailed) {
   stream.println("- Select menu entries by entering the number followed by 'return'.");
   stream.println("- Go up to the parent menu by entering 'q'.");
+  stream.println("- Go home to the top-level menu by entering 'h'.");
   stream.println();
   stream.println("Special commands:");
   stream.println("- 'detailed on' : print additional infos as needed for GUIs, for example.");

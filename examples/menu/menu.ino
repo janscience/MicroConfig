@@ -42,6 +42,11 @@ void setup() {
   if (Serial)
     config.execute(Serial, 10000);
   config.report();
+  Serial.println();
+  Serial.println("Configuration values:");
+  Serial.printf("  path: %s\n", Path.value());
+  Serial.printf("  file time: %g\n", FileTime.value());
+  Serial.printf("  sampling rate: %d\n", Rate.value());
 }
 
 

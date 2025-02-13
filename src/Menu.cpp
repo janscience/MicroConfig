@@ -20,7 +20,8 @@ void reboot_board(Stream &stream) {
 
 Menu::Menu(const char *name, int roles) :
   Action(name, roles),
-  NActions(0) {
+  NActions(0),
+  GoHome(false) {
   disableSupported(StreamOutput);
   disableSupported(FileIO);
 }
@@ -238,9 +239,33 @@ void Menu::execute(Stream &stream, unsigned long timeout,
 	  def = i;
 	  stream.println();
 	  Actions[iaction[i]]->execute(stream, 0, echo, detailed);
+	  if (root()->GoHome) {
+	    if (this != root()) {
+	      // go up one level:
+	      return;
+	    }
+	    else {
+	      // top-level menu reached, stay and unmark:
+	      root()->GoHome = false;
+	    }
+	  }
 	  break;
 	}
+	else if (strcmp(pval, "h") == 0) {
+	  if (this != root()) {
+	    // mark to go home and go up one level:
+	    stream.println();
+	    root()->GoHome = true;
+	    return;
+	  }
+	  else {
+	    // already at top-level menu, reprint:
+	    stream.println();
+	    break;
+	  }
+	}
 	else if (strcmp(pval, "q") == 0) {
+	  // exit this menu:
 	  stream.println();
 	  return;
 	}
