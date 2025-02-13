@@ -3,12 +3,17 @@
 
 Config config("micro.cfg", &SD);           // main menu with configuration file on SD card
 
-Menu settings(config, "Settings");         // settings menu
-StringParameter<64> Path(                     // string parameter with max 64 characters
+Menu settings(config, "Settings");          // settings menu
+StringParameter<32> path(                     // string parameter with max 32 characters
 		                     settings,            // add it to settings menu
                          "Path",              // name
                          "recordings/");      // initial value
-NumberParameter<float> FileTime(              // float parameter
+char filename[64] = "recording.wav";
+StringPointerParameter<64> file_name(      // string pointer parameter
+		                     settings,
+                         "Recording",
+                         &filename);          // value is pointer to character array
+NumberParameter<float> file_time(          // float parameter
                                 settings,     // add it to settings menu
                                 "FileTime",   // name
                                 30.0,         // value
@@ -18,7 +23,7 @@ NumberParameter<float> FileTime(              // float parameter
                                 "s");         // unit of the value
 
 Menu aisettings(config, "Analog input");    // analog input menu
-NumberParameter<uint32_t> Rate(               // unit32_t parameter
+NumberParameter<uint32_t> rate(             // unit32_t parameter
                                aisettings,    // add it to aisettings menu
 			                         "SamplingRate",// name 
 			                         48000,         // value (in Hz)
@@ -44,9 +49,10 @@ void setup() {
   config.report();
   Serial.println();
   Serial.println("Configuration values:");
-  Serial.printf("  path: %s\n", Path.value());
-  Serial.printf("  file time: %g\n", FileTime.value());
-  Serial.printf("  sampling rate: %d\n", Rate.value());
+  Serial.printf("  path: %s\n", path.value());             // access configured value
+  Serial.printf("  file name: %s\n", filename);            // variable has been configured
+  Serial.printf("  file time: %g\n", file_time.value());
+  Serial.printf("  sampling rate: %d\n", rate.value());
 }
 
 

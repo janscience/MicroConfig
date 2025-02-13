@@ -77,7 +77,7 @@ class Menu : public Action {
 
 protected:
 
-  static const size_t MaxActions = 32;
+  static const size_t MaxActions = 16;
   size_t NActions;
   Action *Actions[MaxActions];
   bool GoHome;

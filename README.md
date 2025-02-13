@@ -16,8 +16,9 @@ C++ code.
 - Configures key-value pairs, with values being strings, enums, integer types, or floats.
 - Numerical types with units and unit conversion.
 - Object-oriented and templated interface.
+- Stores pointers to arbitarily sized action names (no memory consuming copies).
 - Predefined menu for reporting, saving, loading and erasing configuration file.
-- Predefined menu for uploading firmware based on [FlasherX](https://github.com/joepasquariello/FlasherX).
+- Predefined menu for uploading firmware, based on [FlasherX](https://github.com/joepasquariello/FlasherX).
 
 
 ## ToDo
@@ -50,21 +51,29 @@ Menu config("micro.cfg", &SD);
 ```
 
 Next we add a menu with name "Settings" to the main menu.  This menu
-gets two parameters, one a string type defining a path on the SD
-card where to store recording files, and one a floating point number
-defining the duration of a recording. All parameters take as first
-arguments the menu where they are added to, their name, and their
-value in the respective type. Further arguments provide additional
-properties of the parameters. In particular, numerical types take
-minimum and maximum values, a format string, and a unit:
+gets three parameters. One a string type defining a path on the SD
+card where to store recording files. The second one is a pointer to a
+string specifying a file name for the recorde data. The third one is a
+floating point number defining the duration of a recording. All
+parameters take as first arguments the menu where they are added to,
+their name, and their value in the respective type. The string-pointer
+parameter takes as a value a pointer to the character array
+`filename`, that holds the actual value. Further arguments provide
+additional properties of the parameters. In particular, numerical
+types take minimum and maximum values, a format string, and a unit:
 
 ```c
 Menu settings(config, "Settings");          // settings menu
-StringParameter<64> Path(                   // string parameter with max 64 characters
+StringParameter<32> path(                   // string parameter with max 32 characters
 		         settings,            // add it to settings menu
                          "Path",              // name
                          "recordings/");      // value
-NumberParameter<float> FileTime(            // float parameter
+char filename[64] = "recording.wav";
+StringPointerParameter<64> file_name(      // string pointer parameter
+		                     settings,
+                         "Recording",
+                         &filename);          // value is pointer to character array
+NumberParameter<float> file_time(           // float parameter
                                 settings,     // add it to settings menu
                                 "FileTime",   // name
                                 30.0,         // value
@@ -82,7 +91,7 @@ this parameter also in other units, like for example, "mHz", "MHz" or
 
 ```c
 Menu aisettings(config, "Analog input");    // analog input menu
-NumberParameter<uint32_t> Rate(             // unit32_t parameter
+NumberParameter<uint32_t> rate(             // unit32_t parameter
                                aisettings,    // add it to aisettings menu
 			       "SamplingRate",// name 
 			       48000,         // value (in Hz)
@@ -104,8 +113,9 @@ HelpAction help_act(config, "Help");       // action showing how to use the menu
 
 The main code initializes the Serial stream and the builtin SD card,
 loads the configuration file from SD card (if available), and executes
-the main menu. In the end of setup() we retrieve the values from the
-configuration menu. Note the respective formatting types. 
+the main menu. At the end of the setup() function we retrieve the
+values from the configuration menu. Note the respective formatting
+types.
 
 ```c
 void setup() {
@@ -119,9 +129,10 @@ void setup() {
   config.report();                         // report the parameter settings
   Serial.println();
   Serial.println("Configuration values:");
-  Serial.printf("  path: %s\n", Path.value());
-  Serial.printf("  file time: %g\n", FileTime.value());
-  Serial.printf("  sampling rate: %d\n", Rate.value());
+  Serial.printf("  path: %s\n", path.value());
+  Serial.printf("  file name: %s\n", filename);
+  Serial.printf("  file time: %g\n", file_time.value());
+  Serial.printf("  sampling rate: %d\n", rate.value());
 }
 
 
@@ -240,9 +251,14 @@ respective types and units:
 
 ```txt
 path: recordings/
+file name: recording.wav
 file time: 300
 sampling rate: 48000
 ```
+
+Note that for the file name we do not need to retrieve the value from
+the parameter. Instead we just use the variable that has been
+automagically set by the StringPointerParameter.
 
 Nice and easy, isn't it?
 
