@@ -37,17 +37,29 @@ class Action {
   static bool yesno(const char *request, bool defval=true,
 		    bool echo=true, Stream &stream=Serial);
 
-  /* Initialize action with name and supported roles. */
+  /* Initialize action with name and supported roles.
+     Warning: only a pointer to name is stored. */
   Action(const char *name, int roles=AllRoles);
 
-  /* Initialize action with name and supported roles and add it to menu. */
+  /* Initialize action with name and supported roles and add it to menu.
+     Warning: only a pointer to name is stored.
+     This spares memory when passing a literal string.
+     If you want the string to be copied, however, then
+     use setName(). */
   Action(Menu &menu, const char *name, int roles=AllRoles);
 
   /* The name identifying the action. */
   const char *name() const { return Name; }
 
-  /* Set the name identifying the action to name. */
+  /* Set the name identifying the action to name.
+     In contrast to passing a name to the constructor,
+     a string is allocated and the content is copied.
+     Note: the destructor does *not* automatically free this allocated memory,
+     call clearName() for this. */
   void setName(const char *name);
+
+  /* Free the memory that was allocated for name with setName(). */
+  void clearName();
 
   /* The parent menu of this action. */
   const Menu *parent() const { return Parent; };
@@ -122,9 +134,7 @@ class Action {
   
  protected:
 
-  static const size_t MaxName = 64;
-  char Name[MaxName];
-
+  char *Name;
   int SupportedRoles;
   int Roles;
 

@@ -28,11 +28,11 @@ bool Action::yesno(const char *request, bool defval,
 
 
 Action::Action(const char *name, int roles) :
+  Name(const_cast<char *>(name)),
   SupportedRoles(roles),
   Roles(roles),
   Indentation(2),
   Parent(NULL) {
-  setName(name);
 }
 
 
@@ -43,8 +43,14 @@ Action::Action(Menu &menu, const char *name, int roles) :
 
 
 void Action::setName(const char *name) {
-  strncpy(Name, name, MaxName);
-  Name[MaxName-1] = '\0';
+  Name = new char[strlen(name) + 1];
+  strcpy(Name, name);
+}
+
+
+void Action::clearName() {
+  delete[] Name;
+  Name = 0;
 }
 
 
@@ -65,10 +71,10 @@ Menu *Action::root() {
 
 
 Action *Action::action(const char *name) {
-  char lname[strlen(name)+1];
+  char lname[strlen(name) + 1];
   for (size_t k=0; k<strlen(name)+1; k++)
     lname[k] = tolower(name[k]);
-  char cname[strlen(Name)+1];
+  char cname[strlen(Name) + 1];
   for (size_t k=0; k<strlen(Name)+1; k++)
     cname[k] = tolower(Name[k]);
   if (strcmp(cname, lname) == 0)

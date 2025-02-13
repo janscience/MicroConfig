@@ -71,9 +71,12 @@ void Parameter::execute(Stream &stream, unsigned long timeout,
 
 
 void Parameter::set(const char *val, const char *name, Stream &stream) {
-  char keyname[2*MaxName];
+  size_t kn = 0;
+  if (name != 0)
+    kn = strlen(name);
+  char keyname[kn + strlen(this->name()) + 1];
   keyname[0] = '\0';
-  if (name != 0 && strlen(name) > 0) {
+  if (kn > 0) {
     strcat(keyname, name);
     strcat(keyname, ">");
   }
