@@ -63,24 +63,24 @@ additional properties of the parameters. In particular, numerical
 types take minimum and maximum values, a format string, and a unit:
 
 ```c
-Menu settings(config, "Settings");          // settings menu
-StringParameter<32> path(                   // string parameter with max 32 characters
-		         settings,            // add it to settings menu
-                         "Path",              // name
-                         "recordings/");      // value
+Menu settings(config, "Settings");             // settings menu
+
+// string parameter with max 32 characters:
+StringParameter<32> path(settings,             // add it to settings menu
+                         "Path",               // name
+                         "recordings/");       // value
 char filename[64] = "recording.wav";
-StringPointerParameter<64> file_name(      // string pointer parameter
-		                     settings,
-                         "Recording",
-                         &filename);          // value is pointer to character array
-NumberParameter<float> file_time(           // float parameter
-                                settings,     // add it to settings menu
-                                "FileTime",   // name
-                                30.0,         // value
-                                1.0,          // minimum valid value
-                                8640.0,       // maximum valid value
-                                "%.0f",       // format string
-                                "s");         // unit of the value
+
+// string pointer parameter:
+StringPointerParameter<64> file_name(settings, "Recording",
+                           	     &filename);   // value is pointer to character array
+
+// float parameter:
+NumberParameter<float> file_time(settings, "FileTime", 30.0,
+                                 1.0,          // minimum valid value
+                                 8640.0,       // maximum valid value
+                                 "%.0f",       // format string
+                                 "s");         // unit of the value
 ```
 
 We add another menu with name "Analog input". This menu gets an integer
@@ -90,16 +90,35 @@ this parameter also in other units, like for example, "mHz", "MHz" or
 "GHz". All these inputs are then converted to "Hz".
 
 ```c
-Menu aisettings(config, "Analog input");    // analog input menu
-NumberParameter<uint32_t> rate(             // unit32_t parameter
-                               aisettings,    // add it to aisettings menu
-			       "SamplingRate",// name 
-			       48000,         // value (in Hz)
-			       1,             // minimum valid value (in Hz)
-			       1000000,       // maximum valid value (in Hz)
-			       "%.1f",        // format string (for kHz)
-			       "Hz",          // unit of the internal value
-			       "kHz");        // use this unit in user interactions
+Menu aisettings(config, "Analog input");      // analog input menu
+
+// unit32_t parameter:
+NumberParameter<uint32_t> rate(aisettings, "SamplingRate",
+                               48000,         // value (in Hz)
+                               1,             // minimum valid value (in Hz)
+                               1000000,       // maximum valid value (in Hz)
+                               "%.1f",        // format string (for kHz)
+                               "Hz",          // unit of the internal value
+                               "kHz");        // use this unit in user interactions
+```                            
+
+Let's also add an enum parameter to the anaog input menu.
+It allows to select values from an enum type. For this, 
+an array with all the enum types and an array with
+corresponding strings are required:
+
+```c
+// enum parameter:
+// definition of enum type:
+enum SAMPLING_SPEED {LOW_SPEED, MED_SPEED, HIGH_SPEED};
+// array of all enum values:
+SAMPLING_SPEED SamplingEnums[3] = {LOW_SPEED, MED_SPEED, HIGH_SPEED};
+// corresponding string representations:
+const char *SamplingStrings[3] = {"low", "medium", "high"};
+EnumParameter<SAMPLING_SPEED> speed(aisettings, "SamplingSpeed", MED_SPEED,
+                                    SamplingEnums,    // array of enums
+                                    SamplingStrings,  // array of corresponding strings
+                                    3);               // number of values in the arrays                               
 ```
 
 Finally, let's add the predefined menus for handling the configuration
@@ -107,8 +126,8 @@ file, firmware updates, and printing a help message:
 
 ```c
 ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
-FirmwareMenu firmware_menu(config, SD);            // menu for uploading hex files from SD card
-HelpAction help_act(config, "Help");       // action showing how to use the menu
+FirmwareMenu firmware_menu(config, SD);      // menu for uploading hex files from SD card
+HelpAction help_act(config, "Help");         // action showing how to use the menu
 ```
 
 The main code initializes the Serial stream and the builtin SD card,
@@ -121,18 +140,19 @@ types.
 void setup() {
   Serial.begin(9600);
   while (!Serial && millis() < 2000) {};
-  printMicroConfigBanner();                // print a nice banner
-  SD.begin(BUILTIN_SDCARD);                // initialize SD card
-  config.load();                           // load configuration file from SD card
+  printMicroConfigBanner();                  // print a nice banner
+  SD.begin(BUILTIN_SDCARD);                  // initialize SD card
+  config.load();                             // load configuration file from SD card
   if (Serial)
-    config.execute(Serial, 10000);         // execute the main menu, 10s timeout
-  config.report();                         // report the parameter settings
+    config.execute(Serial, 10000);           // execute the main menu, 10s timeout
+  config.report();                           // report the parameter settings
   Serial.println();
   Serial.println("Configuration values:");
   Serial.printf("  path: %s\n", path.value());
   Serial.printf("  file name: %s\n", filename);
   Serial.printf("  file time: %g\n", file_time.value());
-  Serial.printf("  sampling rate: %d\n", rate.value());
+  Serial.printf("  sampling rate: %u\n", rate.value());
+  Serial.printf("  sampling speed: %u\n", speed.value());
 }
 
 
@@ -190,7 +210,7 @@ FileTime        : 30s
 Enter new value  (between 1s and 8640s): 
 ```
 
-Numerical parameter support unit conversion, the user may specify a
+Numerical parameters support unit conversion, the user may specify a
 new value in a different unit. Here, the time can be also specified in
 "min" or "h", for example. The entered value is then converted to
 "s". Without specifying a unit, the default "s" is assumed.  We enter
@@ -207,7 +227,35 @@ The `[2]` in square brackets indicates the default input when you just
 hit enter. It is set to the menu entry that you entered previously.
 
 `q` brings you up one level, here back to the main menu. There,
-enter `3` to enter the configuration menu:
+enter `2` to enter the analog input menu:
+
+```txt
+Analog input:
+  1) SamplingRate: 48.0kHz
+  2) SamplingSpeed: medium
+  Select [1]:
+```
+
+Enter `2` again to select SamplingSpeed. You get a selection of possible values:
+
+```txt
+SamplingSpeed   : medium
+  - 1) low
+  - 2) medium
+  - 3) high
+Select new value:
+```
+
+Type in `3` to select "high". And indeed, you get
+
+```txt
+Analog input:
+  1) SamplingRate: 48.0kHz
+  2) SamplingSpeed: high
+  Select [2]: 
+```
+
+Enter `q` and then `3` to select the configuration menu:
 
 ```txt
 Configuration:
@@ -226,6 +274,7 @@ Settings:
   FileTime: 300s
 Analog input:
   SamplingRate: 48.0kHz
+  SamplingSpeed: high
 ```
 
 `2` saves the current configuration to the SD card. The content of the
@@ -240,7 +289,7 @@ Configuration file "micro.cfg" already exists on SD card.
 Do you want to overwrite the configuration file? [Y/n]
 ```
 
-Hit `ỳ` or `enter` (the capital `Y` indicates the default) to
+Hit `y` or `enter` (the capital `Y` indicates the default) to
 overwrite the existing configuration file.
 
 Entering `h` brings you home to the top-level menu. Now enter `q` to
@@ -254,6 +303,7 @@ path: recordings/
 file name: recording.wav
 file time: 300
 sampling rate: 48000
+sampling speed: 2
 ```
 
 Note that for the file name we do not need to retrieve the value from

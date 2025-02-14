@@ -1,37 +1,49 @@
 #include <SD.h>
 #include <MicroConfig.h>
 
-Config config("micro.cfg", &SD);           // main menu with configuration file on SD card
+Config config("micro.cfg", &SD);              // main menu with configuration file on SD card
 
-Menu settings(config, "Settings");          // settings menu
-StringParameter<32> path(                     // string parameter with max 32 characters
-		                     settings,            // add it to settings menu
+Menu settings(config, "Settings");            // settings menu
+
+// string parameter with max 32 characters:
+StringParameter<32> path(settings,            // add it to settings menu
                          "Path",              // name
                          "recordings/");      // initial value
+
+// string pointer parameter:
 char filename[64] = "recording.wav";
-StringPointerParameter<64> file_name(      // string pointer parameter
-		                     settings,
-                         "Recording",
-                         &filename);          // value is pointer to character array
-NumberParameter<float> file_time(          // float parameter
-                                settings,     // add it to settings menu
-                                "FileTime",   // name
-                                30.0,         // value
+StringPointerParameter<64> file_name(settings, "Recording",
+                                     &filename); // value is pointer to character array
+
+// float parameter:
+NumberParameter<float> file_time(settings, "FileTime", 30.0,
                                 1.0,          // minimum valid value
                                 8640.0,       // maximum valid value
                                 "%.0f",       // format string
                                 "s");         // unit of the value
 
 Menu aisettings(config, "Analog input");    // analog input menu
-NumberParameter<uint32_t> rate(             // unit32_t parameter
-                               aisettings,    // add it to aisettings menu
-			                         "SamplingRate",// name 
+
+// unit32_t parameter:
+NumberParameter<uint32_t> rate(aisettings, "SamplingRate",
 			                         48000,         // value (in Hz)
 			                         1,             // minimum valid value (in Hz)
 			                         1000000,       // maximum valid value (in Hz)
 			                         "%.1f",        // format string (for kHz)
 			                         "Hz",          // unit of the internal value
 			                         "kHz");        // use this unit in user interactions
+
+// enum parameter:
+// definition of enum type:
+enum SAMPLING_SPEED {LOW_SPEED, MED_SPEED, HIGH_SPEED};
+// array of all enum values:
+SAMPLING_SPEED SamplingEnums[3] = {LOW_SPEED, MED_SPEED, HIGH_SPEED};
+// corresponding string representations:
+const char *SamplingStrings[3] = {"low", "medium", "high"};
+EnumParameter<SAMPLING_SPEED> speed(aisettings, "SamplingSpeed", MED_SPEED,
+		                                SamplingEnums,    // array of enums
+		                                SamplingStrings,  // array of corresponding strings
+		                                3);               // number of values in the arrays
 
 ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
 FirmwareMenu firmware_menu(config, SD);    // menu for uploading hex files from SD card
@@ -52,7 +64,8 @@ void setup() {
   Serial.printf("  path: %s\n", path.value());             // access configured value
   Serial.printf("  file name: %s\n", filename);            // variable has been configured
   Serial.printf("  file time: %g\n", file_time.value());
-  Serial.printf("  sampling rate: %d\n", rate.value());
+  Serial.printf("  sampling rate: %u\n", rate.value());
+  Serial.printf("  sampling speed: %u\n", speed.value());
 }
 
 
