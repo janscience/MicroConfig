@@ -1,63 +1,173 @@
 # User guide
 
-The following example code is essentially the [menu](examples/menu/menu.ino)
+The following example code mostly follows the [menu](examples/menu/menu.ino)
 example.
 
-First, include the `M̀icroConfig.h` header and define the main menu
-`config` with configuration file "micro.cfg" on default SD card.  Also
-include `SD.h` needed for handling the configuration file on the SD
-card:
+You need to include the `M̀icroConfig.h` header.  Also include `SD.h`
+needed for handling the configuration file on the SD card:
 
 ```c
 #include <SD.h>
 #include <MicroConfig.h>
+```
 
+## Content
+
+- [Main menu](#main-menu)
+- [Sub menus](#sub-menus)
+- [Parameter](#parameter)
+
+
+## Main menu
+
+First, define the main menu `config` with configuration file
+"micro.cfg" on default SD card:
+
+```c
 Menu config("micro.cfg", &SD);
 ```
 
-Next we add a menu with name "Settings" to the main menu.  This menu
-gets three parameters. One a string type defining a path on the SD
-card where to store recording files. The second one is a pointer to a
-string specifying a file name for the recorde data. The third one is a
-floating point number defining the duration of a recording. All
-parameters take as first arguments the menu where they are added to,
-their name, and their value in the respective type. The string-pointer
-parameter takes as a value a pointer to the character array
-`filename`, that holds the actual value. Further arguments provide
-additional properties of the parameters. In particular, numerical
-types take minimum and maximum values, a format string, and a unit:
+In `setup()` we initialize the serial interface and the SD card
+and then execute the configuration menu:
 
 ```c
-Menu settings(config, "Settings");             // settings menu
-
-// string parameter with max 32 characters:
-StringParameter<32> path(settings,             // add it to settings menu
-                         "Path",               // name
-                         "recordings/");       // value
-char filename[64] = "recording.wav";
-
-// string pointer parameter:
-StringPointerParameter<64> file_name(settings, "Recording",
-                           	     &filename);   // value is pointer to character array
-
-// float parameter:
-NumberParameter<float> file_time(settings, "FileTime", 30.0,
-                                 1.0,          // minimum valid value
-                                 8640.0,       // maximum valid value
-                                 "%.0f",       // format string
-                                 "s");         // unit of the value
+void setup() {
+  Serial.begin(9600);
+  while (!Serial && millis() < 2000) {};
+  SD.begin(BUILTIN_SDCARD);         // initialize SD card
+  if (Serial)
+    config.execute(Serial, 10000);  // execute the main menu, 10s timeout
 ```
 
-We add another menu with name "Analog input". This menu gets an integer
-type parameter that internally stores its values in "Hz", but uses
-"kHz" when interacting with the user. The user may enter values to
-this parameter also in other units, like for example, "mHz", "MHz" or
-"GHz". All these inputs are then converted to "Hz".
+
+## Sub menus
+
+Next we add two sub menus with names "Settings" and "Analog input" to
+the main menu. Later we will add a few configurable parameter to these menus.
 
 ```c
-Menu aisettings(config, "Analog input");      // analog input menu
+Menu settings(config, "Settings");        // settings menu
+Menu aisettings(config, "Analog input");  // analog input menu
+```
 
-// unit32_t parameter:
+Let's also add the predefined menus for handling the configuration
+file, firmware updates, and printing a help message:
+
+```c
+ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
+FirmwareMenu firmware_menu(config, SD);   // menu for uploading hex files from SD card
+HelpAction help_act(config, "Help");      // action showing how to use the menu
+```
+
+When executing this menu, you see in your serial monitor:
+
+```txt
+Menu:
+  1) Settings ...
+  2) Analog input ...
+  3) Configuration ...
+  4) Firmware ...
+  5) Help
+  Select: 
+```
+
+Sub menus are indicated by `...`.  You navigate this menu by entering
+a number followed by return. `q` brings you up one level and quits the
+menu. `h` always brings you to the main menu.
+
+For example, enter `5` to trigger the "Help" action. This simply
+prints out what we just said and some special commands:
+
+```txt
+- Select menu entries by entering the number followed by 'return'.
+- Go up to the parent menu by entering 'q'.
+- Go home to the top-level menu by entering 'h'.
+
+Special commands:
+- 'detailed on' : print additional infos as needed for GUIs, for example.
+- 'detailed off': do not print additional infos (default)
+- 'echo on'     : echo inputs (default)
+- 'echo off'    : do not echo inputs
+- 'print'       : print menu again
+- 'reboot'      : reboot
+
+```
+
+Try them out! The effect of `detailed on`, however, affects mostly
+parameters.
+
+So let us now populate the sub menus with some parameter.
+
+
+## Parameter
+
+Parameter allow you to configure strings, enums, integer types, or
+floats by means of template classes.
+
+All parameters take as first arguments the menu where they are added
+to, their name, and their value in the respective type.
+
+In the following we demonstrate how to define a few paraemters of
+different types.
+
+
+### String parameter
+
+The first parameter is a simple string that allows you to configure a
+path on the SD card where to store files. The template parameter, here
+32, sets the number of maximum characters the string can hold:
+
+```c
+StringParameter<32> path(settings,        // add it to settings menu
+                         "Path",          // name
+                         "recordings/");  // value
+```
+
+This parameter owns its value, which can be retrieved by the `path.value()`
+member function.
+
+
+### String pointer parameter
+
+A parameter can also configure a variable directly. Such parameter
+takes as a value a pointer to the variable. As an example, we define a
+character array for a file name and pass it to a string pointer
+parameter:
+
+```c
+char filename[64] = "recording.wav";
+StringPointerParameter<64> file_name(settings, "Recording", &filename);
+```
+
+
+### Float parameter with unit
+
+We also want to add the duration of a recording to the settings sub
+menu.  This is a number parameter with template parameter `float`.
+Further arguments to a number parameter provide the minimum and
+maximum allowed values, a format string, and a unit:
+
+```c
+NumberParameter<float> file_time(settings, "FileTime", 30.0,
+                                 1.0,     // minimum valid value
+                                 8640.0,  // maximum valid value
+                                 "%.0f",  // format string
+                                 "s");    // unit of the value
+```
+
+### Integer parameter
+
+The analog input menu gets an entry specifying the sampling
+rate. Internaly the sampling rate is given in Hz. But with the user we
+want to communicate the sampling rate in kHz (in the menu and in the
+configuration file). This is supported by the number
+parameters. Simply provide a second unit.
+
+The user may enter values to this parameter also in other units, like
+for example, "mHz", "MHz" or "GHz". All these inputs are then
+converted to "Hz".
+
+```c
 NumberParameter<uint32_t> rate(aisettings, "SamplingRate",
                                48000,         // value (in Hz)
                                1,             // minimum valid value (in Hz)
@@ -67,13 +177,15 @@ NumberParameter<uint32_t> rate(aisettings, "SamplingRate",
                                "kHz");        // use this unit in user interactions
 ```                            
 
+
+### Enum parameter
+
 Let's also add an enum parameter to the anaog input menu.
 It allows to select values from an enum type. For this, 
 an array with all the enum types and an array with
 corresponding strings are required:
 
 ```c
-// enum parameter:
 // definition of enum type:
 enum SAMPLING_SPEED {LOW_SPEED, MED_SPEED, HIGH_SPEED};
 // array of all enum values:
@@ -86,14 +198,8 @@ EnumParameter<SAMPLING_SPEED> speed(aisettings, "SamplingSpeed", MED_SPEED,
                                     3);               // number of values in the arrays                               
 ```
 
-Finally, let's add the predefined menus for handling the configuration
-file, firmware updates, and printing a help message:
 
-```c
-ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
-FirmwareMenu firmware_menu(config, SD);      // menu for uploading hex files from SD card
-HelpAction help_act(config, "Help");         // action showing how to use the menu
-```
+### Remains
 
 The main code initializes the Serial stream and the builtin SD card,
 loads the configuration file from SD card (if available), and executes
