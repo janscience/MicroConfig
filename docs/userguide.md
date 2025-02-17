@@ -24,7 +24,7 @@ First, define the main menu `config` with configuration file
 "micro.cfg" on default SD card:
 
 ```c
-Menu config("micro.cfg", &SD);
+Config config("micro.cfg", &SD);
 ```
 
 In `setup()` we initialize the serial interface and the SD card
@@ -72,11 +72,11 @@ Menu:
 ```
 
 Sub menus are indicated by `...`.  You navigate this menu by entering
-a number followed by return. `q` brings you up one level and quits the
-menu. `h` always brings you to the main menu.
+a number followed by return. `q` brings you up one level and also
+quits the menu. `h` always brings you to the main menu.
 
 For example, enter `5` to trigger the "Help" action. This simply
-prints out what we just said and some special commands:
+prints out what we just said and in addition some special commands:
 
 ```txt
 - Select menu entries by entering the number followed by 'return'.
@@ -163,7 +163,7 @@ want to communicate the sampling rate in kHz (in the menu and in the
 configuration file). This is supported by the number
 parameters. Simply provide a second unit.
 
-The user may enter values to this parameter also in other units, like
+The user may also enter values to this parameter in other units, like
 for example, "mHz", "MHz" or "GHz". All these inputs are then
 converted to "Hz".
 

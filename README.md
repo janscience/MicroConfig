@@ -43,23 +43,18 @@ Define a configuration menu:
 #include <SD.h>
 #include <MicroConfig.h>
 
-Menu config("micro.cfg", &SD);                 // main menu and configuration file
+Config config("micro.cfg", &SD);                 // main menu and configuration file
 Menu settings(config, "Settings");             // settings sub menu
-// string parameter with max 32 characters:
 StringParameter<32> path(settings, "Path", "recordings/");
-// string parameter that operates on a variable:
 char filename[64] = "recording.wav";
 StringPointerParameter<64> file_name(settings, "Recording", &filename);
-// floating point number with minimum and maximum value, format string and unit:
 NumberParameter<float> file_time(settings, "FileTime", 30.0, 1.0, 8640.0, "%.0f", "s");
 
 Menu aisettings(config, "Analog input");       // analog input sub menu
-// unsigned integer parameter with internal and external unit:
 NumberParameter<uint32_t> rate(aisettings, "SamplingRate", 48000, 1, 1000000, "%.1f", "Hz", "kHz");
 
 // sub menu for reporting, saving, loading and removing configuration file:
 ConfigurationMenu configuration_menu(config, SD);
-// action showing how to use the menu:
 HelpAction help_act(config, "Help");
 ```
 
@@ -68,10 +63,10 @@ Load the configuration file and execute the menu like this:
 void setup() {
   Serial.begin(9600);
   while (!Serial && millis() < 2000) {};
-  SD.begin(BUILTIN_SDCARD);                    // initialize SD card
-  config.load();                               // load configuration file from SD card
+  SD.begin(BUILTIN_SDCARD);              // initialize SD card
+  config.load();                         // load configuration file from SD card
   if (Serial)
-    config.execute(Serial, 10000);           // execute the main menu, 10s timeout
+    config.execute(Serial, 10000);       // execute the main menu, 10s timeout
 }
 ```
 
