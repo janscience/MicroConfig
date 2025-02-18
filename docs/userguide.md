@@ -16,6 +16,8 @@ needed for handling the configuration file on the SD card:
 - [Main menu](#main-menu)
 - [Sub menus](#sub-menus)
 - [Parameter](#parameter)
+- [Actions](#actions)
+- [Banner](#banner)
 
 
 ## Main menu
@@ -75,7 +77,10 @@ Sub menus are indicated by `...`.  You navigate this menu by entering
 a number followed by return. `q` brings you up one level and also
 quits the menu. `h` always brings you to the main menu.
 
-For example, enter `5` to trigger the "Help" action. This simply
+If there is no user input over the serial stream for more than 10s,
+then the menu times out and the program continues.
+
+So, enter `5` quickly enough to trigger the "Help" action. This simply
 prints out what we just said and in addition some special commands:
 
 ```txt
@@ -96,7 +101,7 @@ Special commands:
 Try them out! The effect of `detailed on`, however, affects mostly
 parameters.
 
-So let us now populate the sub menus with some parameter.
+Let us now populate the sub menus with some parameter.
 
 
 ## Parameter
@@ -124,7 +129,38 @@ StringParameter<32> path(settings,        // add it to settings menu
 ```
 
 This parameter owns its value, which can be retrieved by the `path.value()`
-member function.
+member function as a char pointer.
+
+Enter `1` to enter the settings menu:
+
+```txt
+Settings:
+  1) Path: recordings/
+  2) Recording: recording.wav
+  3) FileTime: 300s
+  Select [1]:
+```
+
+The `[1]` in square brackets indicates the default input when you just
+hit enter. It is set to the menu entry that you entered last.
+
+Enter `1` to edit the path variable, This displays the value of the
+variable and asks for a new value:
+
+```txt
+Path            : recordings/
+Enter new value :
+```
+
+Enter a new value, for example "data/" followed by return, and you get
+
+```txt
+Settings:
+  1) Path: data/
+  2) Recording: recording.wav
+  3) FileTime: 300s
+  Select [1]: 
+```
 
 
 ### String pointer parameter
@@ -138,6 +174,9 @@ parameter:
 char filename[64] = "recording.wav";
 StringPointerParameter<64> file_name(settings, "Recording", &filename);
 ```
+
+In the menu, the string pointer parameter is displayed and edited
+exactly like the string parameter discussed above.
 
 
 ### Float parameter with unit
@@ -155,17 +194,40 @@ NumberParameter<float> file_time(settings, "FileTime", 30.0,
                                  "s");    // unit of the value
 ```
 
+To change the value of "FileTime" enter `2` in the settings menu:
+
+```txt
+FileTime        : 30s
+Enter new value  (between 1s and 8640s): 
+```
+
+The prompt reminds you about valid input values. If you enter an
+invalid number, you are asked again to enter a new value. Hitting
+enter without entering a number goes back to the settings menu and
+keeps the value without changing it.
+
+Numerical parameters support unit conversion, you may specify a new
+value in a different unit. Here, the time can be also specified in
+"min" or "h", for example. The entered value is then converted to
+"s". Without specifying a unit, the default "s" is assumed.  We enter
+`5min`, and the menu correctly reports `300s`:
+
+```txt
+Settings:
+  1) Path: recordings/
+  2) Recording: recording.wav
+  3) FileTime: 300s
+  Select [2]: 
+```
+
+
 ### Integer parameter
 
 The analog input menu gets an entry specifying the sampling
-rate. Internaly the sampling rate is given in Hz. But with the user we
-want to communicate the sampling rate in kHz (in the menu and in the
-configuration file). This is supported by the number
-parameters. Simply provide a second unit.
-
-The user may also enter values to this parameter in other units, like
-for example, "mHz", "MHz" or "GHz". All these inputs are then
-converted to "Hz".
+rate. Internaly the sampling rate is an unsigned integer given in
+Hz. But with the user we want to communicate the sampling rate in kHz
+(in the menu and in the configuration file). This is supported by the
+number parameters irrespective of their type. Simply provide a second unit.
 
 ```c
 NumberParameter<uint32_t> rate(aisettings, "SamplingRate",
@@ -175,7 +237,32 @@ NumberParameter<uint32_t> rate(aisettings, "SamplingRate",
                                "%.1f",        // format string (for kHz)
                                "Hz",          // unit of the internal value
                                "kHz");        // use this unit in user interactions
-```                            
+```
+
+When displayed in the menu, or when prompting for a new, the value is
+reported in this secondary unit:
+
+```txt
+SamplingRate    : 48.0kHz
+Enter new value  (between 0.0kHz and 1000.0kHz): 
+```
+
+When entering a number without unit, it is interpreted in the unit
+shown, here "kHz". Again, you may enter values to this parameter in
+other units, like for example, "mHz", "MHz" or "GHz". All these inputs
+are then converted internally to "Hz" and are displayed in
+"kHz". Let's enter '0.5MHz" and we get the expected 500kHz:
+
+```txt
+Analog input:
+  1) SamplingRate: 500.0kHz
+  2) SamplingSpeed: medium
+  Select [1]: 
+```
+
+When retrieving the value of this parameter via `rate.value()`, you
+get an unsigned integer with value 500000 - the sampling rate in the
+primary unit, here in Hz.
 
 
 ### Enum parameter
@@ -198,107 +285,7 @@ EnumParameter<SAMPLING_SPEED> speed(aisettings, "SamplingSpeed", MED_SPEED,
                                     3);               // number of values in the arrays                               
 ```
 
-
-### Remains
-
-The main code initializes the Serial stream and the builtin SD card,
-loads the configuration file from SD card (if available), and executes
-the main menu. At the end of the setup() function we retrieve the
-values from the configuration menu. Note the respective formatting
-types.
-
-```c
-void setup() {
-  Serial.begin(9600);
-  while (!Serial && millis() < 2000) {};
-  printMicroConfigBanner();                  // print a nice banner
-  SD.begin(BUILTIN_SDCARD);                  // initialize SD card
-  config.load();                             // load configuration file from SD card
-  if (Serial)
-    config.execute(Serial, 10000);           // execute the main menu, 10s timeout
-  config.report();                           // report the parameter settings
-  Serial.println();
-  Serial.println("Configuration values:");
-  Serial.printf("  path: %s\n", path.value());
-  Serial.printf("  file name: %s\n", filename);
-  Serial.printf("  file time: %g\n", file_time.value());
-  Serial.printf("  sampling rate: %u\n", rate.value());
-  Serial.printf("  sampling speed: %u\n", speed.value());
-}
-
-
-void loop() {
-}
-
-```
-
-Compile and upload this sketch. Then watch the output with the serial
-monitor of the Arduino IDE or with the provided
-[serialmonitor.py](utils/serialmonitor.py) python script. You get this:
-
-```txt
-========================================================
- __  __ _                 ____             __ _       
-|  \/  (_) ___ _ __ ___  / ___|___  _ __  / _(_) __ _ 
-| |\/| | |/ __| '__/ _ \| |   / _ \| '_ \| |_| |/ _` |
-| |  | | | (__| | | (_) | |__| (_) | | | |  _| | (_| |
-|_|  |_|_|\___|_|  \___/ \____\___/|_| |_|_| |_|\__, |
-                                                |___/ 
-
-version 0.3.0 by Benda-Lab
---------------------------------------------------------
-
-Configuration file "micro.cfg" not found or empty.
-
-Menu:
-  1) Settings ...
-  2) Analog input ...
-  3) Configuration ...
-  4) Firmware ...
-  5) Help
-  Select: 
-```
-
-Nice banner, right? And a nicely formatted menu. `...` indicates a submenu.
-
-If there is no user input over the serial stream for more than 10s,
-then the menu is aborted and the program continues.
-
-So, type in `1` followed by return quickly enough to enter the
-"Settings" menu:
-
-```txt
-Settings:
-  1) Path: recordings/
-  2) FileTime: 30s
-  Select [1]:
-```
-
-To change the value of "FileTime" enter `2`:
-
-```txt
-FileTime        : 30s
-Enter new value  (between 1s and 8640s): 
-```
-
-Numerical parameters support unit conversion, the user may specify a
-new value in a different unit. Here, the time can be also specified in
-"min" or "h", for example. The entered value is then converted to
-"s". Without specifying a unit, the default "s" is assumed.  We enter
-`5min`, and the menu correctly reports `300s`:
-
-```txt
-Settings:
-  1) Path: recordings/
-  2) FileTime: 300s
-  Select [2]: 
-```
-
-The `[2]` in square brackets indicates the default input when you just
-hit enter. It is set to the menu entry that you entered previously.
-
-`q` brings you up one level, here back to the main menu. There,
-enter `2` to enter the analog input menu:
+With this enum parameter, the analog input menu looks like this:
 
 ```txt
 Analog input:
@@ -307,7 +294,8 @@ Analog input:
   Select [1]:
 ```
 
-Enter `2` again to select SamplingSpeed. You get a selection of possible values:
+When entering `2` to select SamplingSpeed you get a selection of
+possible enum values:
 
 ```txt
 SamplingSpeed   : medium
@@ -326,7 +314,23 @@ Analog input:
   Select [2]: 
 ```
 
-Enter `q` and then `3` to select the configuration menu:
+Retrieving the value via `speed.value()` returns an `SAMPLING_SPEED`
+enum with value `HIGH_SPEED`.
+
+
+## Actions
+
+As we have seen above for the help action, menu items do not only
+configure parameter value. The can also trigger some action. They can
+execute some code. The help action, for example, prints a help message
+on the serial stream.
+
+Let's now have a look at the configuration menu.
+
+
+### Configuration menu
+
+Enter `h` and then `3` to select the configuration menu:
 
 ```txt
 Configuration:
@@ -337,15 +341,19 @@ Configuration:
   Select [1]: 
 ```
 
+This menu contains 4 actions that allow you to print, save, load and
+erase the configuration.
+
 Enter `1` to print the current configuration:
 
 ```txt
 Settings:
-  Path:     recordings/
-  FileTime: 300s
+  Path:      data/
+  Recording: recording.wav
+  FileTime:  300s
 Analog input:
-  SamplingRate: 48.0kHz
-  SamplingSpeed: high
+  SamplingRate:  500.0kHz
+  SamplingSpeed: medium
 ```
 
 `2` saves the current configuration to the SD card. The content of the
@@ -363,22 +371,109 @@ Do you want to overwrite the configuration file? [Y/n]
 Hit `y` or `enter` (the capital `Y` indicates the default) to
 overwrite the existing configuration file.
 
-Entering `h` brings you home to the top-level menu. Now enter `q` to
-exit the configuration menu. The call to `config,report()` prints
-again the current configuration. The following lines use the `value()`
-function of the configuration parameters to retrieve the values in the
-respective types and units:
+"Load configuration" reads the configuration file and overwrites the
+current configuration. This is why this action also asks for
+confirmation first.
+
+"Erase configuration" erases the configuration file on SD card after
+confirmation.
+
+
+### Firmware menu
+
+The firmware menu supports uploading of firmware (hex files) from SD
+card. This way, firmware updates can be uploaded without the need to
+compile everything with Arduino IDE.
 
 ```txt
-path: recordings/
-file name: recording.wav
-file time: 300
-sampling rate: 48000
-sampling speed: 2
+Firmware:
+  1) List available updates
+  2) Update firmware
+  Select [1]: 
 ```
 
-Note that for the file name we do not need to retrieve the value from
-the parameter. Instead we just use the variable that has been
-automagically set by the StringPointerParameter.
+The first action simply list hex files in the root directory of the SD
+card. The output looks like this:
 
-Nice and easy, isn't it?
+```txt
+Available firmware files on SD card:
+  R4-logger.ino.hex
+  writeconfig.ino.hex
+```
+
+Use the "Update firmware" action to actually, well, update the
+firmware. This action first lists the hex files, from which you then
+choose the one you want to use by entering the respective number:
+
+```txt
+Available firmware files on SD card:
+- 1) R4-logger.ino.hex
+- 2) writeconfig.ino.hex
+
+Select a firmfile file [1]: 
+```
+
+The action confirms your selection and the asks you, whether you are
+really sure to update the firmware:
+
+```txt
+Selected "R4-logger.ino.hex" for firmware update
+
+WARNING: a firmware update could make your device unusable!
+WARNING: make sure that your device stays powered during the entire firmware update!
+
+Do you really want to update the firmware? [y/N] 
+```
+
+Only if you enter `y`, a firmware update is attempted:
+
+```txt
+Successfully opened firmware file "R4-logger.ino.hex".
+
+Updating firmware:
+- initializing flash buffer ...
+- created flash buffer = 8024K FLASH (60026000 - 607FC000)
+- updating frimware ...
+
+reading hex lines...
+
+hex file: 14283 lines 228352 bytes (60000000 - 60037C00)
+new code contains correct target ID fw_teensy41
+enter 14283 to flash or 0 to abort
+```
+
+Enter the displayed number to really update the firmware. Keep the
+microcontroller powered on and wait until the firmware update is
+completed. The uploader then reboots into the new firmware.
+
+
+## Banner
+
+You may want to call the `printMicroConfigBanner()` function right
+after initializing the serial stream:
+
+```c
+void setup() {
+  Serial.begin(9600);
+  while (!Serial && millis() < 2000) {};
+  printMicroConfigBanner();                  // print a nice banner
+  ...
+}
+```
+
+This prints
+
+```txt
+========================================================
+ __  __ _                 ____             __ _       
+|  \/  (_) ___ _ __ ___  / ___|___  _ __  / _(_) __ _ 
+| |\/| | |/ __| '__/ _ \| |   / _ \| '_ \| |_| |/ _` |
+| |  | | | (__| | | (_) | |__| (_) | | | |  _| | (_| |
+|_|  |_|_|\___|_|  \___/ \____\___/|_| |_|_| |_|\__, |
+                                                |___/ 
+
+version 1.0.0 by Benda-Lab
+--------------------------------------------------------
+```
+
+This helps a GUI to detect a new menu.

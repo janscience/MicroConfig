@@ -121,6 +121,13 @@ file time: 30
 sampling rate: 48000
 ```
 
+Note that for the file name we do not need to retrieve the value from
+the parameter. Instead we just use the variable that has been
+automagically set by the StringPointerParameter.
+
+Nice and easy, isn't it?
+
+
 ## Interface
 
 - [MicroConfig.h](src/MicroConfig.h): Include all headers of the MicroConfig library.
