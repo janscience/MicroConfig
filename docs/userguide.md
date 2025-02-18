@@ -57,8 +57,8 @@ file, firmware updates, and printing a help message:
 
 ```c
 ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
-FirmwareMenu firmware_menu(config, SD);   // menu for uploading hex files from SD card
-HelpAction help_act(config, "Help");      // action showing how to use the menu
+FirmwareMenu firmware_menu(config, SD);            // menu for uploading hex files from SD card
+HelpAction help_act(config, "Help");               // action showing how to use the menu
 ```
 
 When executing this menu, you see in your serial monitor:
@@ -75,7 +75,7 @@ Menu:
 
 Sub menus are indicated by `...`.  You navigate this menu by entering
 a number followed by return. `q` brings you up one level and also
-quits the menu. `h` always brings you to the main menu.
+quits the menu. `h` always brings you back to the main menu.
 
 If there is no user input over the serial stream for more than 10s,
 then the menu times out and the program continues.
@@ -106,7 +106,7 @@ Let us now populate the sub menus with some parameter.
 
 ## Parameter
 
-Parameter allow you to configure strings, enums, integer types, or
+Parameter allow you to configure strings, enums, booleans, integer types, or
 floats by means of template classes.
 
 All parameters take as first arguments the menu where they are added
@@ -178,13 +178,17 @@ StringPointerParameter<64> file_name(settings, "Recording", &filename);
 In the menu, the string pointer parameter is displayed and edited
 exactly like the string parameter discussed above.
 
+For all other parameter types, a pointer variant that takes as a value
+a pointer to a variable of corrseponding type also exist.
+
 
 ### Float parameter with unit
 
 We also want to add the duration of a recording to the settings sub
 menu.  This is a number parameter with template parameter `float`.
 Further arguments to a number parameter provide the minimum and
-maximum allowed values, a format string, and a unit:
+maximum allowed values, a printf-style format string used for
+displaying the value, and a unit:
 
 ```c
 NumberParameter<float> file_time(settings, "FileTime", 30.0,
@@ -239,8 +243,8 @@ NumberParameter<uint32_t> rate(aisettings, "SamplingRate",
                                "kHz");        // use this unit in user interactions
 ```
 
-When displayed in the menu, or when prompting for a new, the value is
-reported in this secondary unit:
+When displayed in the menu, or when prompting for a new value, the
+value is reported in this secondary unit:
 
 ```txt
 SamplingRate    : 48.0kHz
@@ -267,7 +271,7 @@ primary unit, here in Hz.
 
 ### Enum parameter
 
-Let's also add an enum parameter to the anaog input menu.
+Let's also add an enum parameter to the analog input menu.
 It allows to select values from an enum type. For this, 
 an array with all the enum types and an array with
 corresponding strings are required:
@@ -321,11 +325,12 @@ enum with value `HIGH_SPEED`.
 ## Actions
 
 As we have seen above for the help action, menu items do not only
-configure parameter value. The can also trigger some action. They can
-execute some code. The help action, for example, prints a help message
-on the serial stream.
+configure parameter value. They can also trigger some action by
+executing some code. The help action, for example, prints a help
+message on the serial stream.
 
-Let's now have a look at the configuration menu.
+Let's now have a look at the configuration menu which contains four
+actions to manage configuration files.
 
 
 ### Configuration menu
@@ -341,7 +346,7 @@ Configuration:
   Select [1]: 
 ```
 
-This menu contains 4 actions that allow you to print, save, load and
+This menu contains four actions that allow you to print, save, load and
 erase the configuration.
 
 Enter `1` to print the current configuration:
@@ -357,7 +362,7 @@ Analog input:
 ```
 
 `2` saves the current configuration to the SD card. The content of the
-configuration file looks exactly like the one we just have
+configuration file looks exactly like the text we just have
 printed. This output is compatible with YAML files, if you care. But
 more importantly, this output format is well readable by humans, and
 can be easily edited in any text editor. If there is already a
@@ -392,7 +397,7 @@ Firmware:
   Select [1]: 
 ```
 
-The first action simply list hex files in the root directory of the SD
+The first action simply lists hex files in the root directory of the SD
 card. The output looks like this:
 
 ```txt
@@ -413,7 +418,7 @@ Available firmware files on SD card:
 Select a firmfile file [1]: 
 ```
 
-The action confirms your selection and the asks you, whether you are
+The action confirms your selection and then asks you, whether you are
 really sure to update the firmware:
 
 ```txt
@@ -476,4 +481,4 @@ version 1.0.0 by Benda-Lab
 --------------------------------------------------------
 ```
 
-This helps a GUI to detect a new menu.
+This helps a GUI listening on the serial stream to detect a new menu.

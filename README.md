@@ -13,7 +13,7 @@ C++ code.
 
 - Interactive configuration and execution via serial streams.
 - Read and write YAML configuration file on SD card.
-- Configures key-value pairs, with values being strings, enums, integer types, or floats.
+- Configures key-value pairs, with values being strings, enums, booleans, integer types, or floats.
 - Numerical types with units and unit conversion.
 - Object-oriented and templated interface.
 - Stores pointers to arbitarily sized action names (no memory consuming copies).
@@ -37,13 +37,13 @@ C++ code.
 
 This is a brief teaser, for details see the [user guide](docs/userguide.md).
 
-Define a configuration menu:
+Define a menu with a number of submenus and configurable parameters:
 
 ```c
 #include <SD.h>
 #include <MicroConfig.h>
 
-Config config("micro.cfg", &SD);                 // main menu and configuration file
+Config config("micro.cfg", &SD);               // main menu and configuration file
 Menu settings(config, "Settings");             // settings sub menu
 StringParameter<32> path(settings, "Path", "recordings/");
 char filename[64] = "recording.wav";
