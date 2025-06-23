@@ -15,7 +15,7 @@ void UpdateFirmwareAction::execute(Stream &stream, unsigned long timeout,
 				   bool echo, bool detailed) {
   if (disabled(StreamInput))
     return;
-  updateFirmware(SDC, echo, stream);
+  updateFirmware(SDC, echo, detailed, stream);
   stream.println();
 }
 

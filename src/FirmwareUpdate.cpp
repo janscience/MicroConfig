@@ -38,7 +38,8 @@ int listFirmware(SDClass &sdcard, Stream &stream, bool number) {
 }
 
 
-void updateFirmware(SDClass &sdcard, bool echo, Stream &stream) {
+void updateFirmware(SDClass &sdcard, bool echo, bool detailed,
+		    Stream &stream) {
   // list firmware files:
   int n = listFirmware(sdcard, stream, true);
   stream.println();
@@ -46,7 +47,7 @@ void updateFirmware(SDClass &sdcard, bool echo, Stream &stream) {
     return;
   // select firmware file:
   int m = 0;
-  if (n > 1) {
+  if (detailed || n > 1) {
     while (true) {
       stream.print("Select a firmfile file [1]: ");
       while (stream.available() == 0) {
