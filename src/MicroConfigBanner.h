@@ -10,7 +10,7 @@
 #include <Arduino.h>
 
 
-#define MICROCONFIG_SOFTWARE "MicroConfig version 0.4.0"
+#define MICROCONFIG_SOFTWARE "MicroConfig version 1.0.0"
 
 
 void printMicroConfigBanner(const char *software=NULL, Stream &stream=Serial);
