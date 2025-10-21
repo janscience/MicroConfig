@@ -35,9 +35,12 @@ class KeyboardInput(threading.Thread):
         while True:
             x = input()
             if self.ser is not None:
-                self.ser.write(x.encode('latin1'))
-                self.ser.write(b'\n')
-                self.ser.flush();
+                try:
+                    self.ser.write(x.encode('latin1'))
+                    self.ser.write(b'\n')
+                    self.ser.flush();
+                except (OSError, serial.serialutil.SerialException):
+                    self.ser = None
 
 
 def discover_teensy_ports():
