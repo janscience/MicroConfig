@@ -80,8 +80,6 @@ public:
 
   ConfigurationMenu(Menu &menu, SDClass &sd);
 
-protected:
-
   ReportConfigAction ReportAct;
   SaveConfigAction SaveAct;
   LoadConfigAction LoadAct;

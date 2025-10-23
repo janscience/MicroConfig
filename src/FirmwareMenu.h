@@ -42,8 +42,6 @@ public:
 
   FirmwareMenu(Menu &menu, SDClass &sdcard);
 
-protected:
-
   ListFirmwareAction ListAct;
   UpdateFirmwareAction UpdateAct;
   
