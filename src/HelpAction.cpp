@@ -1,24 +1,19 @@
 #include <HelpAction.h>
 
 
+const char *help_text = R"HLP(- Select menu entries by entering the number followed by 'return'.
+- Go up to the parent menu by entering 'q'.
+- Go home to the top-level menu by entering 'h'.
+
+Special commands:
+- 'detailed on' : print additional infos as needed for GUIs, for example.
+- 'detailed off': do not print additional infos (default)
+- 'echo on'     : echo inputs (default)
+- 'echo off'    : do not echo inputs
+- 'print'       : print menu again
+- 'reboot'      : reboot)HLP";
+
+
 HelpAction::HelpAction(Menu &menu, const char *name) :
-  Action(menu, name, StreamInput) {
+  InfoAction(menu, name, help_text) {
 }
-
-
-void HelpAction::execute(Stream &stream, unsigned long timeout,
-			 bool echo, bool detailed) {
-  stream.println("- Select menu entries by entering the number followed by 'return'.");
-  stream.println("- Go up to the parent menu by entering 'q'.");
-  stream.println("- Go home to the top-level menu by entering 'h'.");
-  stream.println();
-  stream.println("Special commands:");
-  stream.println("- 'detailed on' : print additional infos as needed for GUIs, for example.");
-  stream.println("- 'detailed off': do not print additional infos (default)");
-  stream.println("- 'echo on'     : echo inputs (default)");
-  stream.println("- 'echo off'    : do not echo inputs");
-  stream.println("- 'print'       : print menu again");
-  stream.println("- 'reboot'      : reboot");
-  stream.println();
-}
-

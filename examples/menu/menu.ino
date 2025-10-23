@@ -22,6 +22,9 @@ NumberParameter<float> file_time(settings, "FileTime", 30.0,
                                 "%.0f",       // format string
                                 "s");         // unit of the value
 
+// info text:
+InfoAction info(settings, "Info", "just a demonstration");
+
 Menu aisettings(config, "Analog input");    // analog input menu
 
 // unit32_t parameter:

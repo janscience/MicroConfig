@@ -7,19 +7,16 @@
 #define HelpAction_h
 
 
-#include <MicroConfig.h>
+#include <InfoAction.h>
 
 
-class HelpAction : public Action {
+class HelpAction : public InfoAction {
 
  public:
 
   /* Initialize and add to menu. */
   HelpAction(Menu &menu, const char *name);
-
-  /* Print help and key-bindings. */
-  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
-		       bool echo=true, bool detailed=false);
+  
 };
 
 

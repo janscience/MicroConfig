@@ -1,4 +1,4 @@
-![arduino-lint](https://github.com/janscience/MicroControl/actions/workflows/arduino-lint.yml/badge.svg)
+![arduino-lint](https://github.com/janscience/MicroConfig/actions/workflows/arduino-lint.yml/badge.svg)
 
 # MicroConfig
 
@@ -70,7 +70,7 @@ void setup() {
 }
 ```
 
-Then you get:
+Then you get on the serial monitor:
 
 ```txt
 Configuration file "micro.cfg" not found or empty.
@@ -140,8 +140,9 @@ Nice and easy, isn't it?
 - [Menu](src/Menu.h): A menu of actions and parameters.
 - [Config](src/Config.h): Menu with configuration file.
 
-### Help and configuration menu
+### InfoAction, help and configuration menu
 
+- [InfoAction.h](src/InfoAction.h): Action printing some text.
 - [HelpAction.h](src/HelpAction.h): Action printing a help message.
 - [ConfigurationMenu.h](src/ConfigurationMenu.h): Actions and menu for managing configurations.
 
