@@ -13,6 +13,7 @@
 #include <Config.h>
 
 #include <MessageAction.h>
+#include <InfoAction.h>
 #include <HelpAction.h>
 #include <ConfigurationMenu.h>
 

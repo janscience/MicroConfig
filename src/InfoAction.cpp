@@ -1,0 +1,65 @@
+#include <InfoAction.h>
+
+
+InfoAction::InfoAction(Menu &menu, const char *name, int roles) :
+  Action(menu, name, roles),
+  NKeyVals(0),
+  MaxWidth(0) {
+}
+
+
+InfoAction::InfoAction(Menu &menu, const char *name, const char *key1, const char *value1,
+		       const char *key2, const char *value2, const char *key3, const char *value3,
+		       const char *key4, const char *value4, const char *key5, const char *value5) :
+  Action(menu, name, StreamIO),
+  NKeyVals(0) {
+  add(key1, value1);
+  add(key2, value2);
+  add(key3, value3);
+  add(key4, value4);
+  add(key5, value5);
+}
+
+
+int InfoAction::add(const char *key, const char *value) {
+  if (NKeyVals >= MaxKeyVals)
+    return -1;
+  if ((key == 0) || (value == 0))
+    return -1;
+  Keys[NKeyVals] = key;
+  Values[NKeyVals] = value;
+  if (strlen(key) > MaxWidth)
+    MaxWidth = strlen(key);
+  return ++NKeyVals;
+}
+
+
+void InfoAction::setValue(size_t index, const char *value) {
+  if (index >= NKeyVals)
+    return;
+  if (value == 0)
+    return;
+  Values[index] = value;
+}
+
+
+void InfoAction::setValue(const char *key, const char *value) {
+  for (size_t k=0; k<NKeyVals; k++) {
+    if (strcmp(Keys[k], key) == 0) {
+      setValue(k, value);
+      break;
+    }
+  }
+}
+
+
+void InfoAction::execute(Stream &stream, unsigned long timeout,
+			    bool echo, bool detailed) {
+  stream.printf("%s:", name());
+  stream.println();
+  for (size_t k=0; k<NKeyVals; k++) {
+    stream.printf("  %-*s: %s", MaxWidth, Keys[k], Values[k]);
+    stream.println();
+  }
+  stream.println();
+}

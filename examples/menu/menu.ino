@@ -24,6 +24,7 @@ NumberParameter<float> file_time(settings, "FileTime", 30.0,
 
 // info text:
 MessageAction message(settings, "Message", "just a demonstration");
+InfoAction info(settings, "Properties", "fruit", "apple", "color", "red", "name", "topas");
 
 Menu aisettings(config, "Analog input");    // analog input menu
 
@@ -59,6 +60,7 @@ void setup() {
   printMicroConfigBanner();
   SD.begin(BUILTIN_SDCARD);
   message.setText("just another demonstration!");          // change the text printed out
+  info.setValue("color", "green");                         // change the "color" value
   config.load();
   if (Serial)
     config.execute(Serial, 10000);

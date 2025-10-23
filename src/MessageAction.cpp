@@ -1,9 +1,15 @@
 #include <MessageAction.h>
 
 
-MessageAction::MessageAction(Menu &menu, const char *name, const char *text) :
-  Action(menu, name, StreamInput),
+MessageAction::MessageAction(Menu &menu, const char *name, const char *text, int roles) :
+  Action(menu, name, roles),
   Text(text) {
+}
+
+
+MessageAction::MessageAction(Menu &menu, const char *name, int roles) :
+  Action(menu, name, roles),
+  Text(0) {
 }
 
 

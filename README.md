@@ -143,6 +143,7 @@ Nice and easy, isn't it?
 ### Message, help, and configuration menu
 
 - [MessageAction.h](src/MessageAction.h): Action printing some text.
+- [InfoAction.h](src/InfoAction.h): Action printing out key-value pairs.
 - [HelpAction.h](src/HelpAction.h): Action printing a help message.
 - [ConfigurationMenu.h](src/ConfigurationMenu.h): Actions and menu for managing configurations.
 
