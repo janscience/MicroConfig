@@ -15,5 +15,5 @@ Special commands:
 
 
 HelpAction::HelpAction(Menu &menu, const char *name) :
-  InfoAction(menu, name, help_text) {
+  MessageAction(menu, name, help_text) {
 }

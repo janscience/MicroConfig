@@ -140,9 +140,9 @@ Nice and easy, isn't it?
 - [Menu](src/Menu.h): A menu of actions and parameters.
 - [Config](src/Config.h): Menu with configuration file.
 
-### InfoAction, help and configuration menu
+### Message, help, and configuration menu
 
-- [InfoAction.h](src/InfoAction.h): Action printing some text.
+- [MessageAction.h](src/MessageAction.h): Action printing some text.
 - [HelpAction.h](src/HelpAction.h): Action printing a help message.
 - [ConfigurationMenu.h](src/ConfigurationMenu.h): Actions and menu for managing configurations.
 

@@ -12,7 +12,7 @@
 #include <Menu.h>
 #include <Config.h>
 
-#include <InfoAction.h>
+#include <MessageAction.h>
 #include <HelpAction.h>
 #include <ConfigurationMenu.h>
 

@@ -7,10 +7,10 @@
 #define HelpAction_h
 
 
-#include <InfoAction.h>
+#include <MessageAction.h>
 
 
-class HelpAction : public InfoAction {
+class HelpAction : public MessageAction {
 
  public:
 

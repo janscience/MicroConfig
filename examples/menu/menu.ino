@@ -23,7 +23,7 @@ NumberParameter<float> file_time(settings, "FileTime", 30.0,
                                 "s");         // unit of the value
 
 // info text:
-InfoAction info(settings, "Info", "just a demonstration");
+MessageAction message(settings, "Message", "just a demonstration");
 
 Menu aisettings(config, "Analog input");    // analog input menu
 
@@ -58,7 +58,7 @@ void setup() {
   while (!Serial && millis() < 2000) {};
   printMicroConfigBanner();
   SD.begin(BUILTIN_SDCARD);
-  info.setText("just another demonstration!");             // change the text printed out
+  message.setText("just another demonstration!");          // change the text printed out
   config.load();
   if (Serial)
     config.execute(Serial, 10000);
