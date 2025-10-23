@@ -17,7 +17,10 @@ class InfoAction : public Action {
   /* Initialize and add to configuration menu.
      The text is not copied, only a pointer is stored.
      Make sure that the text is static. */
-  InfoAction(Menu &menu, const char *name, const char *text);
+  InfoAction(Menu &menu, const char *name, const char *text=0);
+
+  /* Set the text that is printed out by this action. */
+  void setText(const char *text);
 
   /* Print out text on stream. */
   virtual void execute(Stream &stream=Serial, unsigned long timeout=0,

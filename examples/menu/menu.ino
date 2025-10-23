@@ -58,6 +58,7 @@ void setup() {
   while (!Serial && millis() < 2000) {};
   printMicroConfigBanner();
   SD.begin(BUILTIN_SDCARD);
+  info.setText("just another demonstration!");             // change the text printed out
   config.load();
   if (Serial)
     config.execute(Serial, 10000);
