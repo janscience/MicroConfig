@@ -71,7 +71,7 @@ void InfoAction::report(Stream &stream, unsigned int roles,
       stream.printf("%*s%s:%*s %s\n", indent, "", Keys[k], kw, "", Values[k]);
     }
   }
-  else if (strlen(name()) > 0) {
+  else if (strlen(name()) > 0)
     Action::report(stream, roles, indent, w, descend);
 }
 
