@@ -64,8 +64,14 @@ void setup() {
   config.load();
   if (Serial)
     config.execute(Serial, 10000);
+  // write reportable actions to file:
+  File file = SD.open("report.yml", FILE_WRITE_BEGIN);
+  config.save(file, Action::FileIO | Action::Report);
+  file.close();
+  // report configuration on serial:
   config.report();
   Serial.println();
+  // access configuration values:
   Serial.println("Configuration values:");
   Serial.printf("  path: %s\n", path.value());             // access configured value
   Serial.printf("  file name: %s\n", filename);            // variable has been configured

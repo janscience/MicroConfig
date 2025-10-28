@@ -87,7 +87,7 @@ bool Action::enabled(int roles) const {
   roles &= SupportedRoles;
   if (roles == 0)
     return false;
-  return ((Roles & roles) == roles);
+  return ((Roles & roles) > 0);
 }
 
 
@@ -119,6 +119,11 @@ void Action::report(Stream &stream, size_t indent,
 		    size_t w, bool descend) const {
   if (enabled(StreamOutput) || enabled(StreamInput))
     stream.printf("%*s%s\n", indent, "", name());
+}
+
+
+void Action::save(File &file, int roles,
+		  size_t indent, size_t w) const {
 }
 
 

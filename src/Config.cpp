@@ -29,8 +29,8 @@ void Config::setConfigFile(const char *fname, SDClass *sd) {
 }
 
 
-void Config::save(File &file, size_t indent, size_t w) const {
-  Menu::save(file, indent, w);
+void Config::save(File &file, int roles, size_t indent, size_t w) const {
+  Menu::save(file, roles, indent, w);
 }
 
 

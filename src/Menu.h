@@ -10,9 +10,6 @@
 #include <Action.h>
 
 
-class SDClass;
-
-
 class Menu : public Action {
 
  public:
@@ -49,8 +46,10 @@ class Menu : public Action {
   virtual void report(Stream &stream=Serial, size_t indent=0,
 		      size_t w=0, bool descend=true) const;
 
-  /* Save current settings to file. */
-  virtual void save(File &file, size_t indent=0, size_t w=0) const;
+  /* Save current settings to file.
+     roles must be enabled.
+     Write the name into the file and call save() on the children. */
+  virtual void save(File &file, int roles=FileOutput, size_t indent=0, size_t w=0) const;
 
   /* Save current setting to configuration file on SD card.
      The Config class implements this, for the Menu class it simply returns false,

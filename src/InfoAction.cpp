@@ -1,3 +1,4 @@
+#include <SD.h>
 #include <InfoAction.h>
 
 
@@ -11,7 +12,7 @@ InfoAction::InfoAction(Menu &menu, const char *name, int roles) :
 InfoAction::InfoAction(Menu &menu, const char *name, const char *key1, const char *value1,
 		       const char *key2, const char *value2, const char *key3, const char *value3,
 		       const char *key4, const char *value4, const char *key5, const char *value5) :
-  Action(menu, name, StreamIO),
+  Action(menu, name, StreamIO | Report),
   NKeyVals(0) {
   add(key1, value1);
   add(key2, value2);
@@ -49,6 +50,23 @@ void InfoAction::setValue(const char *key, const char *value) {
       setValue(k, value);
       break;
     }
+  }
+}
+
+
+void InfoAction::save(File &file, int roles, size_t indent, size_t w) const {
+  if (!enabled(roles))
+    return;
+  if (strlen(name()) > 0) {
+    file.printf("%*s%s:\n", indent, "", name());
+    indent += indentation();
+    w = MaxWidth;
+  }
+  else if (w < MaxWidth)
+    w = MaxWidth;
+  for (size_t k=0; k<NKeyVals; k++) {
+    size_t kw = w >= strlen(Keys[k]) ? w - strlen(Keys[k]) : 0;
+    file.printf("%*s%s:%*s %s\n", indent, "", Keys[k], kw, "", Values[k]);
   }
 }
 

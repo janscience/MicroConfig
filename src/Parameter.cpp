@@ -21,8 +21,8 @@ void Parameter::report(Stream &stream, size_t indent,
 }
 
 
-void Parameter::save(File &file, size_t indent, size_t w) const {
-  if (enabled(FileOutput)) {
+void Parameter::save(File &file, int roles, size_t indent, size_t w) const {
+  if (enabled(roles)) {
     char pval[MaxVal];
     valueStr(pval);
     size_t kw = w >= strlen(name()) ? w - strlen(name()) : 0;

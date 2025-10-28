@@ -27,10 +27,11 @@ class Action {
     StreamOutput = 8,
     StreamInput = 16,
     StreamIO = StreamInput | StreamOutput,
+    Report = 32,     // write infos to a file
     // DisplayUpDownButtons,
     // DisplayTouch,
     // whatever input/output device
-    AllRoles = FileIO | StreamIO
+    AllRoles = FileIO | StreamIO | Report
   };
 
   /* Ask a yes or no question on a serial I/O stream. */
@@ -79,7 +80,7 @@ class Action {
   /* Return this Action if name matches its name. */
   virtual Action *action(const char *name);
 
-  /* True if the specified roles are enabled. */
+  /* True if some of the specified roles are enabled. */
   bool enabled(int roles=AllRoles) const;
 
   /* True if the specified roles are not enabled. */
@@ -113,8 +114,9 @@ class Action {
 		      size_t w=0, bool descend=true) const;
 
   /* Save the actions's name and potential value to file.
-     FileOutput must be enabled. */
-  virtual void save(File &file, size_t indent=0, size_t w=0) const {};
+     roles must be enabled.
+     The default implementation does nothing. */
+  virtual void save(File &file, int roles=FileOutput, size_t indent=0, size_t w=0) const;
   
   /* Execute this action with user interactions via serial stream.
      StreamInput and StreamOutput must be enabled.

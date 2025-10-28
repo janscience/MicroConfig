@@ -35,9 +35,10 @@ class Config : public Menu {
   void setConfigFile(const char *fname, SDClass *sd=0);
   
   /* Save current settings to file. Calls implementation of Menu class. */
-  virtual void save(File &file, size_t indent=0, size_t w=0) const;
+  virtual void save(File &file, int roles=FileOutput, size_t indent=0, size_t w=0) const;
 
-  /* Save current setting to configuration file on SD card.
+  /* Save current setting to configuration file on SD card
+     using the default roles (FileOutput) of the save() function.
      Report errors and success on stream.
      Return true on success.
      If sd is NULL write to default SD card provided via setConfigFile(). */

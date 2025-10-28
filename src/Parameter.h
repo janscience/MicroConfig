@@ -62,7 +62,7 @@ class Parameter : public Action {
 		      size_t w=0, bool descend=true) const;
 
   /* Save the parameter's key and value to file. */
-  virtual void save(File &file, size_t indent=0, size_t w=0) const;
+  virtual void save(File &file, int roles=FileOutput, size_t indent=0, size_t w=0) const;
   
   /* Interactive configuration via serial stream.
      Returns from initial menu after timeout milliseconds.

@@ -146,20 +146,20 @@ void Menu::report(Stream &stream, size_t indent,
 }
 
 
-void Menu::save(File &file, size_t indent, size_t w) const {
+void Menu::save(File &file, int roles, size_t indent, size_t w) const {
   // longest name:
   size_t ww = 0;
   for (size_t j=0; j<NActions; j++) {
-    if (Actions[j]->enabled(FileOutput) && strlen(Actions[j]->name()) > ww)
+    if (Actions[j]->enabled(roles) && strlen(Actions[j]->name()) > ww)
       ww = strlen(Actions[j]->name());
   }
   // write actions to file:
-  if (enabled(FileOutput) && strlen(name()) > 0) {
+  if (enabled(roles) && strlen(name()) > 0) {
     file.printf("%*s%s:\n", indent, "", name());
     indent += indentation();
   }
   for (size_t j=0; j<NActions; j++)
-    Actions[j]->save(file, indent, ww);
+    Actions[j]->save(file, roles, indent, ww);
 }
 
 
