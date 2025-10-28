@@ -72,7 +72,7 @@ void InfoAction::report(Stream &stream, unsigned int roles,
     }
   }
   else if (strlen(name()) > 0) {
-    stream.printf("%*s%s\n", indent, "", name());
+    Action::report(stream, roles, indent, w, descend);
 }
 
 

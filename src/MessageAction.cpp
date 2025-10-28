@@ -33,7 +33,7 @@ void MessageAction::report(Stream &stream, unsigned int roles,
       stream.printf("%*s%s:\n", indent, "", Text);
   }
   else
-    stream.printf("%*s%s\n", indent, "", name());
+    Action::report(stream, roles, indent, w, descend);
 }
 
 
