@@ -22,10 +22,6 @@ NumberParameter<float> file_time(settings, "FileTime", 30.0,
                                 "%.0f",       // format string
                                 "s");         // unit of the value
 
-// info text:
-MessageAction message(settings, "Message", "just a demonstration");
-InfoAction info(settings, "Properties", "fruit", "apple", "color", "red", "name", "topas");
-
 Menu aisettings(config, "Analog input");    // analog input menu
 
 // unit32_t parameter:
@@ -53,23 +49,30 @@ ConfigurationMenu configuration_menu(config, SD);  // interactively report, save
 FirmwareMenu firmware_menu(config, SD);    // menu for uploading hex files from SD card
 HelpAction help_act(config, "Help");       // action showing how to use the menu
 
+// Message text:
+MessageAction message(config, "Message", "Just a demonstration");
+
+// Info key-value pairs:
+InfoAction info(config, "Properties", "Fruit", "apple", "Color", "red", "Name", "topas");
+
 
 void setup() {
   Serial.begin(9600);
   while (!Serial && millis() < 2000) {};
   printMicroConfigBanner();
   SD.begin(BUILTIN_SDCARD);
-  message.setText("just another demonstration!");          // change the text printed out
+  message.setText("Just another demonstration!");          // change the text printed out
   info.setValue("color", "green");                         // change the "color" value
   config.load();
   if (Serial)
     config.execute(Serial, 10000);
-  // write reportable actions to file:
-  File file = SD.open("report.yml", FILE_WRITE_BEGIN);
-  config.save(file, Action::FileIO | Action::Report);
-  file.close();
-  // report configuration on serial:
-  config.report();
+  // print reportable actions:
+  Serial.println("Report:");
+  config.report(Serial, Action::Report);
+  Serial.println();
+  // print configuration on serial:
+  Serial.println("Configuration file content:");
+  config.report(Serial, Action::FileOutput);
   Serial.println();
   // access configuration values:
   Serial.println("Configuration values:");

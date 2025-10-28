@@ -17,16 +17,21 @@ class MessageAction : public Action {
   /* Initialize and add to configuration menu.
      The text is not copied, only a pointer is stored.
      Make sure that the text is static. */
-  MessageAction(Menu &menu, const char *name, const char *text, int roles=StreamInput);
+  MessageAction(Menu &menu, const char *name, const char *text, unsigned int roles=StreamInput);
 
   /* Initialize and add to configuration menu.
      You need to assign a text later on using setText(). */
-  MessageAction(Menu &menu, const char *name, int roles=StreamInput);
+  MessageAction(Menu &menu, const char *name, unsigned int roles=StreamInput);
 
   /* Set the text that is printed out by this action.
      The text is not copied, only a pointer is stored.
      Make sure that the text is static. */
   void setText(const char *text);
+
+  /* Write the actions's name and the text to stream.
+     roles must be enabled. */
+  virtual void report(Stream &stream, unsigned int roles=AllRoles, size_t indent=0,
+		      size_t w=0, bool descend=true) const;
 
   /* Print out text on stream. */
   virtual void execute(Stream &stream=Serial, unsigned long timeout=0,

@@ -10,15 +10,19 @@
 #include <Action.h>
 
 
+class SDClass;
+
+
 class Menu : public Action {
 
  public:
 
-  /* Initialize top level menu with name and roles. */
-  Menu(const char *name, int roles=AllRoles);
+  /* Initialize top level menu with name and roles. 
+     StreamOutput, FileIO, and Report are disabled. */
+  Menu(const char *name, unsigned int roles=AllRoles);
 
   /* Initialize menu with name and roles and add it to menu. */
-  Menu(Menu &menu, const char *name, int roles=AllRoles);
+  Menu(Menu &menu, const char *name, unsigned int roles=AllRoles);
 
   /* Add an action to this Menu. */
   void add(Action *action);
@@ -29,11 +33,17 @@ class Menu : public Action {
   /* Return the Action matching name. */
   virtual Action *action(const char *name);
 
+  /* Enable the specified roles for this menu, if supported. */
+  void enable(unsigned int roles=AllRoles);
+
+  /* Disable the specified roles for this menu, if supported. */
+  void disable(unsigned int roles=AllRoles);
+  
   /* Enable the roles of the action matching name. */
-  void enable(const char *name, int roles=AllRoles);
+  void enable(const char *name, unsigned int roles=AllRoles);
 
   /* Disable the roles of the action matching name. */
-  void disable(const char *name, int roles=AllRoles);
+  void disable(const char *name, unsigned int roles=AllRoles);
 
   /* Name of the configuration file.
      For the Menu class this simply returns NULL,
@@ -42,14 +52,9 @@ class Menu : public Action {
   virtual const char *configFile() const;
 
   /* Report name on stream. If descend, also display name and values
-     of children. */
-  virtual void report(Stream &stream=Serial, size_t indent=0,
-		      size_t w=0, bool descend=true) const;
-
-  /* Save current settings to file.
-     roles must be enabled.
-     Write the name into the file and call save() on the children. */
-  virtual void save(File &file, int roles=FileOutput, size_t indent=0, size_t w=0) const;
+     of children. roles must be enabled. */
+  virtual void report(Stream &stream, unsigned int roles=AllRoles,
+		      size_t indent=0, size_t w=0, bool descend=true) const;
 
   /* Save current setting to configuration file on SD card.
      The Config class implements this, for the Menu class it simply returns false,

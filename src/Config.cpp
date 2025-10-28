@@ -13,7 +13,7 @@ Config::Config(const char *fname, SDClass *sd) :
 }
 
 
-Config::Config(const char *name, int roles) :
+Config::Config(const char *name, unsigned int roles) :
   Menu(name, roles) {
 }
 
@@ -26,11 +26,6 @@ const char *Config::configFile() const {
 void Config::setConfigFile(const char *fname, SDClass *sd) {
   ConfigFile = fname;
   SDC = sd;
-}
-
-
-void Config::save(File &file, int roles, size_t indent, size_t w) const {
-  Menu::save(file, roles, indent, w);
 }
 
 
@@ -52,7 +47,7 @@ bool Config::save(Stream &stream, SDClass *sd) const {
     stream.println("       SD not inserted or SD card full.");
     return false;
   }
-  save(file);
+  report(file, FileOutput);
   file.close();
   return true;
 }

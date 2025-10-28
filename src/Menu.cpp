@@ -18,18 +18,20 @@ void reboot_board(Stream &stream) {
 }
 
 
-Menu::Menu(const char *name, int roles) :
+Menu::Menu(const char *name, unsigned int roles) :
   Action(name, roles),
   NActions(0),
   GoHome(false) {
   disableSupported(StreamOutput);
   disableSupported(FileIO);
+  disableSupported(Report);
 }
 
 
-Menu::Menu(Menu &menu, const char *name, int roles) :
+Menu::Menu(Menu &menu, const char *name, unsigned int roles) :
   Action(menu, name, roles),
-  NActions(0) {
+  NActions(0),
+  GoHome(false) {
 }
 
 
@@ -101,14 +103,24 @@ Action *Menu::action(const char *name) {
 }
 
 
-void Menu::enable(const char *name, int roles) {
+void Menu::enable(unsigned int roles) {
+  Action::enable(roles);
+}
+
+
+void Menu::disable(unsigned int roles) {
+  Action::disable(roles);
+}
+
+
+void Menu::enable(const char *name, unsigned int roles) {
   Action *act = action(name);
   if (act != NULL)
     act->enable(roles);
 }
 
 
-void Menu::disable(const char *name, int roles) {
+void Menu::disable(const char *name, unsigned int roles) {
   Action *act = action(name);
   if (act != NULL)
     act->disable(roles);
@@ -120,46 +132,25 @@ const char *Menu::configFile() const {
 }
 
 
-void Menu::report(Stream &stream, size_t indent,
+void Menu::report(Stream &stream, unsigned int roles, size_t indent,
 		  size_t w, bool descend) const {
-  if (disabled(StreamIO))
-    return;
   // write actions to serial:
   if (descend) {
-    if (enabled(StreamOutput) && strlen(name()) > 0) {
+    if (enabled(roles) && strlen(name()) > 0) {
       stream.printf("%*s%s:\n", indent, "", name());
       indent += indentation();
     }
     // longest name:
     size_t ww = 0;
     for (size_t j=0; j<NActions; j++) {
-      if (Actions[j]->enabled(StreamOutput) && strlen(Actions[j]->name()) > ww)
+      if (Actions[j]->enabled(roles) && strlen(Actions[j]->name()) > ww)
 	ww = strlen(Actions[j]->name());
     }
-    for (size_t j=0; j<NActions; j++) {
-      if (Actions[j]->enabled(StreamOutput))
-	Actions[j]->report(stream, indent, ww, descend);
-    }
+    for (size_t j=0; j<NActions; j++)
+      Actions[j]->report(stream, roles, indent, ww, descend);
   }
-  else
+  else if (enabled(roles) && strlen(name()) > 0)
     stream.printf("%*s%s ...\n", indent, "", name());
-}
-
-
-void Menu::save(File &file, int roles, size_t indent, size_t w) const {
-  // longest name:
-  size_t ww = 0;
-  for (size_t j=0; j<NActions; j++) {
-    if (Actions[j]->enabled(roles) && strlen(Actions[j]->name()) > ww)
-      ww = strlen(Actions[j]->name());
-  }
-  // write actions to file:
-  if (enabled(roles) && strlen(name()) > 0) {
-    file.printf("%*s%s:\n", indent, "", name());
-    indent += indentation();
-  }
-  for (size_t j=0; j<NActions; j++)
-    Actions[j]->save(file, roles, indent, ww);
 }
 
 
@@ -186,7 +177,7 @@ void Menu::execute(Stream &stream, unsigned long timeout,
     for (size_t j=0; j<NActions; j++) {
       if (Actions[j]->enabled(StreamInput)) {
 	stream.printf("  %d) ", n+1);
-	Actions[j]->report(stream, 0, 0, false);
+	Actions[j]->report(stream, StreamIO, 0, 0, false);
 	iaction[n++] = j;
       }
     }

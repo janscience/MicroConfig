@@ -2,7 +2,7 @@
 #include <InfoAction.h>
 
 
-InfoAction::InfoAction(Menu &menu, const char *name, int roles) :
+InfoAction::InfoAction(Menu &menu, const char *name, unsigned int roles) :
   Action(menu, name, roles),
   NKeyVals(0),
   MaxWidth(0) {
@@ -54,25 +54,30 @@ void InfoAction::setValue(const char *key, const char *value) {
 }
 
 
-void InfoAction::save(File &file, int roles, size_t indent, size_t w) const {
-  if (!enabled(roles))
+void InfoAction::report(Stream &stream, unsigned int roles,
+			size_t indent, size_t w, bool descend) const {
+  if (disabled(roles))
     return;
-  if (strlen(name()) > 0) {
-    file.printf("%*s%s:\n", indent, "", name());
-    indent += indentation();
-    w = MaxWidth;
+  if (descend) {
+    if (strlen(name()) > 0) {
+      stream.printf("%*s%s:\n", indent, "", name());
+      indent += indentation();
+      w = MaxWidth;
+    }
+    else if (w < MaxWidth)
+      w = MaxWidth;
+    for (size_t k=0; k<NKeyVals; k++) {
+      size_t kw = w >= strlen(Keys[k]) ? w - strlen(Keys[k]) : 0;
+      stream.printf("%*s%s:%*s %s\n", indent, "", Keys[k], kw, "", Values[k]);
+    }
   }
-  else if (w < MaxWidth)
-    w = MaxWidth;
-  for (size_t k=0; k<NKeyVals; k++) {
-    size_t kw = w >= strlen(Keys[k]) ? w - strlen(Keys[k]) : 0;
-    file.printf("%*s%s:%*s %s\n", indent, "", Keys[k], kw, "", Values[k]);
-  }
+  else
+    stream.printf("%*s%s\n", indent, "", name());
 }
 
 
 void InfoAction::execute(Stream &stream, unsigned long timeout,
-			    bool echo, bool detailed) {
+			 bool echo, bool detailed) {
   stream.printf("%s:", name());
   stream.println();
   for (size_t k=0; k<NKeyVals; k++) {

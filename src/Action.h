@@ -10,8 +10,6 @@
 #include <Arduino.h>
 
 
-class File;
-class SDClass;
 class Menu;
 
 
@@ -40,14 +38,14 @@ class Action {
 
   /* Initialize action with name and supported roles.
      Warning: only a pointer to name is stored. */
-  Action(const char *name, int roles=AllRoles);
+  Action(const char *name, unsigned int roles=AllRoles);
 
   /* Initialize action with name and supported roles and add it to menu.
      Warning: only a pointer to name is stored.
      This spares memory when passing a literal string.
      If you want the string to be copied, however, then
      use setName(). */
-  Action(Menu &menu, const char *name, int roles=AllRoles);
+  Action(Menu &menu, const char *name, unsigned int roles=AllRoles);
 
   /* The name identifying the action. */
   const char *name() const { return Name; }
@@ -81,25 +79,25 @@ class Action {
   virtual Action *action(const char *name);
 
   /* True if some of the specified roles are enabled. */
-  bool enabled(int roles=AllRoles) const;
+  bool enabled(unsigned int roles=AllRoles) const;
 
   /* True if the specified roles are not enabled. */
-  bool disabled(int roles=AllRoles) const;
+  bool disabled(unsigned int roles=AllRoles) const;
 
   /* Enable the specified roles for this action, if supported. */
-  void enable(int roles=AllRoles);
+  void enable(unsigned int roles=AllRoles);
 
   /* Disable the specified roles, if supported. */
-  void disable(int roles=AllRoles);
+  void disable(unsigned int roles=AllRoles);
 
   /* Disable the specified roles from the supported roles. */
-  void disableSupported(int roles);
+  void disableSupported(unsigned int roles);
 
   /* Return the roles this action currently has. */
-  int roles() const { return Roles; };
+  unsigned int roles() const { return Roles; };
   
   /* Return the roles this action in general supports. */
-  int supportedRoles() const { return Roles; };
+  unsigned int supportedRoles() const { return SupportedRoles; };
 
   /* The number of spaces to be used for each indentation level. */
   size_t indentation() const { return Indentation; };
@@ -107,16 +105,11 @@ class Action {
   /* Set the number of spaces to be used for each indentation level. */
   void setIndentation(size_t indentation) { Indentation = indentation; };
 
-  /* Report the action's name and potential values or infos on stream.
-     If descend, also display children.
-     StreamOutput must be enabled. */
-  virtual void report(Stream &stream=Serial, size_t indent=0,
-		      size_t w=0, bool descend=true) const;
-
-  /* Save the actions's name and potential value to file.
-     roles must be enabled.
-     The default implementation does nothing. */
-  virtual void save(File &file, int roles=FileOutput, size_t indent=0, size_t w=0) const;
+  /* Report the action's name and potential values or infos on stream
+     with proper indentation. roles must be enabled.
+     If descend, also display children. */
+  virtual void report(Stream &stream=Serial, unsigned int roles=AllRoles,
+		      size_t indent=0, size_t w=0, bool descend=true) const;
   
   /* Execute this action with user interactions via serial stream.
      StreamInput and StreamOutput must be enabled.
@@ -137,8 +130,8 @@ class Action {
  protected:
 
   char *Name;
-  int SupportedRoles;
-  int Roles;
+  unsigned int SupportedRoles;
+  unsigned int Roles;
 
   size_t Indentation;
 

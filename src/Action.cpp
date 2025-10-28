@@ -1,4 +1,3 @@
-#include <SD.h>
 #include <Menu.h>
 #include <Action.h>
 
@@ -27,7 +26,7 @@ bool Action::yesno(const char *request, bool defval,
 }
 
 
-Action::Action(const char *name, int roles) :
+Action::Action(const char *name, unsigned int roles) :
   Name(const_cast<char *>(name)),
   SupportedRoles(roles),
   Roles(roles),
@@ -36,7 +35,7 @@ Action::Action(const char *name, int roles) :
 }
 
 
-Action::Action(Menu &menu, const char *name, int roles) :
+Action::Action(Menu &menu, const char *name, unsigned int roles) :
   Action(name, roles) {
   menu.add(this);
 }
@@ -83,7 +82,7 @@ Action *Action::action(const char *name) {
 }
 
 
-bool Action::enabled(int roles) const {
+bool Action::enabled(unsigned int roles) const {
   roles &= SupportedRoles;
   if (roles == 0)
     return false;
@@ -91,39 +90,34 @@ bool Action::enabled(int roles) const {
 }
 
 
-bool Action::disabled(int roles) const {
+bool Action::disabled(unsigned int roles) const {
   return !enabled(roles);
 }
 
 
-void Action::enable(int roles) {
+void Action::enable(unsigned int roles) {
   roles &= SupportedRoles;
   Roles |= roles;
 }
 
 
-void Action::disable(int roles) {
+void Action::disable(unsigned int roles) {
   roles &= SupportedRoles;
   Roles &= ~roles;
 }
 
 
-void Action::disableSupported(int roles) {
+void Action::disableSupported(unsigned int roles) {
   roles &= SupportedRoles;
   SupportedRoles &= ~roles;
-  Roles = SupportedRoles;
+  Roles &= SupportedRoles;
 }
 
 
-void Action::report(Stream &stream, size_t indent,
+void Action::report(Stream &stream, unsigned int roles, size_t indent,
 		    size_t w, bool descend) const {
-  if (enabled(StreamOutput) || enabled(StreamInput))
+  if (enabled(roles))
     stream.printf("%*s%s\n", indent, "", name());
-}
-
-
-void Action::save(File &file, int roles,
-		  size_t indent, size_t w) const {
 }
 
 

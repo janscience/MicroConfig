@@ -87,7 +87,7 @@ The first two sub menus allow you to change the values of the
 parameters defined above.
 
 Hit '3' followed by return to enter the configuration menu,
-where you can choose to view the current configuration:
+where you can choose to view the current configuration by hitting '1':
 
 ```txt
 Settings:

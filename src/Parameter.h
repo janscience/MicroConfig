@@ -57,12 +57,10 @@ class Parameter : public Action {
      and add it to menu. */
   Parameter(Menu &menu, const char *name, size_t n=0);
 
-  /* Report the parameter's name and value on serial stream. */
-  virtual void report(Stream &stream=Serial, size_t indent=0,
-		      size_t w=0, bool descend=true) const;
-
-  /* Save the parameter's key and value to file. */
-  virtual void save(File &file, int roles=FileOutput, size_t indent=0, size_t w=0) const;
+  /* Report the parameter's name and value on stream wih proper identation.
+     roles must be enabled. */
+  virtual void report(Stream &stream=Serial, unsigned int roles=AllRoles,
+		      size_t indent=0, size_t w=0, bool descend=true) const;
   
   /* Interactive configuration via serial stream.
      Returns from initial menu after timeout milliseconds.

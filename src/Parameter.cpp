@@ -1,4 +1,3 @@
-#include <SD.h>
 #include <Menu.h>
 #include <Parameter.h>
 
@@ -10,23 +9,13 @@ Parameter::Parameter(Menu &menu, const char *name, size_t n) :
 }
 
 
-void Parameter::report(Stream &stream, size_t indent,
+void Parameter::report(Stream &stream, unsigned int roles, size_t indent,
 		       size_t w, bool descend) const {
-  if (enabled(StreamOutput)) {
-    char pval[MaxVal];
-    valueStr(pval);
-    size_t kw = w >= strlen(name()) ? w - strlen(name()) : 0;
-    stream.printf("%*s%s:%*s %s\n", indent, "", name(), kw, "", pval);
-  }
-}
-
-
-void Parameter::save(File &file, int roles, size_t indent, size_t w) const {
   if (enabled(roles)) {
     char pval[MaxVal];
     valueStr(pval);
     size_t kw = w >= strlen(name()) ? w - strlen(name()) : 0;
-    file.printf("%*s%s:%*s %s\n", indent, "", name(), kw, "", pval);
+    stream.printf("%*s%s:%*s %s\n", indent, "", name(), kw, "", pval);
   }
 }
 

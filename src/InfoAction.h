@@ -16,7 +16,7 @@ class InfoAction : public Action {
 
   /* Initialize and add to configuration menu.
      You need to add ket-value pairs later on using add(). */
-  InfoAction(Menu &menu, const char *name, int roles=StreamIO | Report);
+  InfoAction(Menu &menu, const char *name, unsigned int roles=StreamIO | Report);
 
   /* Initialize and add to configuration menu.
      Key-value pairs are added to the action using add().
@@ -38,9 +38,10 @@ class InfoAction : public Action {
   /* Set value of key-vailue pair. */
   void setValue(const char *key, const char *value);
 
-  /* Save the actions's name and all the key-value pairs to file.
+  /* Write the actions's name and all the key-value pairs to stream.
      roles must be enabled. */
-  virtual void save(File &file, int roles=FileOutput, size_t indent=0, size_t w=0) const;
+  virtual void report(Stream &stream, unsigned int roles=AllRoles,
+		      size_t indent=0, size_t w=0, bool descend=true) const;
 
   /* Print out text on stream. */
   virtual void execute(Stream &stream=Serial, unsigned long timeout=0,

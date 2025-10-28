@@ -8,7 +8,7 @@ ReportConfigAction::ReportConfigAction(Menu &menu, const char *name) :
 
 void ReportConfigAction::execute(Stream &stream, unsigned long timeout,
 				 bool echo, bool detailed) {
-  root()->report(stream);
+  root()->report(stream, FileOutput);
   stream.println();
 }
 

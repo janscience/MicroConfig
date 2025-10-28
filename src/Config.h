@@ -25,7 +25,7 @@ class Config : public Menu {
   Config(const char *fname, SDClass *sd);
 
   /* Initialize top level menu with name and roles. */
-  Config(const char *name, int roles=AllRoles);
+  Config(const char *name, unsigned int roles=AllRoles);
 
   /* Name of the configuration file or NULL if not set. */
   virtual const char *configFile() const;
@@ -33,12 +33,9 @@ class Config : public Menu {
   /* Set name of the configuration file (only a pointer to fname is stored)
      and optional SD card on which to store the config file. */
   void setConfigFile(const char *fname, SDClass *sd=0);
-  
-  /* Save current settings to file. Calls implementation of Menu class. */
-  virtual void save(File &file, int roles=FileOutput, size_t indent=0, size_t w=0) const;
 
   /* Save current setting to configuration file on SD card
-     using the default roles (FileOutput) of the save() function.
+     using the role FileOutput for the report() function.
      Report errors and success on stream.
      Return true on success.
      If sd is NULL write to default SD card provided via setConfigFile(). */
