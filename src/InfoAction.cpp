@@ -58,31 +58,24 @@ void InfoAction::report(Stream &stream, unsigned int roles,
 			size_t indent, size_t w, bool descend) const {
   if (disabled(roles))
     return;
+  if (strlen(name()) > 0) {
+    stream.printf("%*s%s:\n", indent, "", name());
+    indent += indentation();
+    w = MaxWidth;
+  }
+  else if (w < MaxWidth)
+    w = MaxWidth;
   if (descend) {
-    if (strlen(name()) > 0) {
-      stream.printf("%*s%s:\n", indent, "", name());
-      indent += indentation();
-      w = MaxWidth;
-    }
-    else if (w < MaxWidth)
-      w = MaxWidth;
     for (size_t k=0; k<NKeyVals; k++) {
       size_t kw = w >= strlen(Keys[k]) ? w - strlen(Keys[k]) : 0;
       stream.printf("%*s%s:%*s %s\n", indent, "", Keys[k], kw, "", Values[k]);
     }
   }
-  else
-    stream.printf("%*s%s\n", indent, "", name());
 }
 
 
 void InfoAction::execute(Stream &stream, unsigned long timeout,
 			 bool echo, bool detailed) {
-  stream.printf("%s:", name());
-  stream.println();
-  for (size_t k=0; k<NKeyVals; k++) {
-    stream.printf("  %-*s: %s", MaxWidth, Keys[k], Values[k]);
-    stream.println();
-  }
+  report(stream, AllRoles, 0, MaxWidth, true);
   stream.println();
 }

@@ -123,4 +123,6 @@ void Action::report(Stream &stream, unsigned int roles, size_t indent,
 
 void Action::execute(Stream &stream, unsigned long timeout,
 		     bool echo, bool detailed) {
+  report(stream);
+  stream.println();
 }

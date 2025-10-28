@@ -116,7 +116,7 @@ class Action {
      Returns from initial menu after timeout milliseconds.
      If echo, print out received input.
      If detailed provide additional infos for GUI applications.
-     Default does nothing. */
+     Default calls report(stream). */
   virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
 		       bool echo=true, bool detailed=false);
 
