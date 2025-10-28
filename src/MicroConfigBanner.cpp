@@ -16,7 +16,7 @@ void printMicroConfigBanner(const char *software, Stream &stream) {
   if (strlen(software) > 11 && strncmp(software, "MicroConfig", 11) == 0)
     software = software + 12;
   stream.print(software);
-  stream.println(" by Benda-Lab");
+  stream.println(" by ThunderLab");
   stream.println("--------------------------------------------------------");
   stream.println();
 }

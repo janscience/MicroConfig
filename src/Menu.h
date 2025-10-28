@@ -53,7 +53,7 @@ class Menu : public Action {
 
   /* Report name on stream. If descend, also display name and values
      of children. roles must be enabled. */
-  virtual void report(Stream &stream, unsigned int roles=AllRoles,
+  virtual void report(Stream &stream=Serial, unsigned int roles=AllRoles,
 		      size_t indent=0, size_t w=0, bool descend=true) const;
 
   /* Save current setting to configuration file on SD card.
