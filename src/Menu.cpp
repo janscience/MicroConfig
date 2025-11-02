@@ -154,6 +154,103 @@ void Menu::report(Stream &stream, unsigned int roles, size_t indent,
 }
 
 
+void Menu::read(Stream &instream, Stream &outstream) {
+  Action *act = NULL;
+  const size_t nline = 128;
+  char line[nline];
+  char sections[nline];
+  sections[0] = '\0';
+  int indent = 0;
+  int previndent = -1;
+  int nind = -1;
+  while (instream.available()) {
+    instream.readBytesUntil('\n', line, nline);
+    char *key = NULL;
+    char *val = NULL;
+    int state = 0;
+    for (size_t k=0; line[k] != '\0'; k++) {
+      if (line[k] == '#') {
+	line[k] = '\0';
+	break;
+      }
+      if (line[k] == '\n' || line[k] == '\r')
+	line[k] = ' ';
+      switch (state) {
+      case 0: if (line[k] != ' ') {
+	  indent = k;
+	  if (previndent < 0)
+	    previndent = indent;
+	  line[k] = tolower(line[k]);
+	  key = &line[k];
+	  state++;
+	}
+	break;
+      case 1: line[k] = tolower(line[k]);
+	if (line[k] == ':') {
+	  line[k] = '\0';
+	  state++;
+	  for (int i=k-1; i>=0; i--) {
+	    if (line[i] != ' ') {
+	      line[i+1] = '\0';
+	      break;
+	    }
+	  }
+	}
+	break;
+      case 2: if (line[k] != ' ') {
+	  val = &line[k];
+	  state++;
+	}
+	break;
+      }
+    }
+    if (state > 1) {
+      if (val == NULL) {
+	if (indent > previndent) {
+	  if (nind < 0)
+	    nind = indent - previndent;
+	  if (strlen(sections) > 0)
+	    strcat(sections, ">");
+	  strcat(sections, key);
+	}
+	else {
+	  int n = previndent - indent;
+	  n /= nind >= 0 ? nind : 2;
+	  n += 1;
+	  // n sections up:
+	  for(int i=strlen(sections)-1; i>=0; i--) {
+	    if (sections[i] == '>') {
+	      sections[i] = '\0';
+	      if (--n == 0)
+		break;
+	    }
+	  }
+	  if (n > 0)
+	    sections[0] = '\0';
+	  // add new section:
+	  if (strlen(sections) > 0)
+	    strcat(sections, ">");
+	  strcat(sections, key);
+	}
+	previndent = indent;
+	act = action(sections);
+	if (act == NULL)
+	  outstream.printf("  no configuration candidate for section \"%s\" found.\n", sections);
+      }
+      else if (act) {
+	for (int i=strlen(val)-1; i>=0; i--) {
+	  if (val[i] != ' ') {
+	    val[i+1] = '\0';
+	    break;
+	  }
+	}
+	act->set(val, key, outstream);
+      }
+    }
+  }
+}
+
+
 bool Menu::save(Stream &stream, SDClass *sd) const {
   return false;
 }

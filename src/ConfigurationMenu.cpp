@@ -13,6 +13,20 @@ void ReportConfigAction::execute(Stream &stream, unsigned long timeout,
 }
 
 
+void ReadConfigAction::execute(Stream &stream, unsigned long timeout,
+				 bool echo, bool detailed) {
+  if (stream.available() == 0)
+    stream.println("Read configuration...");
+  elapsedMillis time = 0;
+  while ((stream.available() == 0) && (time < 10000)) {
+    yield();
+    delay(1);
+  }
+  root()->read(stream, stream);
+  stream.println();
+}
+
+
 SDClassAction::SDClassAction(Menu &menu, const char *name, SDClass &sd) : 
   Action(menu, name, StreamInput),
   SDC(sd) {
@@ -37,8 +51,6 @@ void SaveConfigAction::execute(Stream &stream, unsigned long timeout,
 
 void LoadConfigAction::execute(Stream &stream, unsigned long timeout,
 			       bool echo, bool detailed) {
-  if (disabled(StreamInput))
-    return;
   bool r = true;
   if (root()->configFile() != NULL) {
     if (!SDC.exists(root()->configFile())) {
@@ -58,8 +70,6 @@ void LoadConfigAction::execute(Stream &stream, unsigned long timeout,
 
 void RemoveConfigAction::execute(Stream &stream, unsigned long timeout,
 				 bool echo, bool detailed) {
-  if (disabled(StreamInput))
-    return;
   if (root()->configFile() == NULL) {
     stream.println("ERROR! No configuration file name specified.");
     return;
@@ -86,8 +96,9 @@ void RemoveConfigAction::execute(Stream &stream, unsigned long timeout,
 ConfigurationMenu::ConfigurationMenu(Menu &menu, SDClass &sd) :
   Menu(menu, "Configuration", Action::StreamInput),
   ReportAct(*this, "Print configuration"),
-  SaveAct(*this,"Save configuration", sd),
-  LoadAct(*this, "Load configuration", sd),
-  RemoveAct(*this, "Erase configuration", sd) {
+  SaveAct(*this,"Save configuration file", sd),
+  LoadAct(*this, "Load configuration file", sd),
+  RemoveAct(*this, "Erase configuration file", sd),
+  ReadAct(*this, "Read configuration") {
 }
 

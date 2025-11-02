@@ -25,6 +25,18 @@ class ReportConfigAction : public Action {
 };
 
 
+class ReadConfigAction : public ReportConfigAction {
+
+ public:
+  
+  using ReportConfigAction::ReportConfigAction;
+
+  /* Read configuration settings from stream. */
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
+};
+
+
 class SDClassAction : public Action {
 
  public:
@@ -84,6 +96,7 @@ public:
   SaveConfigAction SaveAct;
   LoadConfigAction LoadAct;
   RemoveConfigAction RemoveAct;
+  ReadConfigAction ReadAct;
   
 };
 

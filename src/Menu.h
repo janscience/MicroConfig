@@ -56,6 +56,10 @@ class Menu : public Action {
   virtual void report(Stream &stream=Serial, unsigned int roles=AllRoles,
 		      size_t indent=0, size_t w=0, bool descend=true) const;
 
+  /* Read configuration settings from instream and
+     report errors on outstream. */
+  virtual void read(Stream &instream=Serial, Stream &outstream=Serial);
+
   /* Save current setting to configuration file on SD card.
      The Config class implements this, for the Menu class it simply returns false,
      because it does not own a configuration file name. */
