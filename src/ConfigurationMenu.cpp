@@ -14,7 +14,7 @@ void ReportConfigAction::execute(Stream &stream, unsigned long timeout,
 
 
 void ReadConfigAction::execute(Stream &stream, unsigned long timeout,
-				 bool echo, bool detailed) {
+			       bool echo, bool detailed) {
   if (stream.available() == 0)
     stream.println("Read configuration...");
   elapsedMillis time = 0;

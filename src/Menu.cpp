@@ -165,6 +165,8 @@ void Menu::read(Stream &instream, Stream &outstream) {
   int nind = -1;
   while (instream.available()) {
     instream.readBytesUntil('\n', line, nline);
+    if (strncmp(line, "DONE", 4) == 0)
+      break;
     char *key = NULL;
     char *val = NULL;
     int state = 0;
@@ -247,6 +249,8 @@ void Menu::read(Stream &instream, Stream &outstream) {
 	act->set(val, key, outstream);
       }
     }
+    if (instream.available() == 0)
+      delay(10);
   }
 }
 

@@ -56,7 +56,8 @@ class Menu : public Action {
   virtual void report(Stream &stream=Serial, unsigned int roles=AllRoles,
 		      size_t indent=0, size_t w=0, bool descend=true) const;
 
-  /* Read configuration settings from instream and
+  /* Read configuration settings from instream as long as data are available
+     or a line starting with "DONE" is encountered, and
      report errors on outstream. */
   virtual void read(Stream &instream=Serial, Stream &outstream=Serial);
 
