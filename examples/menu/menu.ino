@@ -65,7 +65,7 @@ void setup() {
   info.setValue("color", "green");                         // change the "color" value
   config.load();
   if (Serial)
-    config.execute(Serial, Serial, 10000);
+    config.execute();
   // print reportable actions:
   Serial.println("Report:");
   config.write(Serial, Action::Report);
