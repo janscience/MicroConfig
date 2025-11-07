@@ -9,19 +9,20 @@ Parameter::Parameter(Menu &menu, const char *name, size_t n) :
 }
 
 
-void Parameter::report(Stream &stream, unsigned int roles, size_t indent,
-		       size_t w, bool descend) const {
+void Parameter::write(Stream &stream, unsigned int roles,
+		      size_t indent, size_t width, bool descend) const {
   if (enabled(roles)) {
     char pval[MaxVal];
     valueStr(pval);
-    size_t kw = w >= strlen(name()) ? w - strlen(name()) : 0;
+    size_t kw = width >= strlen(name()) ? width - strlen(name()) : 0;
     stream.printf("%*s%s:%*s %s\n", indent, "", name(), kw, "", pval);
   }
 }
 
 
-void Parameter::execute(Stream &stream, unsigned long timeout,
-			bool echo, bool detailed) {
+void Parameter::execute(Stream &instream, Stream &outstream,
+			unsigned long timeout, bool echo,
+			bool detailed) {
   if (disabled(SetValue | StreamIO))
     return;
   int w = strlen(name());
@@ -29,33 +30,34 @@ void Parameter::execute(Stream &stream, unsigned long timeout,
     w = 16;
   char pval[MaxVal];
   valueStr(pval);
-  stream.printf("%-*s: %s\n", w, name(), pval);
-  listSelection(stream);
+  outstream.printf("%-*s: %s\n", w, name(), pval);
+  listSelection(outstream);
   while (true) {
     if (NSelection > 0)
-      stream.print("Select new value");
+      outstream.print("Select new value");
     else
-      stream.print("Enter new value ");
+      outstream.print("Enter new value ");
     instructions(pval, detailed);
     if (strlen(pval) > 0)
-      stream.printf(" (%s)", pval);
-    stream.print(": ");
+      outstream.printf(" (%s)", pval);
+    outstream.print(": ");
     elapsedMillis time = 0;
-    while ((stream.available() == 0) && (timeout == 0 || time < timeout)) {
+    while ((instream.available() == 0) && (timeout == 0 || time < timeout)) {
       yield();
+      delay(1);
     }
-    stream.readBytesUntil('\n', pval, MaxVal);
+    instream.readBytesUntil('\n', pval, MaxVal);
     if ((strcmp(pval, "ktv") == 0) ||
 	(strcmp(pval, "keepthevalue") == 0) ||
 	parseValue(pval, NSelection > 0)) {
       if (echo)
-	stream.println(pval);
+	outstream.println(pval);
       break;
     }
     if (echo)
-      stream.println(pval);
+      outstream.println(pval);
   }
-  stream.println();
+  outstream.println();
 }
 
 

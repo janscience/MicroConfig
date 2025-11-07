@@ -2,21 +2,23 @@
 #include <FirmwareMenu.h>
 
 
-void ListFirmwareAction::execute(Stream &stream, unsigned long timeout,
-				 bool echo, bool detailed) {
+void ListFirmwareAction::execute(Stream &instream, Stream &outstream,
+				 unsigned long timeout, bool echo,
+				 bool detailed) {
   if (disabled(StreamInput))
     return;
-  listFirmware(SDC, stream);
-  stream.println();
+  listFirmware(SDC, outstream);
+  outstream.println();
 }
 
 
-void UpdateFirmwareAction::execute(Stream &stream, unsigned long timeout,
-				   bool echo, bool detailed) {
+void UpdateFirmwareAction::execute(Stream &instream, Stream &outstream,
+				   unsigned long timeout, bool echo,
+				   bool detailed) {
   if (disabled(StreamInput))
     return;
-  updateFirmware(SDC, echo, detailed, stream);
-  stream.println();
+  updateFirmware(SDC, echo, detailed, instream, outstream);
+  outstream.println();
 }
 
 

@@ -132,8 +132,8 @@ const char *Menu::configFile() const {
 }
 
 
-void Menu::report(Stream &stream, unsigned int roles, size_t indent,
-		  size_t w, bool descend) const {
+void Menu::write(Stream &stream, unsigned int roles, size_t indent,
+		 size_t width, bool descend) const {
   // write actions to serial:
   if (descend) {
     if (enabled(roles) && strlen(name()) > 0) {
@@ -147,7 +147,7 @@ void Menu::report(Stream &stream, unsigned int roles, size_t indent,
 	ww = strlen(Actions[j]->name());
     }
     for (size_t j=0; j<NActions; j++)
-      Actions[j]->report(stream, roles, indent, ww, descend);
+      Actions[j]->write(stream, roles, indent, ww, descend);
   }
   else if (enabled(roles) && strlen(name()) > 0)
     stream.printf("%*s%s ...\n", indent, "", name());
@@ -264,53 +264,53 @@ void Menu::load(Stream &stream, SDClass *sd) {
 }
 
 
-void Menu::execute(Stream &stream, unsigned long timeout,
-		   bool echo, bool detailed) {
+void Menu::execute(Stream &instream, Stream &outstream,
+		   unsigned long timeout, bool echo, bool detailed) {
   if (disabled(StreamInput))
     return;
   int def = 0;
   if (timeout > 0)
     def = -1;
   while (true) {
-    stream.printf("%s:\n", name());
+    outstream.printf("%s:\n", name());
     size_t iaction[NActions];
     size_t n = 0;
     for (size_t j=0; j<NActions; j++) {
       if (Actions[j]->enabled(StreamInput)) {
-	stream.printf("  %d) ", n+1);
-	Actions[j]->report(stream, StreamIO, 0, 0, false);
+	outstream.printf("  %d) ", n+1);
+	Actions[j]->write(outstream, StreamIO, 0, 0, false);
 	iaction[n++] = j;
       }
     }
     while (true) {
       if (def >= 0)
-	stream.printf("  Select [%d]: ", def + 1);
+	outstream.printf("  Select [%d]: ", def + 1);
       else
-	stream.printf("  Select: ");
+	outstream.printf("  Select: ");
       elapsedMillis time = 0;
-      while ((stream.available() == 0) && (timeout == 0 || time < timeout)) {
+      while ((instream.available() == 0) && (timeout == 0 || time < timeout)) {
 	yield();
 	delay(1);
       }
-      if (stream.available() == 0) {
+      if (instream.available() == 0) {
 	// timeout:
-	stream.println('\n');
-	stream.printf("Timeout! Exit %s now.\n\n", name());
+	outstream.println('\n');
+	outstream.printf("Timeout! Exit %s now.\n\n", name());
 	return;
       }
       timeout = 0;
       char pval[32];
-      stream.readBytesUntil('\n', pval, 32);
+      instream.readBytesUntil('\n', pval, 32);
       if (strlen(pval) == 0 && def >= 0)
 	sprintf(pval, "%d", def + 1);
       if (echo)
-	stream.println(pval);
+	outstream.println(pval);
       if (strlen(pval) == 0 && def < 0) {
 	def = 0;
 	continue;
       }
       if (strcmp(pval, "reboot") == 0)
-	reboot_board(stream);
+	reboot_board(outstream);
       else if (strcmp(pval, "detailed on") == 0)
 	detailed = true;
       else if (strcmp(pval, "detailed off") == 0)
@@ -320,7 +320,7 @@ void Menu::execute(Stream &stream, unsigned long timeout,
       else if (strcmp(pval, "echo off") == 0)
 	echo = false;
       else if (strcmp(pval, "print") == 0) {
-	stream.println();
+	outstream.println();
 	break;
       }
       else {
@@ -329,8 +329,8 @@ void Menu::execute(Stream &stream, unsigned long timeout,
 	if (end != pval && i >= 0 && i < (long)n &&
 	    iaction[i] < NActions) {
 	  def = i;
-	  stream.println();
-	  Actions[iaction[i]]->execute(stream, 0, echo, detailed);
+	  outstream.println();
+	  Actions[iaction[i]]->execute(instream, outstream, 0, echo, detailed);
 	  if (root()->GoHome) {
 	    if (this != root()) {
 	      // go up one level:
@@ -346,19 +346,19 @@ void Menu::execute(Stream &stream, unsigned long timeout,
 	else if (strcmp(pval, "h") == 0) {
 	  if (this != root()) {
 	    // mark to go home and go up one level:
-	    stream.println();
+	    outstream.println();
 	    root()->GoHome = true;
 	    return;
 	  }
 	  else {
 	    // already at top-level menu, reprint:
-	    stream.println();
+	    outstream.println();
 	    break;
 	  }
 	}
 	else if (strcmp(pval, "q") == 0) {
 	  // exit this menu:
-	  stream.println();
+	  outstream.println();
 	  return;
 	}
       }

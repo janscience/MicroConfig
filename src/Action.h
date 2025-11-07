@@ -34,7 +34,8 @@ class Action {
 
   /* Ask a yes or no question on a serial I/O stream. */
   static bool yesno(const char *request, bool defval=true,
-		    bool echo=true, Stream &stream=Serial);
+		    bool echo=true, Stream &instream=Serial,
+		    Stream &outstream=Serial);
 
   /* Initialize action with name and supported roles.
      Warning: only a pointer to name is stored. */
@@ -105,20 +106,21 @@ class Action {
   /* Set the number of spaces to be used for each indentation level. */
   void setIndentation(size_t indentation) { Indentation = indentation; };
 
-  /* Report the action's name and potential values or infos on stream
+  /* Write the action's name and potential values or infos to stream
      with proper indentation. roles must be enabled.
      If descend, also display children. */
-  virtual void report(Stream &stream=Serial, unsigned int roles=AllRoles,
-		      size_t indent=0, size_t w=0, bool descend=true) const;
+  virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
+		     size_t indent=0, size_t width=0, bool descend=true) const;
   
-  /* Execute this action with user interactions via serial stream.
+  /* Execute this action with user interactions via serial streams.
      StreamInput and StreamOutput must be enabled.
      Returns from initial menu after timeout milliseconds.
      If echo, print out received input.
      If detailed provide additional infos for GUI applications.
      Default calls report(stream). */
-  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
-		       bool echo=true, bool detailed=false);
+  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
+		       unsigned long timeout=0, bool echo=true,
+		       bool detailed=false);
 
   /* Parse the string val and configure the action accordingly.
      SetValue must be enabled. If StreamOutput is enabled,

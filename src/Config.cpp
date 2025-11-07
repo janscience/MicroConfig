@@ -29,14 +29,8 @@ void Config::setConfigFile(const char *fname, SDClass *sd) {
 }
 
 
-void Config::report(Stream &stream, unsigned int roles,
-		    size_t indent, size_t w, bool descend) const {
-  Menu::report(stream, roles, indent, w, descend);
-}
-
-
 void Config::report(Stream &stream) const {
-  report(stream, FileOutput | Report, 0, 0, true);
+  write(stream, FileOutput | Report, 0, 0, true);
 }
 
 
@@ -58,7 +52,7 @@ bool Config::save(Stream &stream, SDClass *sd) const {
     stream.println("       SD not inserted or SD card full.");
     return false;
   }
-  report(file, FileOutput);
+  write(file, FileOutput);
   file.close();
   return true;
 }

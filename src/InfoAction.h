@@ -21,31 +21,38 @@ class InfoAction : public Action {
   /* Initialize and add to configuration menu.
      Key-value pairs are added to the action using add().
      The InfoAction gets StreamIO and Report roles enabled. */
-  InfoAction(Menu &menu, const char *name, const char *key1, const char *value1,
-	     const char *key2=0, const char *value2=0, const char *key3=0, const char *value3=0,
-	     const char *key4=0, const char *value4=0, const char *key5=0, const char *value5=0);
+  InfoAction(Menu &menu, const char *name,
+	     const char *key1, const char *value1,
+	     const char *key2=0, const char *value2=0,
+	     const char *key3=0, const char *value3=0,
+	     const char *key4=0, const char *value4=0,
+	     const char *key5=0, const char *value5=0);
 
-  /* Add a key-value pair.
+  /* If key already exists, the set value of this key.
+     Otherwise, add a new key-value pair.
      The strings are not copied, only pointers are stored.
      Make sure to pass in static strings.
-     Return the index of the added key-value pair.
+     Return the index of the set or added key-value pair.
      If nothing was added, return -1. */
   int add(const char *key, const char *value);
 
-  /* Set value of key-vailue pair at index. */
-  void setValue(size_t index, const char *value);
+  /* Set value of key-value pair at index.
+     Return true on success, i.e. when index is valid. */
+  bool setValue(size_t index, const char *value);
 
-  /* Set value of key-vailue pair. */
-  void setValue(const char *key, const char *value);
+  /* Set value of key-value pair.
+     Return the index of key on succes, otherwise -1. */
+  int setValue(const char *key, const char *value);
 
   /* Write the actions's name and all the key-value pairs to stream.
      roles must be enabled. */
-  virtual void report(Stream &stream, unsigned int roles=AllRoles,
-		      size_t indent=0, size_t w=0, bool descend=true) const;
+  virtual void write(Stream &stream, unsigned int roles=AllRoles,
+		     size_t indent=0, size_t width=0, bool descend=true) const;
 
   /* Print out text on stream. */
-  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
-		       bool echo=true, bool detailed=false);
+  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
+		       unsigned long timeout=0, bool echo=true,
+		       bool detailed=false);
 
 
  protected:

@@ -65,14 +65,14 @@ void setup() {
   info.setValue("color", "green");                         // change the "color" value
   config.load();
   if (Serial)
-    config.execute(Serial, 10000);
+    config.execute(Serial, Serial, 10000);
   // print reportable actions:
   Serial.println("Report:");
-  config.report(Serial, Action::Report);
+  config.write(Serial, Action::Report);
   Serial.println();
   // print configuration on serial:
   Serial.println("Configuration file content:");
-  config.report(Serial, Action::FileOutput);
+  config.write(Serial, Action::FileOutput);
   Serial.println();
   // access configuration values:
   Serial.println("Configuration values:");

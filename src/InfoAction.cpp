@@ -23,9 +23,12 @@ InfoAction::InfoAction(Menu &menu, const char *name, const char *key1, const cha
 
 
 int InfoAction::add(const char *key, const char *value) {
-  if (NKeyVals >= MaxKeyVals)
-    return -1;
   if ((key == 0) || (value == 0))
+    return -1;
+  int i = setValue(key, value);
+  if (i >= 0)
+    return i;
+  if (NKeyVals >= MaxKeyVals)
     return -1;
   Keys[NKeyVals] = key;
   Values[NKeyVals] = value;
@@ -35,49 +38,54 @@ int InfoAction::add(const char *key, const char *value) {
 }
 
 
-void InfoAction::setValue(size_t index, const char *value) {
+bool InfoAction::setValue(size_t index, const char *value) {
   if (index >= NKeyVals)
-    return;
+    return false;
   if (value == 0)
-    return;
+    return false;
   Values[index] = value;
+  return true;
 }
 
 
-void InfoAction::setValue(const char *key, const char *value) {
+int InfoAction::setValue(const char *key, const char *value) {
   for (size_t k=0; k<NKeyVals; k++) {
     if (strcmp(Keys[k], key) == 0) {
-      setValue(k, value);
-      break;
+      if (setValue(k, value))
+	return k;
+      else
+	return -1;
     }
   }
+  return -1;
 }
 
 
-void InfoAction::report(Stream &stream, unsigned int roles,
-			size_t indent, size_t w, bool descend) const {
+void InfoAction::write(Stream &stream, unsigned int roles,
+		       size_t indent, size_t width, bool descend) const {
   if (disabled(roles))
     return;
   if (descend) {
     if (strlen(name()) > 0) {
       stream.printf("%*s%s:\n", indent, "", name());
       indent += indentation();
-      w = MaxWidth;
+      width = MaxWidth;
     }
-    else if (w < MaxWidth)
-      w = MaxWidth;
+    else if (width < MaxWidth)
+      width = MaxWidth;
     for (size_t k=0; k<NKeyVals; k++) {
-      size_t kw = w >= strlen(Keys[k]) ? w - strlen(Keys[k]) : 0;
+      size_t kw = width >= strlen(Keys[k]) ? width - strlen(Keys[k]) : 0;
       stream.printf("%*s%s:%*s %s\n", indent, "", Keys[k], kw, "", Values[k]);
     }
   }
   else if (strlen(name()) > 0)
-    Action::report(stream, roles, indent, w, descend);
+    Action::write(stream, roles, indent, width, descend);
 }
 
 
-void InfoAction::execute(Stream &stream, unsigned long timeout,
-			 bool echo, bool detailed) {
-  report(stream, AllRoles, 0, MaxWidth, true);
-  stream.println();
+void InfoAction::execute(Stream &instream, Stream &outstream,
+			 unsigned long timeout, bool echo,
+			 bool detailed) {
+  write(outstream, AllRoles, 0, MaxWidth, true);
+  outstream.println();
 }

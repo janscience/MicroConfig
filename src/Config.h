@@ -34,11 +34,6 @@ class Config : public Menu {
      and optional SD card on which to store the config file. */
   void setConfigFile(const char *fname, SDClass *sd=0);
 
-  /* Report name on stream. If descend, also display name and values
-     of children. roles must be enabled. */
-  virtual void report(Stream &stream, unsigned int roles,
-		      size_t indent=0, size_t w=0, bool descend=true) const;
-
   /* Report configuration menu on stream
      (all actions with FileOutput and Report roles). */
   void report(Stream &stream=Serial) const;

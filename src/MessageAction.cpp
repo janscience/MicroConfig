@@ -20,8 +20,8 @@ void MessageAction::setText(const char *text) {
 }
 
 
-void MessageAction::report(Stream &stream, unsigned int roles,
-			   size_t indent, size_t w, bool descend) const {
+void MessageAction::write(Stream &stream, unsigned int roles,
+			  size_t indent, size_t width, bool descend) const {
   if (disabled(roles))
     return;
   if (descend) {
@@ -33,13 +33,14 @@ void MessageAction::report(Stream &stream, unsigned int roles,
       stream.printf("%*s%s:\n", indent, "", Text);
   }
   else
-    Action::report(stream, roles, indent, w, descend);
+    Action::write(stream, roles, indent, width, descend);
 }
 
 
-void MessageAction::execute(Stream &stream, unsigned long timeout,
-			    bool echo, bool detailed) {
+void MessageAction::execute(Stream &instream, Stream &outstream,
+			    unsigned long timeout, bool echo,
+			    bool detailed) {
   if (Text != 0)
-    stream.println(Text);
-  stream.println();
+    outstream.println(Text);
+  outstream.println();
 }

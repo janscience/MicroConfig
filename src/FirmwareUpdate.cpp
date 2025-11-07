@@ -39,35 +39,36 @@ int listFirmware(SDClass &sdcard, Stream &stream, bool number) {
 
 
 void updateFirmware(SDClass &sdcard, bool echo, bool detailed,
-		    Stream &stream) {
+		    Stream &instream, Stream &outstream) {
   // list firmware files:
-  int n = listFirmware(sdcard, stream, true);
-  stream.println();
+  int n = listFirmware(sdcard, outstream, true);
+  outstream.println();
   if (n == 0)
     return;
   // select firmware file:
   int m = 0;
   if (detailed || n > 1) {
     while (true) {
-      stream.print("Select a firmware file [1]: ");
-      while (stream.available() == 0) {
+      outstream.print("Select a firmware file [1]: ");
+      while (instream.available() == 0) {
 	yield();
+	delay(1);
       }
       char pval[32];
-      stream.readBytesUntil('\n', pval, 32);
+      instream.readBytesUntil('\n', pval, 32);
       if (strlen(pval) == 0)
 	strcpy(pval, "1");
-      stream.println(pval);
+      outstream.println(pval);
       char *end;
       long i = strtol(pval, &end, 10) - 1;
       if (end != pval && i >= 0 && i < (long)n) {
 	m = i;
-	stream.println();
+	outstream.println();
 	break;
       }
       else if (strcmp(pval, "q") == 0) {
-	stream.println();
-	stream.println("Firmware update aborted.");
+	outstream.println();
+	outstream.println("Firmware update aborted.");
 	return;
       }
     }
@@ -76,8 +77,8 @@ void updateFirmware(SDClass &sdcard, bool echo, bool detailed,
   SdFile file;
   SdFile dir;
   if (!dir.open("/")) {
-    stream.printf("! ERROR: Faild to access root folder on SD card.\n");
-    stream.println("Firmware update aborted.");
+    outstream.printf("! ERROR: Faild to access root folder on SD card.\n");
+    outstream.println("Firmware update aborted.");
     return;
   }
   n = 0;
@@ -93,65 +94,65 @@ void updateFirmware(SDClass &sdcard, bool echo, bool detailed,
       }
     }
   }
-  stream.printf("Selected \"%s\" for firmware update\n", hex_file_name);
+  outstream.printf("Selected \"%s\" for firmware update\n", hex_file_name);
   if (detailed)
-    stream.println(".");
+    outstream.println(".");
   else
-    stream.println();
+    outstream.println();
   // check again:
-  stream.println("WARNING: a firmware update could make your device unusable!");
-  stream.println("WARNING: make sure that your device stays powered during the entire firmware update!");
+  outstream.println("WARNING: a firmware update could make your device unusable!");
+  outstream.println("WARNING: make sure that your device stays powered during the entire firmware update!");
   if (detailed)
-    stream.println(".");
+    outstream.println(".");
   else
-    stream.println();
+    outstream.println();
   if (!Action::yesno("Do you really want to update the firmware?",
-		     false, echo, stream)) {
-    stream.println();
-    stream.println("Firmware update aborted.");
+		     false, echo, instream, outstream)) {
+    outstream.println();
+    outstream.println("Firmware update aborted.");
     return;
   }
-  stream.println();
+  outstream.println();
   // open firmware file:
   File hex_file = sdcard.open(hex_file_name, FILE_READ);
   if (!hex_file) {
-    stream.printf("! ERROR: Failed to open firmware file \"%s\" on SD card.\n",
-		  hex_file_name);
-    stream.println();
-    stream.printf("Firmware update aborted.");
+    outstream.printf("! ERROR: Failed to open firmware file \"%s\" on SD card.\n",
+		     hex_file_name);
+    outstream.println();
+    outstream.printf("Firmware update aborted.");
     return;
   }
-  stream.printf("Successfully opened firmware file \"%s\".\n",
-		hex_file_name);
+  outstream.printf("Successfully opened firmware file \"%s\".\n",
+		   hex_file_name);
   // create flash buffer to hold new firmware:
-  stream.println();
-  stream.println("Updating firmware:");
-  stream.println("- initializing flash buffer ...");
+  outstream.println();
+  outstream.println("Updating firmware:");
+  outstream.println("- initializing flash buffer ...");
   uint32_t buffer_addr, buffer_size;
   if (firmware_buffer_init( &buffer_addr, &buffer_size ) == 0) {
-    stream.printf("! ERROR: Failed to create flash buffer.\n");
-    stream.println();
-    stream.println("! REBOOT SYSTEM !");
-    stream.println();
-    stream.flush();
+    outstream.printf("! ERROR: Failed to create flash buffer.\n");
+    outstream.println();
+    outstream.println("! REBOOT SYSTEM !");
+    outstream.println();
+    outstream.flush();
     REBOOT;
   }
-  stream.printf("- created flash buffer = %1luK %s (%08lX - %08lX)\n",
-		buffer_size/1024, IN_FLASH(buffer_addr) ? "FLASH" : "RAM",
-		buffer_addr, buffer_addr + buffer_size);
+  outstream.printf("- created flash buffer = %1luK %s (%08lX - %08lX)\n",
+		   buffer_size/1024, IN_FLASH(buffer_addr) ? "FLASH" : "RAM",
+		   buffer_addr, buffer_addr + buffer_size);
   // read hex file, write new firmware to flash, clean up, reboot
-  stream.println("- updating frimware ...");
-  stream.println();
-  update_firmware(&hex_file, &stream, buffer_addr, buffer_size);
+  outstream.println("- updating frimware ...");
+  outstream.println();
+  update_firmware(&hex_file, &outstream, buffer_addr, buffer_size);
   // return from update_firmware() means error or user abort, so clean up and
   // reboot to ensure that static vars get boot-up initialized before retry
-  stream.println();
-  stream.printf("! ERROR: Failed to update firmware.\n");
-  stream.println();
-  stream.printf("Erase flash buffer / free RAM buffer...\n");
-  stream.println();
-  stream.println("! REBOOT SYSTEM !");
-  stream.flush();
+  outstream.println();
+  outstream.printf("! ERROR: Failed to update firmware.\n");
+  outstream.println();
+  outstream.printf("Erase flash buffer / free RAM buffer...\n");
+  outstream.println();
+  outstream.println("! REBOOT SYSTEM !");
+  outstream.flush();
   firmware_buffer_free( buffer_addr, buffer_size );
   REBOOT;
 }

@@ -2,20 +2,22 @@
 #include <Action.h>
 
 
-bool Action::yesno(const char *request, bool defval,
-		   bool echo, Stream &stream) {
+bool Action::yesno(const char *request, bool defval, bool echo,
+		   Stream &instream, Stream &outstream) {
   while (true) {
-    stream.print(request);
+    outstream.print(request);
     if (defval)
-      stream.print(" [Y/n] ");
+      outstream.print(" [Y/n] ");
     else
-      stream.print(" [y/N] ");
-    while (stream.available() == 0)
+      outstream.print(" [y/N] ");
+    while (instream.available() == 0) {
       yield();
+      delay(1);
+    }
     char pval[8];
-    stream.readBytesUntil('\n', pval, 8);
+    instream.readBytesUntil('\n', pval, 8);
     if (echo)
-      stream.println(pval);
+      outstream.println(pval);
     if (strlen(pval) == 0)
       return defval;
     if (tolower(pval[0]) == 'y')
@@ -114,15 +116,15 @@ void Action::disableSupported(unsigned int roles) {
 }
 
 
-void Action::report(Stream &stream, unsigned int roles, size_t indent,
-		    size_t w, bool descend) const {
+void Action::write(Stream &stream, unsigned int roles, size_t indent,
+		   size_t width, bool descend) const {
   if (enabled(roles))
     stream.printf("%*s%s\n", indent, "", name());
 }
 
 
-void Action::execute(Stream &stream, unsigned long timeout,
-		     bool echo, bool detailed) {
-  report(stream);
-  stream.println();
+void Action::execute(Stream &instream, Stream &outstream,
+		     unsigned long timeout, bool echo, bool detailed) {
+  write(outstream);
+  outstream.println();
 }

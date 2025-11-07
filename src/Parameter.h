@@ -57,17 +57,18 @@ class Parameter : public Action {
      and add it to menu. */
   Parameter(Menu &menu, const char *name, size_t n=0);
 
-  /* Report the parameter's name and value on stream wih proper identation.
+  /* Write the parameter's name and value to stream wih proper identation.
      roles must be enabled. */
-  virtual void report(Stream &stream=Serial, unsigned int roles=AllRoles,
-		      size_t indent=0, size_t w=0, bool descend=true) const;
+  virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
+		     size_t indent=0, size_t width=0, bool descend=true) const;
   
   /* Interactive configuration via serial stream.
      Returns from initial menu after timeout milliseconds.
      If echo, print out received input.
      If detailed provide additional infos for GUI applications. */
-  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
-		       bool echo=true, bool detailed=false);
+  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
+		       unsigned long timeout=0, bool echo=true,
+		       bool detailed=false);
 
   /* Parse the string val and set the parameter accordingly.  If
      StreamOutput is enabled, report the new value together with name
