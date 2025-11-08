@@ -66,9 +66,8 @@ class Parameter : public Action {
      Returns from initial menu after timeout milliseconds.
      If echo, print out received input.
      If detailed provide additional infos for GUI applications. */
-  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 
   /* Parse the string val and set the parameter accordingly.  If
      StreamOutput is enabled, report the new value together with name

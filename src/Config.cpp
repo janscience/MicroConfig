@@ -81,14 +81,3 @@ void Config::load(Stream &stream, SDClass *sd) {
   stream.println();
 }
 
-  
-void Config::execute(Stream &instream, Stream &outstream,
-		     unsigned long timeout, bool echo,
-		     bool detailed) {
-  Menu::execute(instream, outstream, timeout, echo, detailed);
-}
-
-  
-void Config::execute(unsigned long timeout) {
-  execute(Serial, Serial, timeout);
-}

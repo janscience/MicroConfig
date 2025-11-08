@@ -19,9 +19,8 @@ class ListFirmwareAction : public SDClassAction {
   using SDClassAction::SDClassAction;
 
   /* List firmware hex files found on SD card */
-  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 };
 
 
@@ -32,9 +31,8 @@ class UpdateFirmwareAction : public SDClassAction {
   using SDClassAction::SDClassAction;
 
   /* Upload firmware from SD card */
-  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 };
 
 

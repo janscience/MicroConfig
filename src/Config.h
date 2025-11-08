@@ -50,18 +50,6 @@ class Config : public Menu {
      Report errors and success on stream.
      If sd is NULL read from default SD card provided via setConfigFile(). */
   virtual void load(Stream &stream=Serial, SDClass *sd=0);
-  
-  /* Interactive menu via serial streams.
-     Returns from initial menu after timeout milliseconds.
-     If echo, print out received input.
-     If detailed provide additional infos for GUI applications. */
-  virtual void execute(Stream &instream, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
-  
-  /* Interactive menu via Serial stream.
-     Returns from initial menu after timeout milliseconds. */
-  virtual void execute(unsigned long timeout=10000);
 
 
 protected:

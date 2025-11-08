@@ -2,22 +2,20 @@
 #include <Action.h>
 
 
-bool Action::yesno(const char *request, bool defval, bool echo,
-		   Stream &instream, Stream &outstream) {
+bool Action::yesno(const char *request, bool defval,
+		   bool echo, Stream &stream) {
   while (true) {
-    outstream.print(request);
+    stream.print(request);
     if (defval)
-      outstream.print(" [Y/n] ");
+      stream.print(" [Y/n] ");
     else
-      outstream.print(" [y/N] ");
-    while (instream.available() == 0) {
+      stream.print(" [y/N] ");
+    while (stream.available() == 0)
       yield();
-      delay(1);
-    }
     char pval[8];
-    instream.readBytesUntil('\n', pval, 8);
+    stream.readBytesUntil('\n', pval, 8);
     if (echo)
-      outstream.println(pval);
+      stream.println(pval);
     if (strlen(pval) == 0)
       return defval;
     if (tolower(pval[0]) == 'y')
@@ -123,8 +121,8 @@ void Action::write(Stream &stream, unsigned int roles, size_t indent,
 }
 
 
-void Action::execute(Stream &instream, Stream &outstream,
-		     unsigned long timeout, bool echo, bool detailed) {
-  write(outstream);
-  outstream.println();
+void Action::execute(Stream &stream, unsigned long timeout,
+		     bool echo, bool detailed) {
+  write(stream);
+  stream.println();
 }

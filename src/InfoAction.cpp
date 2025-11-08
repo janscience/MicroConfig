@@ -9,9 +9,13 @@ InfoAction::InfoAction(Menu &menu, const char *name, unsigned int roles) :
 }
 
 
-InfoAction::InfoAction(Menu &menu, const char *name, const char *key1, const char *value1,
-		       const char *key2, const char *value2, const char *key3, const char *value3,
-		       const char *key4, const char *value4, const char *key5, const char *value5) :
+InfoAction::InfoAction(Menu &menu, const char *name,
+		       const char *key1, const char *value1,
+		       const char *key2, const char *value2,
+		       const char *key3, const char *value3,
+		       const char *key4, const char *value4,
+		       const char *key5, const char *value5,
+		       const char *key6, const char *value6) :
   Action(menu, name, StreamIO | Report),
   NKeyVals(0) {
   add(key1, value1);
@@ -19,6 +23,7 @@ InfoAction::InfoAction(Menu &menu, const char *name, const char *key1, const cha
   add(key3, value3);
   add(key4, value4);
   add(key5, value5);
+  add(key6, value6);
 }
 
 
@@ -83,9 +88,8 @@ void InfoAction::write(Stream &stream, unsigned int roles,
 }
 
 
-void InfoAction::execute(Stream &instream, Stream &outstream,
-			 unsigned long timeout, bool echo,
-			 bool detailed) {
-  write(outstream, AllRoles, 0, MaxWidth, true);
-  outstream.println();
+void InfoAction::execute(Stream &stream, unsigned long timeout,
+			 bool echo, bool detailed) {
+  write(stream, AllRoles, 0, MaxWidth, true);
+  stream.println();
 }

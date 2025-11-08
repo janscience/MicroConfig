@@ -34,8 +34,7 @@ class Action {
 
   /* Ask a yes or no question on a serial I/O stream. */
   static bool yesno(const char *request, bool defval=true,
-		    bool echo=true, Stream &instream=Serial,
-		    Stream &outstream=Serial);
+		    bool echo=true, Stream &stream=Serial);
 
   /* Initialize action with name and supported roles.
      Warning: only a pointer to name is stored. */
@@ -112,15 +111,14 @@ class Action {
   virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
 		     size_t indent=0, size_t width=0, bool descend=true) const;
   
-  /* Execute this action with user interactions via serial streams.
+  /* Execute this action with user interactions via serial stream.
      StreamInput and StreamOutput must be enabled.
      Returns from initial menu after timeout milliseconds.
      If echo, print out received input.
      If detailed provide additional infos for GUI applications.
      Default calls report(stream). */
-  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 
   /* Parse the string val and configure the action accordingly.
      SetValue must be enabled. If StreamOutput is enabled,

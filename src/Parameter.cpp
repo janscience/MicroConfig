@@ -9,8 +9,8 @@ Parameter::Parameter(Menu &menu, const char *name, size_t n) :
 }
 
 
-void Parameter::write(Stream &stream, unsigned int roles,
-		      size_t indent, size_t width, bool descend) const {
+void Parameter::write(Stream &stream, unsigned int roles, size_t indent,
+		      size_t width, bool descend) const {
   if (enabled(roles)) {
     char pval[MaxVal];
     valueStr(pval);
@@ -20,9 +20,8 @@ void Parameter::write(Stream &stream, unsigned int roles,
 }
 
 
-void Parameter::execute(Stream &instream, Stream &outstream,
-			unsigned long timeout, bool echo,
-			bool detailed) {
+void Parameter::execute(Stream &stream, unsigned long timeout,
+			bool echo, bool detailed) {
   if (disabled(SetValue | StreamIO))
     return;
   int w = strlen(name());
@@ -30,34 +29,33 @@ void Parameter::execute(Stream &instream, Stream &outstream,
     w = 16;
   char pval[MaxVal];
   valueStr(pval);
-  outstream.printf("%-*s: %s\n", w, name(), pval);
-  listSelection(outstream);
+  stream.printf("%-*s: %s\n", w, name(), pval);
+  listSelection(stream);
   while (true) {
     if (NSelection > 0)
-      outstream.print("Select new value");
+      stream.print("Select new value");
     else
-      outstream.print("Enter new value ");
+      stream.print("Enter new value ");
     instructions(pval, detailed);
     if (strlen(pval) > 0)
-      outstream.printf(" (%s)", pval);
-    outstream.print(": ");
+      stream.printf(" (%s)", pval);
+    stream.print(": ");
     elapsedMillis time = 0;
-    while ((instream.available() == 0) && (timeout == 0 || time < timeout)) {
+    while ((stream.available() == 0) && (timeout == 0 || time < timeout)) {
       yield();
-      delay(1);
     }
-    instream.readBytesUntil('\n', pval, MaxVal);
+    stream.readBytesUntil('\n', pval, MaxVal);
     if ((strcmp(pval, "ktv") == 0) ||
 	(strcmp(pval, "keepthevalue") == 0) ||
 	parseValue(pval, NSelection > 0)) {
       if (echo)
-	outstream.println(pval);
+	stream.println(pval);
       break;
     }
     if (echo)
-      outstream.println(pval);
+      stream.println(pval);
   }
-  outstream.println();
+  stream.println();
 }
 
 

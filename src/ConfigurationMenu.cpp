@@ -6,26 +6,24 @@ ReportConfigAction::ReportConfigAction(Menu &menu, const char *name) :
 }
 
 
-void ReportConfigAction::execute(Stream &instream, Stream &outstream,
-				 unsigned long timeout, bool echo,
-				 bool detailed) {
-  root()->write(outstream, FileOutput);
-  outstream.println();
+void ReportConfigAction::execute(Stream &stream, unsigned long timeout,
+				 bool echo, bool detailed) {
+  root()->write(stream, FileOutput);
+  stream.println();
 }
 
 
-void ReadConfigAction::execute(Stream &instream, Stream &outstream,
-			       unsigned long timeout, bool echo,
-			       bool detailed) {
-  if (instream.available() == 0)
-    outstream.println("Read configuration...");
+void ReadConfigAction::execute(Stream &stream, unsigned long timeout,
+			       bool echo, bool detailed) {
+  if (stream.available() == 0)
+    stream.println("Read configuration...");
   elapsedMillis time = 0;
-  while ((instream.available() == 0) && (time < 10000)) {
+  while ((stream.available() == 0) && (time < 10000)) {
     yield();
     delay(1);
   }
-  root()->read(instream, outstream);
-  outstream.println();
+  root()->read(stream, stream);
+  stream.println();
 }
 
 
@@ -35,66 +33,63 @@ SDClassAction::SDClassAction(Menu &menu, const char *name, SDClass &sd) :
 }
 
 
-void SaveConfigAction::execute(Stream &instream, Stream &outstream,
-			       unsigned long timeout, bool echo,
-			       bool detailed) {
+void SaveConfigAction::execute(Stream &stream, unsigned long timeout,
+			       bool echo, bool detailed) {
   bool save = true;
   if (root()->configFile() != NULL && SDC.exists(root()->configFile())) {
-    outstream.printf("Configuration file \"%s\" already exists on SD card.\n",
-		     root()->configFile());
+    stream.printf("Configuration file \"%s\" already exists on SD card.\n",
+		  root()->configFile());
     save = Action::yesno("Do you want to overwrite the configuration file?",
-			 true, echo, instream, outstream);
+			 true, echo, stream);
   }
-  if (save && root()->save(outstream, &SDC))
-    outstream.printf("Saved configuration to file \"%s\" on SD card.\n",
-		     root()->configFile());
-  outstream.println();
+  if (save && root()->save(stream, &SDC))
+    stream.printf("Saved configuration to file \"%s\" on SD card.\n",
+		  root()->configFile());
+  stream.println();
 }
 
 
-void LoadConfigAction::execute(Stream &instream, Stream &outstream,
-			       unsigned long timeout, bool echo,
-			       bool detailed) {
+void LoadConfigAction::execute(Stream &stream, unsigned long timeout,
+			       bool echo, bool detailed) {
   bool r = true;
   if (root()->configFile() != NULL) {
     if (!SDC.exists(root()->configFile())) {
-      outstream.printf("Configuration file \"%s\" not found on SD card.\n\n",
-		       root()->configFile());
+      stream.printf("Configuration file \"%s\" not found on SD card.\n\n",
+		  root()->configFile());
       return;
     }
-    outstream.println("Reloading the configuration file will discard all changes.");
+    stream.println("Reloading the configuration file will discard all changes.");
     r = Action::yesno("Do you really want to reload the configuration file?",
-		      true, echo, instream, outstream);
-    outstream.println();
+		      true, echo, stream);
+    stream.println();
   }
   if (r)
-    root()->load(outstream, &SDC);
+    root()->load(stream, &SDC);
 }
 
 
-void RemoveConfigAction::execute(Stream &instream, Stream &outstream,
-				 unsigned long timeout, bool echo,
-				 bool detailed) {
+void RemoveConfigAction::execute(Stream &stream, unsigned long timeout,
+				 bool echo, bool detailed) {
   if (root()->configFile() == NULL) {
-    outstream.println("ERROR! No configuration file name specified.");
+    stream.println("ERROR! No configuration file name specified.");
     return;
   }
   if (!SDC.exists(root()->configFile())) {
-    outstream.printf("Configuration file \"%s\" does not exist on SD card.\n\n",
-		     root()->configFile());
+    stream.printf("Configuration file \"%s\" does not exist on SD card.\n\n",
+		  root()->configFile());
     return;
   }
   if (Action::yesno("Do you really want to remove the configuration file?",
-		    false, echo, instream, outstream)) {
+		    false, echo, stream)) {
     if (SDC.remove(root()->configFile()))
-      outstream.printf("\nRemoved configuration file \"%s\" from SD card.\n\n",
-		       root()->configFile());
+      stream.printf("\nRemoved configuration file \"%s\" from SD card.\n\n",
+		    root()->configFile());
     else
-      outstream.printf("\nERROR! Failed to remove configuration file \"%s\" from SD card.\n\n",
-		       root()->configFile());
+      stream.printf("\nERROR! Failed to remove configuration file \"%s\" from SD card.\n\n",
+		    root()->configFile());
   }
   else
-    outstream.println();
+    stream.println();
 }
 
 

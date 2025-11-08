@@ -16,7 +16,8 @@ class InfoAction : public Action {
 
   /* Initialize and add to configuration menu.
      You need to add ket-value pairs later on using add(). */
-  InfoAction(Menu &menu, const char *name, unsigned int roles=StreamIO | Report);
+  InfoAction(Menu &menu, const char *name,
+	     unsigned int roles=StreamIO | Report);
 
   /* Initialize and add to configuration menu.
      Key-value pairs are added to the action using add().
@@ -26,7 +27,8 @@ class InfoAction : public Action {
 	     const char *key2=0, const char *value2=0,
 	     const char *key3=0, const char *value3=0,
 	     const char *key4=0, const char *value4=0,
-	     const char *key5=0, const char *value5=0);
+	     const char *key5=0, const char *value5=0,
+	     const char *key6=0, const char *value6=0);
 
   /* If key already exists, the set value of this key.
      Otherwise, add a new key-value pair.
@@ -50,9 +52,8 @@ class InfoAction : public Action {
 		     size_t indent=0, size_t width=0, bool descend=true) const;
 
   /* Print out text on stream. */
-  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 
 
  protected:

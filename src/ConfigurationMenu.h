@@ -20,9 +20,8 @@ class ReportConfigAction : public Action {
   ReportConfigAction(Menu &menu, const char *name);
 
   /* Report the configuration settings. */
-  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 };
 
 
@@ -33,9 +32,8 @@ class ReadConfigAction : public ReportConfigAction {
   using ReportConfigAction::ReportConfigAction;
 
   /* Read configuration settings from stream. */
-  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 };
 
 
@@ -59,9 +57,8 @@ class SaveConfigAction : public SDClassAction {
   using SDClassAction::SDClassAction;
 
   /* Save the configuration settings to configuration file. */
-  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 };
 
 
@@ -72,9 +69,8 @@ class LoadConfigAction : public SDClassAction {
   using SDClassAction::SDClassAction;
 
   /* Load the configuration settings from configuration file. */
-  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 };
 
 
@@ -85,9 +81,8 @@ class RemoveConfigAction : public SDClassAction {
   using SDClassAction::SDClassAction;
 
   /* Remove the configuration file from SD card. */
-  virtual void execute(Stream &instream=Serial, Stream &outstream=Serial,
-		       unsigned long timeout=0, bool echo=true,
-		       bool detailed=false);
+  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
+		       bool echo=true, bool detailed=false);
 };
 
 
