@@ -17,7 +17,7 @@ C++ code.
 - Numerical types with units and unit conversion.
 - Object-oriented and templated interface.
 - Stores pointers to arbitarily sized action names (no memory consuming copies).
-- Predefined menu for reporting, saving, loading and erasing configuration file.
+- Predefined menu for reporting, saving, loading and erasing configuration file on SD card.
 - Predefined menu for uploading firmware, based on [FlasherX](https://github.com/joepasquariello/FlasherX).
 
 

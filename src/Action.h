@@ -47,6 +47,9 @@ class Action {
      use setName(). */
   Action(Menu &menu, const char *name, unsigned int roles=AllRoles);
 
+  /* Destructor. */
+  virtual ~Action();
+
   /* The name identifying the action. */
   const char *name() const { return Name; }
 
@@ -98,6 +101,9 @@ class Action {
   
   /* Return the roles this action in general supports. */
   unsigned int supportedRoles() const { return SupportedRoles; };
+
+  /* set supported roles and current roles to roles. */
+  void setRoles(unsigned int roles=AllRoles);
 
   /* The number of spaces to be used for each indentation level. */
   size_t indentation() const { return Indentation; };

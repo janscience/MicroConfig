@@ -41,6 +41,10 @@ Action::Action(Menu &menu, const char *name, unsigned int roles) :
 }
 
 
+Action::~Action() {
+}
+
+
 void Action::setName(const char *name) {
   Name = new char[strlen(name) + 1];
   strcpy(Name, name);
@@ -111,6 +115,12 @@ void Action::disableSupported(unsigned int roles) {
   roles &= SupportedRoles;
   SupportedRoles &= ~roles;
   Roles &= SupportedRoles;
+}
+
+
+void Action::setRoles(unsigned int roles) {
+  SupportedRoles = roles;
+  Roles = roles;
 }
 
 

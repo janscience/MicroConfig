@@ -8,6 +8,7 @@
 
 
 #include <Action.h>
+#include <Parameter.h>
 
 
 class SDClass;
@@ -24,8 +25,53 @@ class Menu : public Action {
   /* Initialize menu with name and roles and add it to menu. */
   Menu(Menu &menu, const char *name, unsigned int roles=AllRoles);
 
+  /* Destructor. */
+  virtual ~Menu();
+
   /* Add an action to this Menu. */
   void add(Action *action);
+
+  /* Add a non-editable string parameter to this Menu. */
+  ConstStringParameter *addConstString(const char *name, const char *str,
+				      unsigned int roles=AllRoles);
+
+  /* Add a string parameter of size N to this Menu. */
+  template<int N>
+  BaseStringParameter *addString(const char *name, const char *str,
+				 unsigned int roles=SetValue | AllRoles);
+
+  /* Add a string parameter of size N with selection to this Menu. */
+  template<int N>
+  BaseStringParameter *addString(const char *name, const char *str,
+				 const char **selection, size_t n_selection=0,
+				 unsigned int roles=SetValue | AllRoles);
+  
+  /* Add a boolean parameter to this Menu. */
+  BoolParameter *addBoolean(const char *name, bool value,
+			    unsigned int roles=SetValue | AllRoles);
+  
+  /* Add a integer parameter to this Menu. */
+  NumberParameter<int> *addInteger(const char *name, int value,
+				   const char *unit=0,
+				   unsigned int roles=SetValue | AllRoles);
+  
+  /* Add a integer parameter to this Menu. */
+  NumberParameter<int> *addInteger(const char *name, int value,
+				   int minimum, int maximum,
+				   const char *unit=0, const char *outunit=0,
+				   unsigned int roles=SetValue | AllRoles);
+  
+  /* Add a float parameter to this Menu. */
+  NumberParameter<float> *addFloat(const char *name, float value,
+				   const char *format="%g", const char *unit=0,
+				   unsigned int roles=SetValue | AllRoles);
+  
+  /* Add a float parameter to this Menu. */
+  NumberParameter<float> *addFloat(const char *name, float value,
+				   float minimum, float maximum,
+				   const char *format="%g", const char *unit=0,
+				   const char *outunit=0,
+				   unsigned int roles=SetValue | AllRoles);
 
   /* Move action that was already added to this Menu to index. */
   void move(const Action *action, size_t index);
@@ -89,9 +135,36 @@ protected:
   static const size_t MaxActions = 16;
   size_t NActions;
   Action *Actions[MaxActions];
+  bool Own[MaxActions];
   bool GoHome;
   
 };
+
+
+template<int N>
+BaseStringParameter *Menu::addString(const char *name, const char *str,
+				     unsigned int roles) {
+  if ((name == 0) || (str == 0))
+    return 0;
+  StringParameter<N> *act = new StringParameter<N>(*this, name, str);
+  Own[NActions - 1] = true;
+  act->setRoles(roles);
+  return act;
+}
+
+
+template<int N>
+BaseStringParameter *Menu::addString(const char *name, const char *str,
+				     const char **selection,
+				     size_t n_selection, unsigned int roles) {
+  if ((name == 0) || (str == 0))
+    return 0;
+  StringParameter<N> *act = new StringParameter<N>(*this, name, str,
+						   selection, n_selection);
+  Own[NActions - 1] = true;
+  act->setRoles(roles);
+  return act;
+}
 
 
 #endif

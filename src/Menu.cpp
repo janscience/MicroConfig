@@ -35,14 +35,103 @@ Menu::Menu(Menu &menu, const char *name, unsigned int roles) :
 }
 
 
+Menu::~Menu() {
+  for (size_t j=0; j<NActions; j++) {
+    if (Own[j])
+      delete Actions[j];
+  }
+}
+
+
 void Menu::add(Action *act) {
   if (NActions >= MaxActions) {
     Serial.printf("ERROR! Number of maximum Actions exceeded in %s!\n",
 		  name());
     return;
   }
+  Own[NActions] = false;
   Actions[NActions++] = act;
   act->setParent(this);
+}
+
+
+ConstStringParameter *Menu::addConstString(const char *name,
+					   const char *str,
+					   unsigned int roles) {
+  if ((name == 0) || (str == 0))
+    return 0;
+  ConstStringParameter *act = new ConstStringParameter(*this, name, str);
+  Own[NActions - 1] = true;
+  act->setRoles(roles);
+  return act;
+}
+
+
+BoolParameter *Menu::addBoolean(const char *name, bool value,
+				unsigned int roles) {
+  if (name == 0)
+    return 0;
+  BoolParameter *act = new BoolParameter(*this, name, value);
+  Own[NActions - 1] = true;
+  act->setRoles(roles);
+  return act;
+}
+
+  
+NumberParameter<int> *Menu::addInteger(const char *name, int value,
+				       const char *unit, unsigned int roles) {
+  if (name == 0)
+    return 0;
+  NumberParameter<int> *act = new NumberParameter<int>(*this, name, value,
+						       "%d", unit);
+  Own[NActions - 1] = true;
+  act->setRoles(roles);
+  return act;
+}
+
+  
+NumberParameter<int> *Menu::addInteger(const char *name, int value,
+				       int minimum, int maximum,
+				       const char *unit, const char *outunit,
+				       unsigned int roles) {
+  if (name == 0)
+    return 0;
+  NumberParameter<int> *act = new NumberParameter<int>(*this, name, value,
+						       minimum, maximum,
+						       "%d", unit, outunit);
+  Own[NActions - 1] = true;
+  act->setRoles(roles);
+  return act;
+}
+
+  
+NumberParameter<float> *Menu::addFloat(const char *name, float value,
+				       const char *format, const char *unit,
+				       unsigned int roles) {
+  if (name == 0)
+    return 0;
+  NumberParameter<float> *act = new NumberParameter<float>(*this, name, value,
+							   format, unit);
+  Own[NActions - 1] = true;
+  act->setRoles(roles);
+  return act;
+}
+
+  
+NumberParameter<float> *Menu::addFloat(const char *name, float value,
+				       float minimum, float maximum,
+				       const char *format, const char *unit,
+				       const char *outunit,
+				       unsigned int roles) {
+  if (name == 0)
+    return 0;
+  NumberParameter<float> *act = new NumberParameter<float>(*this, name, value,
+							   minimum, maximum,
+							   format,
+							   unit, outunit);
+  Own[NActions - 1] = true;
+  act->setRoles(roles);
+  return act;
 }
 
 
@@ -62,18 +151,23 @@ void Menu::move(const Action *action, size_t index) {
     return;
   if (aidx == index)
     return;
-  Serial.printf("found at %d, move to %d, n=%d\n", aidx, index, NActions);
   // move:
   Action *act = Actions[aidx];
+  bool own = Own[aidx];
   if (index > aidx) {
-    for (size_t j=aidx; j<index; j++)
+    for (size_t j=aidx; j<index; j++) {
       Actions[j] = Actions[j+1];
+      Own[j] = Own[j+1];
+    }
   }
   else {
-    for (size_t j=aidx; j>index; j--)
+    for (size_t j=aidx; j>index; j--) {
       Actions[j] = Actions[j-1];
+      Own[j] = Own[j-1];
+    }
   }
   Actions[index] = act;
+  Own[index] = own;
 }
 
 

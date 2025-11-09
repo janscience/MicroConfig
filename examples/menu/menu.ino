@@ -22,6 +22,7 @@ NumberParameter<float> file_time(settings, "FileTime", 30.0,
                                 "%.0f",       // format string
                                 "s");         // unit of the value
 
+
 Menu aisettings(config, "Analog input");    // analog input menu
 
 // unit32_t parameter:
@@ -45,6 +46,7 @@ EnumParameter<SAMPLING_SPEED> speed(aisettings, "SamplingSpeed", MED_SPEED,
 		                                SamplingStrings,  // array of corresponding strings
 		                                3);               // number of values in the arrays
 
+
 ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
 FirmwareMenu firmware_menu(config, SD);    // menu for uploading hex files from SD card
 HelpAction help_act(config, "Help");       // action showing how to use the menu
@@ -61,6 +63,10 @@ void setup() {
   while (!Serial && millis() < 2000) {};
   printMicroConfigBanner();
   SD.begin(BUILTIN_SDCARD);
+  // shortcuts to dynamically adding parameter:
+  settings.addConstString("Amplifier", "differential");    // add string parameter.
+  settings.addFloat("Highpass", 54.3, "%.1f", "Hz");       // add float parameter.
+  // modify values:
   message.setText("Just another demonstration!");          // change the text printed out
   info.setValue("color", "green");                         // change the "color" value
   config.load();
