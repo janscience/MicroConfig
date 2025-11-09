@@ -22,8 +22,13 @@ void Parameter::write(Stream &stream, unsigned int roles, size_t indent,
 
 void Parameter::execute(Stream &stream, unsigned long timeout,
 			bool echo, bool detailed) {
-  if (disabled(SetValue | StreamIO))
+  if (disabled(StreamIO))
     return;
+  if (disabled(SetValue)) {
+    write(stream, StreamIO);
+    stream.println();
+    return;
+  }
   int w = strlen(name());
   if (w < 16)
     w = 16;
@@ -210,6 +215,21 @@ void BaseStringParameter::listSelection(Stream &stream) const {
 
 const char *BaseStringParameter::YesNoStrings[2] = {"no", "yes"};
 const bool BaseStringParameter::BoolEnums[2] = {false, true};
+
+
+ConstStringParameter::ConstStringParameter(Menu &menu, const char *name,
+					   const char *str) :
+  BaseStringParameter(menu, name),
+  Value(str) {
+  sprintf(TypeStr, "string %hu", strlen(str) + 1);
+  disableSupported(SetValue);
+}
+
+
+void ConstStringParameter::valueStr(char *str) const {
+  strncpy(str, Value, MaxVal);
+  str[MaxVal - 1] = '\0';
+}
 
 
 BoolParameter::BoolParameter(Menu &menu, const char *name, bool val) :

@@ -26,6 +26,7 @@
   Classes:
   - Parameter: Base class for configurable parameters, i.e. name-value pairs.
   - BaseStringParameter: Base class for string values.
+  - ConstStringParameter: A non-editable parameter whose value points to a static string.
   - StringParameter: A parameter whose value is a string.
   - StringPointerParameter: A parameter whose value points to a string.
   - BaseEnumParameter: Base class for enum values, i.e. strings encoding integers.
@@ -129,6 +130,13 @@ class BaseStringParameter : public Parameter {
   BaseStringParameter(Menu &menu, const char *name,
 		      const char **selection, size_t n);
 
+  /* Return the string. */
+  virtual const char* value() const = 0;
+
+  /* Set the string to val.
+     Return true if val was a valid string or the parameter was disabled. */
+  virtual bool setValue(const char *val) = 0;
+
   /* Provide a selection of n input values. */
   void setSelection(const char **selection, size_t n);
 
@@ -151,6 +159,37 @@ class BaseStringParameter : public Parameter {
 };
 
 
+/* A non-editable parameter whose value points to a static string. */
+class ConstStringParameter : public BaseStringParameter {
+
+  /* Parameter with a pointer to a static character array. */
+
+ public:
+  
+  /* Initialize parameter with identifying name, pointer str to value
+     variable, and add it to menu. */
+  ConstStringParameter(Menu &menu, const char *name, const char *str);
+
+  /* Return the string. */
+  virtual const char* value() const { return Value; };
+
+  /* Set the string to val. Dowa nothing an return false. */
+  virtual bool setValue(const char *val) { return false; };
+  
+  /* Does nothing and returns false. */
+  virtual bool parseValue(char *val, bool selection=false) { return false; };
+
+  /* Return the current value of this parameter as a string. */
+  virtual void valueStr(char *str) const;
+
+  
+ protected:
+
+  const char *Value;
+  
+};
+
+
 /* A parameter whose value is a string of size N. */
 template<int N>
 class StringParameter : public BaseStringParameter {
@@ -166,11 +205,11 @@ class StringParameter : public BaseStringParameter {
 		  const char **selection=0, size_t n=0);
 
   /* Return the string. */
-  const char* value() const { return Value; };
+  virtual const char* value() const { return Value; };
 
   /* Set the string to val.
      Return true if val was a valid string or the parameter was disabled. */
-  bool setValue(const char *val) { return parseValue(const_cast<char *>(val), false); };
+  virtual bool setValue(const char *val);
   
   /* Parse the string val and set the value of this parameter accordingly.
      If selection, then val is the input in response to an offered
@@ -204,11 +243,12 @@ class StringPointerParameter : public BaseStringParameter {
 			 size_t n=0);
 
   /* Return the string. */
-  const char* value() const { return *Value; };
+  virtual const char* value() const { return *Value; };
 
   /* Set the string to val.
      Return true if val was a valid string or the parameter was disabled. */
-  bool setValue(const char *val) { return parseValue(const_cast<char *>(val), false); };
+  virtual bool setValue(const char *val) {
+    return parseValue(const_cast<char *>(val), false); };
   
   /* Parse the string val and set the value of this parameter accordingly.
      If selection, then val is the input in response to an offered
@@ -245,6 +285,13 @@ class BaseEnumParameter : public BaseStringParameter {
   /* Check whether val matches a string of the selection. Return
      corresponding enum value or -1 if not found. */
   int checkSelection(const char *val);
+  
+  /* Return the enum value. */
+  virtual T enumValue() const = 0;
+
+  /* Set the enum to val.
+     Return false if the parameter was disabled. */
+  virtual bool setEnumValue(T val) = 0;
 
   /* Return string representation of enum value. */
   const char *enumStr(T val) const;
@@ -269,12 +316,19 @@ class EnumParameter : public BaseEnumParameter<T> {
   EnumParameter(Menu &menu, const char *name, T val,
 		const T *enums, const char **selection, size_t n);
 
+  /* Return the enum string. */
+  virtual const char* value() const;
+
+  /* Set the enum to val.
+     Return true if val was a valid string or the parameter was disabled. */
+  virtual bool setValue(const char *val);
+  
   /* Return the enum value. */
-  T value() const { return Value; };
+  virtual T enumValue() const { return Value; };
 
   /* Set the enum to val.
      Return false if the parameter was disabled. */
-  bool setValue(T val);
+  virtual bool setEnumValue(T val);
   
   /* Parse the string val and set the value of this parameter accordingly.
      If selection, then val is the input in response to an offered
@@ -306,12 +360,19 @@ class EnumPointerParameter : public BaseEnumParameter<T> {
 		       const T *enums, const char **selection,
 		       size_t n);
 
+  /* Return the enum string. */
+  virtual const char* value() const;
+
+  /* Set the enum to val.
+     Return true if val was a valid string or the parameter was disabled. */
+  virtual bool setValue(const char *val);
+
   /* Return the enum value. */
-  T value() const { return *Value; };
+  virtual T enumValue() const { return *Value; };
 
   /* Set the enum to val.
      Return false if the parameter was disabled. */
-  bool setValue(T val);
+  virtual bool setEnumValue(T val);
   
   /* Parse the string val and set the value of this parameter accordingly.
      If selection, then val is the input in response to an offered
@@ -579,6 +640,17 @@ StringParameter<N>::StringParameter(Menu &menu, const char *name,
 
 
 template<int N>
+bool StringParameter<N>::setValue(const char *val) {
+  if (this->disabled(Action::SetValue))
+    return false;
+  char str[N];
+  strncpy(str, val, N);
+  str[N - 1] = '\0';
+  return parseValue(str, false);
+}
+
+
+template<int N>
 bool StringParameter<N>::parseValue(char *val, bool selection) {
   if (disabled(Action::SetValue))
     return true;
@@ -726,7 +798,24 @@ EnumParameter<T>::EnumParameter(Menu &menu, const char *name,
 
 
 template<class T>
-bool EnumParameter<T>::setValue(T val) {
+const char* EnumParameter<T>::value() const {
+  return this->enumStr(Value);
+}
+
+
+template<class T>
+bool EnumParameter<T>::setValue(const char *val) {
+  if (this->disabled(Action::SetValue))
+    return false;
+  char str[Parameter::MaxVal];
+  strncpy(str, val, Parameter::MaxVal);
+  str[Parameter::MaxVal - 1] = '\0';
+  return parseValue(str, false);
+}
+
+
+template<class T>
+bool EnumParameter<T>::setEnumValue(T val) {
   if (this->disabled(Action::SetValue))
     return false;
   Value = val;
@@ -783,7 +872,21 @@ EnumPointerParameter<T>::EnumPointerParameter(Menu &menu,
 
 
 template<class T>
-bool EnumPointerParameter<T>::setValue(T val) {
+const char* EnumPointerParameter<T>::value() const {
+  return this->enumStr(Value);
+}
+
+
+template<class T>
+bool EnumPointerParameter<T>::setValue(const char *val) {
+  if (this->disabled(Action::SetValue))
+    return false;
+  return parseValue(const_cast<char *>(val), false);
+}
+
+
+template<class T>
+bool EnumPointerParameter<T>::setEnumValue(T val) {
   if (this->disabled(Action::SetValue))
     return false;
   *Value = val;
