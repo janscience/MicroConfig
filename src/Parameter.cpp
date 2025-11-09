@@ -226,6 +226,14 @@ ConstStringParameter::ConstStringParameter(Menu &menu, const char *name,
 }
 
 
+bool ConstStringParameter::setValue(const char *val) {
+  if (val == 0)
+    return false;
+  Value = val;
+  return true;
+}
+
+
 void ConstStringParameter::valueStr(char *str) const {
   strncpy(str, Value, MaxVal);
   str[MaxVal - 1] = '\0';

@@ -173,8 +173,8 @@ class ConstStringParameter : public BaseStringParameter {
   /* Return the string. */
   virtual const char* value() const { return Value; };
 
-  /* Set the string to val. Dowa nothing an return false. */
-  virtual bool setValue(const char *val) { return false; };
+  /* Set the string pointer to static strin val. */
+  virtual bool setValue(const char *val);
   
   /* Does nothing and returns false. */
   virtual bool parseValue(char *val, bool selection=false) { return false; };
