@@ -399,6 +399,10 @@ class BoolParameter : public EnumParameter<bool> {
   /* Initialize parameter with identifying name, value, and add to
      menu. */
   BoolParameter(Menu &menu, const char *name, bool val);
+
+  /* Set the enum to val.
+     Return false if the parameter was disabled. */
+  bool setBoolValue(bool val) { return setEnumValue(val); };
   
 };
 
@@ -411,6 +415,10 @@ class BoolPointerParameter : public EnumPointerParameter<bool> {
   /* Initialize parameter with identifying name, value, and add to
      menu. */
   BoolPointerParameter(Menu &menu, const char *name, bool *val);
+
+  /* Set the enum to val.
+     Return false if the parameter was disabled. */
+  bool setBoolValue(bool val) { return setEnumValue(val); };
   
 };
 
