@@ -33,7 +33,7 @@ class Menu : public Action {
 
   /* Add a non-editable string parameter to this Menu. */
   ConstStringParameter *addConstString(const char *name, const char *str,
-				      unsigned int roles=AllRoles);
+				      unsigned int roles=StreamOutput | Report);
 
   /* Add a string parameter of size N to this Menu. */
   template<int N>
