@@ -32,6 +32,11 @@ Config::Config(const char *name, unsigned int roles) :
 }
 
 
+void Config::setRoot() {
+  Menu::setRoot(this);
+}
+
+
 const char *Config::configFile() const {
   return ConfigFile;
 }

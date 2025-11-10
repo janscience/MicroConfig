@@ -29,6 +29,9 @@ class Config : public Menu {
   /* Initialize top level menu with name and roles. */
   Config(const char *name, unsigned int roles=AllRoles);
 
+  /* Recursively set the root menu of all children. */
+  void setRoot();
+
   /* Name of the configuration file or NULL if not set. */
   virtual const char *configFile() const;
 
