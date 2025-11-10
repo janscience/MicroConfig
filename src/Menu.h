@@ -11,9 +11,6 @@
 #include <Parameter.h>
 
 
-class SDClass;
-
-
 class Menu : public Action {
 
  public:
@@ -28,8 +25,11 @@ class Menu : public Action {
   /* Destructor. */
   virtual ~Menu();
 
-  /* Add an action to this Menu. */
+  /* Add an action to this Menu. Sets parent and root of action. */
   void add(Action *action);
+
+  /* Set the root menu of this action and all its children. */
+  virtual void setRoot(Config *root);
 
   /* Add a non-editable string parameter to this Menu. */
   ConstStringParameter *addConstString(const char *name, const char *str,
@@ -73,7 +73,7 @@ class Menu : public Action {
 				   const char *outunit=0,
 				   unsigned int roles=SetValue | AllRoles);
 
-  /* Move action that was already added to this Menu to index. */
+  /* Move action that was already added to this Menu to new position index. */
   void move(const Action *action, size_t index);
 
   /* Return the Action matching name. */
@@ -91,12 +91,6 @@ class Menu : public Action {
   /* Disable the roles of the action matching name. */
   void disable(const char *name, unsigned int roles=AllRoles);
 
-  /* Name of the configuration file.
-     For the Menu class this simply returns NULL,
-     because it does not own a configuration file name.
-     See the Config class for a menu with configuration file. */
-  virtual const char *configFile() const;
-
   /* Write name to stream. If descend, also display name and values
      of children. roles must be enabled. */
   virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
@@ -106,24 +100,9 @@ class Menu : public Action {
      or a line starting with "DONE" is encountered, and
      report errors on outstream. */
   virtual void read(Stream &instream=Serial, Stream &outstream=Serial);
-
-  /* Save current setting to configuration file on SD card.
-     The Config class implements this, for the Menu class it simply returns false,
-     because it does not own a configuration file name. */
-  virtual bool save(Stream &stream=Serial, SDClass *sd=0) const;
-
-  /* Read configuration file from SD card and configure all actions
-     accordingly.
-     The Config class implements this, for the Menu class it does nothing,
-     because it does not own a configuration file name. */
-  virtual void load(Stream &stream=Serial, SDClass *sd=0);
   
-  /* Interactive menu via serial stream.
-     Returns from initial menu after timeout milliseconds.
-     If echo, print out received input.
-     If detailed provide additional infos for GUI applications. */
-  virtual void execute(Stream &stream=Serial, unsigned long timeout=10000,
-		       bool echo=true, bool detailed=false);
+  /* Interactive menu via serial stream.. */
+  virtual void execute(Stream &stream=Serial);
 
   /* Set the provided name-value pair and report on stream. */
   virtual void set(const char *val, const char *name,

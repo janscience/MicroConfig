@@ -11,6 +11,7 @@
 
 
 class Menu;
+class Config;
 
 
 class Action {
@@ -73,10 +74,13 @@ class Action {
   void setParent(Menu *parent) { Parent = parent; };
 
   /* The root menu of this action. */
-  const Menu *root() const;
+  const Config *root() const { return Root; };
 
   /* The root menu of this action. */
-  Menu *root();
+  Config *root() { return Root; };;
+
+  /* Set the root menu of this action. */
+  virtual void setRoot(Config *root);
 
   /* Return this Action if name matches its name. */
   virtual Action *action(const char *name);
@@ -105,11 +109,18 @@ class Action {
   /* set supported roles and current roles to roles. */
   void setRoles(unsigned int roles=AllRoles);
 
-  /* The number of spaces to be used for each indentation level. */
-  size_t indentation() const { return Indentation; };
+  /* Timeout in milliseconds for interactive menus.
+     This implementation returns 0. */
+  virtual unsigned long timeOut() const { return 0; };
 
-  /* Set the number of spaces to be used for each indentation level. */
-  void setIndentation(size_t indentation) { Indentation = indentation; };
+  /* The number of spaces to be used for each indentation level. */
+  size_t indentation() const;
+
+  /* If true, serial input should be printed on output stream. */
+  bool echo() const;
+
+  /* If true, more details should be provided in execute(). */
+  bool detailed() const;
 
   /* Write the action's name and potential values or infos to stream
      with proper indentation. roles must be enabled.
@@ -119,12 +130,11 @@ class Action {
   
   /* Execute this action with user interactions via serial stream.
      StreamInput and StreamOutput must be enabled.
-     Returns from initial menu after timeout milliseconds.
-     If echo, print out received input.
-     If detailed provide additional infos for GUI applications.
+     Returns from menu after timeOut() milliseconds.
+     If echo(), print out received input.
+     If detailed() provide additional infos for GUI applications.
      Default calls report(stream). */
-  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
-		       bool echo=true, bool detailed=false);
+  virtual void execute(Stream &stream=Serial);
 
   /* Parse the string val and configure the action accordingly.
      SetValue must be enabled. If StreamOutput is enabled,
@@ -139,9 +149,8 @@ class Action {
   unsigned int SupportedRoles;
   unsigned int Roles;
 
-  size_t Indentation;
-
   Menu *Parent;
+  Config *Root;
   
 };
 

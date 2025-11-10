@@ -88,8 +88,7 @@ void InfoAction::write(Stream &stream, unsigned int roles,
 }
 
 
-void InfoAction::execute(Stream &stream, unsigned long timeout,
-			 bool echo, bool detailed) {
+void InfoAction::execute(Stream &stream) {
   write(stream, AllRoles, 0, MaxWidth, true);
   stream.println();
 }

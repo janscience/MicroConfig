@@ -2,8 +2,7 @@
 #include <FirmwareMenu.h>
 
 
-void ListFirmwareAction::execute(Stream &stream, unsigned long timeout,
-				 bool echo, bool detailed) {
+void ListFirmwareAction::execute(Stream &stream) {
   if (disabled(StreamInput))
     return;
   listFirmware(SDC, stream);
@@ -11,11 +10,10 @@ void ListFirmwareAction::execute(Stream &stream, unsigned long timeout,
 }
 
 
-void UpdateFirmwareAction::execute(Stream &stream, unsigned long timeout,
-				   bool echo, bool detailed) {
+void UpdateFirmwareAction::execute(Stream &stream) {
   if (disabled(StreamInput))
     return;
-  updateFirmware(SDC, echo, detailed, stream);
+  updateFirmware(SDC, echo(), detailed(), stream);
   stream.println();
 }
 

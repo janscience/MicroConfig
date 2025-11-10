@@ -37,8 +37,7 @@ void MessageAction::write(Stream &stream, unsigned int roles,
 }
 
 
-void MessageAction::execute(Stream &stream, unsigned long timeout,
-			    bool echo, bool detailed) {
+void MessageAction::execute(Stream &stream) {
   if (Text != 0)
     stream.println(Text);
   stream.println();

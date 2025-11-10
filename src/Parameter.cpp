@@ -20,8 +20,7 @@ void Parameter::write(Stream &stream, unsigned int roles, size_t indent,
 }
 
 
-void Parameter::execute(Stream &stream, unsigned long timeout,
-			bool echo, bool detailed) {
+void Parameter::execute(Stream &stream) {
   if (disabled(StreamIO))
     return;
   if (disabled(SetValue)) {
@@ -41,23 +40,23 @@ void Parameter::execute(Stream &stream, unsigned long timeout,
       stream.print("Select new value");
     else
       stream.print("Enter new value ");
-    instructions(pval, detailed);
+    instructions(pval);
     if (strlen(pval) > 0)
       stream.printf(" (%s)", pval);
     stream.print(": ");
-    elapsedMillis time = 0;
-    while ((stream.available() == 0) && (timeout == 0 || time < timeout)) {
+    while (stream.available() == 0) {
       yield();
+      delay(1);
     }
     stream.readBytesUntil('\n', pval, MaxVal);
     if ((strcmp(pval, "ktv") == 0) ||
 	(strcmp(pval, "keepthevalue") == 0) ||
 	parseValue(pval, NSelection > 0)) {
-      if (echo)
+      if (echo())
 	stream.println(pval);
       break;
     }
-    if (echo)
+    if (echo())
       stream.println(pval);
   }
   stream.println();
@@ -98,9 +97,9 @@ void Parameter::set(const char *val, const char *name, Stream &stream) {
 }
 
 
-void Parameter::instructions(char *str, bool detailed) const {
+void Parameter::instructions(char *str) const {
   *str = '\0';
-  if (detailed)
+  if (detailed())
     strcpy(str, TypeStr);
 }
 

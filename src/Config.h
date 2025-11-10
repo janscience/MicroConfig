@@ -1,5 +1,5 @@
 /*
-  Config - Menu with configuration file.
+  Config - Root Menu with configuration file.
   Created by Jan Benda, February 12th, 2025.
 */
 
@@ -14,6 +14,8 @@ class SDClass;
 
 
 class Config : public Menu {
+
+  friend class Action;
 
  public:
 
@@ -34,6 +36,21 @@ class Config : public Menu {
      and optional SD card on which to store the config file. */
   void setConfigFile(const char *fname, SDClass *sd=0);
 
+  /* Set the number of spaces to be used for each indentation level. */
+  void setIndentation(size_t indentation) { Indentation = indentation; };
+
+  /* Timeout in milliseconds for interactive menus.. */
+  virtual unsigned long timeOut() const { return TimeOut; };
+
+  /* Set timeout in milliseconds for interactive menus. */
+  void setTimeOut(unsigned long timeout) { TimeOut = timeout; };
+
+  /* Set whether serial input should be printed on output stream. */
+  void setEcho(bool echo) { Echo = echo; };
+
+  /* Set whether more details should be provided in execute(). */
+  void setDetailed(bool detailed) { Detailed = detailed; };
+
   /* Report configuration menu on stream
      (all actions with FileOutput and Report roles). */
   void report(Stream &stream=Serial) const;
@@ -43,17 +60,22 @@ class Config : public Menu {
      Report errors and success on stream.
      Return true on success.
      If sd is NULL write to default SD card provided via setConfigFile(). */
-  virtual bool save(Stream &stream=Serial, SDClass *sd=0) const;
+  bool save(Stream &stream=Serial, SDClass *sd=0) const;
 
   /* Read configuration file from SD card and configure all actions
      accordingly.
      Report errors and success on stream.
      If sd is NULL read from default SD card provided via setConfigFile(). */
-  virtual void load(Stream &stream=Serial, SDClass *sd=0);
+  void load(Stream &stream=Serial, SDClass *sd=0);
 
 
 protected:
 
+  size_t Indentation;
+  unsigned long TimeOut;
+  bool Echo;
+  bool Detailed;
+  
   const char *ConfigFile;
   SDClass *SDC;
   

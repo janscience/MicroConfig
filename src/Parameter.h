@@ -63,12 +63,8 @@ class Parameter : public Action {
   virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
 		     size_t indent=0, size_t width=0, bool descend=true) const;
   
-  /* Interactive configuration via serial stream.
-     Returns from initial menu after timeout milliseconds.
-     If echo, print out received input.
-     If detailed provide additional infos for GUI applications. */
-  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
-		       bool echo=true, bool detailed=false);
+  /* Interactive configuration via serial stream. */
+  virtual void execute(Stream &stream=Serial);
 
   /* Parse the string val and set the parameter accordingly.  If
      StreamOutput is enabled, report the new value together with name
@@ -91,8 +87,8 @@ class Parameter : public Action {
 
   /* Return in str some instructions for interactive input,
      e.g. a valid range for numbers. Used for the prompt in execute().
-     If detailed provide more infos for a GUI. */
-  virtual void instructions(char *str, bool detailed) const;
+     If detailed() provide more infos for a GUI. */
+  virtual void instructions(char *str) const;
 
   /* Maximum size of string needed for valueStr() */
   static const size_t MaxVal = 64;
@@ -480,7 +476,7 @@ class BaseNumberParameter : public Parameter {
   virtual void listSelection(Stream &stream) const;
 
   /* Return in str infos regarding valid minimum and maximum numbers. */
-  virtual void instructions(char *str, bool detailed) const;
+  virtual void instructions(char *str) const;
 
   /* Set minimum value a number can have. */
   T setMinimum(T minimum);
@@ -1061,9 +1057,9 @@ void BaseNumberParameter<T>::listSelection(Stream &stream) const {
 
 
 template<class T>
-void BaseNumberParameter<T>::instructions(char *str, bool detailed) const {
+void BaseNumberParameter<T>::instructions(char *str) const {
   *str = '\0';
-  if (detailed) {
+  if (detailed()) {
     strcpy(str, TypeStr);
     strcat(str, ", ");
     strcat(str, Unit);

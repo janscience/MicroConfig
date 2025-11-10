@@ -3,7 +3,14 @@
 
 
 Config::Config() :
-  Menu("Menu", AllRoles) {
+  Menu("Menu", AllRoles),
+  Indentation(4),
+  TimeOut(10000),
+  Echo(true),
+  Detailed(false),
+  ConfigFile(0),
+  SDC(0) {
+  Root = this;
 }
 
 
@@ -14,7 +21,14 @@ Config::Config(const char *fname, SDClass *sd) :
 
 
 Config::Config(const char *name, unsigned int roles) :
-  Menu(name, roles) {
+  Menu(name, roles),
+  Indentation(4),
+  TimeOut(10000),
+  Echo(true),
+  Detailed(false),
+  ConfigFile(0),
+  SDC(0) {
+  Root = this;
 }
 
 

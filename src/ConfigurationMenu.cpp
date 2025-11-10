@@ -1,3 +1,4 @@
+#include <Config.h>
 #include <ConfigurationMenu.h>
 
 
@@ -6,15 +7,13 @@ ReportConfigAction::ReportConfigAction(Menu &menu, const char *name) :
 }
 
 
-void ReportConfigAction::execute(Stream &stream, unsigned long timeout,
-				 bool echo, bool detailed) {
+void ReportConfigAction::execute(Stream &stream) {
   root()->write(stream, FileOutput);
   stream.println();
 }
 
 
-void ReadConfigAction::execute(Stream &stream, unsigned long timeout,
-			       bool echo, bool detailed) {
+void ReadConfigAction::execute(Stream &stream) {
   if (stream.available() == 0)
     stream.println("Read configuration...");
   elapsedMillis time = 0;
@@ -33,14 +32,13 @@ SDClassAction::SDClassAction(Menu &menu, const char *name, SDClass &sd) :
 }
 
 
-void SaveConfigAction::execute(Stream &stream, unsigned long timeout,
-			       bool echo, bool detailed) {
+void SaveConfigAction::execute(Stream &stream) {
   bool save = true;
   if (root()->configFile() != NULL && SDC.exists(root()->configFile())) {
     stream.printf("Configuration file \"%s\" already exists on SD card.\n",
 		  root()->configFile());
     save = Action::yesno("Do you want to overwrite the configuration file?",
-			 true, echo, stream);
+			 true, echo(), stream);
   }
   if (save && root()->save(stream, &SDC))
     stream.printf("Saved configuration to file \"%s\" on SD card.\n",
@@ -49,8 +47,7 @@ void SaveConfigAction::execute(Stream &stream, unsigned long timeout,
 }
 
 
-void LoadConfigAction::execute(Stream &stream, unsigned long timeout,
-			       bool echo, bool detailed) {
+void LoadConfigAction::execute(Stream &stream) {
   bool r = true;
   if (root()->configFile() != NULL) {
     if (!SDC.exists(root()->configFile())) {
@@ -60,7 +57,7 @@ void LoadConfigAction::execute(Stream &stream, unsigned long timeout,
     }
     stream.println("Reloading the configuration file will discard all changes.");
     r = Action::yesno("Do you really want to reload the configuration file?",
-		      true, echo, stream);
+		      true, echo(), stream);
     stream.println();
   }
   if (r)
@@ -68,8 +65,7 @@ void LoadConfigAction::execute(Stream &stream, unsigned long timeout,
 }
 
 
-void RemoveConfigAction::execute(Stream &stream, unsigned long timeout,
-				 bool echo, bool detailed) {
+void RemoveConfigAction::execute(Stream &stream) {
   if (root()->configFile() == NULL) {
     stream.println("ERROR! No configuration file name specified.");
     return;
@@ -80,7 +76,7 @@ void RemoveConfigAction::execute(Stream &stream, unsigned long timeout,
     return;
   }
   if (Action::yesno("Do you really want to remove the configuration file?",
-		    false, echo, stream)) {
+		    false, echo(), stream)) {
     if (SDC.remove(root()->configFile()))
       stream.printf("\nRemoved configuration file \"%s\" from SD card.\n\n",
 		    root()->configFile());

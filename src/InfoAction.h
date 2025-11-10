@@ -52,8 +52,7 @@ class InfoAction : public Action {
 		     size_t indent=0, size_t width=0, bool descend=true) const;
 
   /* Print out text on stream. */
-  virtual void execute(Stream &stream=Serial, unsigned long timeout=0,
-		       bool echo=true, bool detailed=false);
+  virtual void execute(Stream &stream=Serial);
 
 
  protected:

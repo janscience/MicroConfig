@@ -1,4 +1,5 @@
 #include <Menu.h>
+#include <Config.h>
 #include <Action.h>
 
 
@@ -30,8 +31,8 @@ Action::Action(const char *name, unsigned int roles) :
   Name(const_cast<char *>(name)),
   SupportedRoles(roles),
   Roles(roles),
-  Indentation(2),
-  Parent(NULL) {
+  Parent(NULL),
+  Root(NULL) {
 }
 
 
@@ -57,19 +58,8 @@ void Action::clearName() {
 }
 
 
-const Menu *Action::root() const {
-  const Action *act = this;
-  while (act->parent() != NULL)
-    act = act->parent();
-  return static_cast<const Menu*>(act);
-}
-
-
-Menu *Action::root() {
-  Action *act = this;
-  while (act->parent() != NULL)
-    act = act->parent();
-  return static_cast<Menu*>(act);
+void Action::setRoot(Config *root) {
+  Root = root;
 }
 
 
@@ -124,6 +114,21 @@ void Action::setRoles(unsigned int roles) {
 }
 
 
+size_t Action::indentation() const {
+  return Root == 0 ? 4 : Root->Indentation;
+}
+
+
+bool Action::echo() const {
+  return Root == 0 ? true : Root->Echo;
+}
+
+
+bool Action::detailed() const {
+  return Root == 0 ? false : Root->Detailed;
+}
+
+
 void Action::write(Stream &stream, unsigned int roles, size_t indent,
 		   size_t width, bool descend) const {
   if (enabled(roles))
@@ -131,8 +136,7 @@ void Action::write(Stream &stream, unsigned int roles, size_t indent,
 }
 
 
-void Action::execute(Stream &stream, unsigned long timeout,
-		     bool echo, bool detailed) {
+void Action::execute(Stream &stream) {
   write(stream);
   stream.println();
 }

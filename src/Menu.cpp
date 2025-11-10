@@ -1,4 +1,4 @@
-#include <SD.h>
+#include <Config.h>
 #include <Menu.h>
 
 
@@ -52,6 +52,14 @@ void Menu::add(Action *act) {
   Own[NActions] = false;
   Actions[NActions++] = act;
   act->setParent(this);
+  act->setRoot(Root);
+}
+
+
+void Menu::setRoot(Config *root) {
+  Root = root;
+  for (size_t j=0; j<NActions; j++)
+    Actions[j]->setRoot(root);
 }
 
 
@@ -221,11 +229,6 @@ void Menu::disable(const char *name, unsigned int roles) {
 }
 
 
-const char *Menu::configFile() const {
-  return NULL;
-}
-
-
 void Menu::write(Stream &stream, unsigned int roles, size_t indent,
 		 size_t width, bool descend) const {
   // write actions to serial:
@@ -349,19 +352,10 @@ void Menu::read(Stream &instream, Stream &outstream) {
 }
 
 
-bool Menu::save(Stream &stream, SDClass *sd) const {
-  return false;
-}
-
-
-void Menu::load(Stream &stream, SDClass *sd) {
-}
-
-
-void Menu::execute(Stream &stream, unsigned long timeout,
-		   bool echo, bool detailed) {
+void Menu::execute(Stream &stream) {
   if (disabled(StreamInput))
     return;
+  unsigned long timeout = timeOut();
   int def = 0;
   if (timeout > 0)
     def = -1;
@@ -397,7 +391,7 @@ void Menu::execute(Stream &stream, unsigned long timeout,
       stream.readBytesUntil('\n', pval, 32);
       if (strlen(pval) == 0 && def >= 0)
 	sprintf(pval, "%d", def + 1);
-      if (echo)
+      if (echo())
 	stream.println(pval);
       if (strlen(pval) == 0 && def < 0) {
 	def = 0;
@@ -406,13 +400,13 @@ void Menu::execute(Stream &stream, unsigned long timeout,
       if (strcmp(pval, "reboot") == 0)
 	reboot_board(stream);
       else if (strcmp(pval, "detailed on") == 0)
-	detailed = true;
+	Root->setDetailed(true);
       else if (strcmp(pval, "detailed off") == 0)
-	detailed = false;
+	Root->setDetailed(false);
       else if (strcmp(pval, "echo on") == 0)
-	echo = true;
+	Root->setEcho(true);
       else if (strcmp(pval, "echo off") == 0)
-	echo = false;
+	Root->setEcho(false);
       else if (strcmp(pval, "print") == 0) {
 	stream.println();
 	break;
@@ -424,7 +418,7 @@ void Menu::execute(Stream &stream, unsigned long timeout,
 	    iaction[i] < NActions) {
 	  def = i;
 	  stream.println();
-	  Actions[iaction[i]]->execute(stream, 0, echo, detailed);
+	  Actions[iaction[i]]->execute(stream);
 	  if (root()->GoHome) {
 	    if (this != root()) {
 	      // go up one level:
