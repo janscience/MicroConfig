@@ -36,9 +36,9 @@ and then execute the configuration menu:
 void setup() {
   Serial.begin(9600);
   while (!Serial && millis() < 2000) {};
-  SD.begin(BUILTIN_SDCARD);         // initialize SD card
+  SD.begin(BUILTIN_SDCARD);   // initialize SD card
   if (Serial)
-    config.execute(Serial, 10000);  // execute the main menu, 10s timeout
+    config.execute();         // execute the main menu, default 10s timeout
 ```
 
 
@@ -318,14 +318,21 @@ Analog input:
   Select [2]: 
 ```
 
-Retrieving the value via `speed.value()` returns an `SAMPLING_SPEED`
-enum with value `HIGH_SPEED`.
+Retrieving the value via `speed.value()` returns the string representation,
+since the `EnumParameter` class is derived from the `BaseStringParameter`
+class. If you want the integer enum value us `speed.enumValue()`.
+This returns an `SAMPLING_SPEED` enum with value `HIGH_SPEED`.
+
+Equivalently, `speed.setValue("high")` takes the spring represtation
+as an argument an sets the enum value accordingly, whereas
+`speed.setEnumValue(HIGH_SPEED)` allows you to set the enum value
+directly.
 
 
 ## Actions
 
 As we have seen above for the help action, menu items do not only
-configure parameter value. They can also trigger some action by
+configure parameter values. They can also trigger some action by
 executing some code. The help action, for example, prints a help
 message on the serial stream.
 

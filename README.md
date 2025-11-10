@@ -66,7 +66,7 @@ void setup() {
   SD.begin(BUILTIN_SDCARD);              // initialize SD card
   config.load();                         // load configuration file from SD card
   if (Serial)
-    config.execute(Serial, 10000);       // execute the main menu, 10s timeout
+    config.execute();                    // execute the main menu, default 10s timeout
 }
 ```
 
