@@ -365,16 +365,17 @@ void Menu::execute(Stream &stream) {
     size_t n = 0;
     for (size_t j=0; j<NActions; j++) {
       if (Actions[j]->enabled(StreamInput)) {
-	stream.printf("  %d) ", n+1);
+	stream.printf("%*s%d) ", indentation(), "", n+1);
 	Actions[j]->write(stream, StreamIO, 0, 0, false);
 	iaction[n++] = j;
       }
     }
     while (true) {
+      stream.printf("%*sSelect", indentation(), "");
       if (def >= 0)
-	stream.printf("  Select [%d]: ", def + 1);
+	stream.printf(" [%d]: ", def + 1);
       else
-	stream.printf("  Select: ");
+	stream.printf(": ");
       elapsedMillis time = 0;
       while ((stream.available() == 0) && (timeout == 0 || time < timeout)) {
 	yield();
