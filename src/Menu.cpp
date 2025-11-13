@@ -243,8 +243,10 @@ void Menu::write(Stream &stream, unsigned int roles, size_t indent,
       if (Actions[j]->enabled(roles) && strlen(Actions[j]->name()) > ww)
 	ww = strlen(Actions[j]->name());
     }
-    for (size_t j=0; j<NActions; j++)
-      Actions[j]->write(stream, roles, indent, ww, descend);
+    for (size_t j=0; j<NActions; j++) {
+      if (Actions[j]->enabled(roles))
+	Actions[j]->write(stream, roles, indent, ww, descend);
+    }
   }
   else if (enabled(roles) && strlen(name()) > 0)
     stream.printf("%*s%s ...\n", indent, "", name());
@@ -466,5 +468,29 @@ void Menu::set(const char *val, const char *name,
   }
   else
     act->set(val, this->name());
+}
+
+
+int Menu::put(int addr, Stream &stream) const {
+  for (size_t j=0; j<NActions; j++) {
+    if (Actions[j]->enabled(EEPROMPut)) {
+      addr = Actions[j]->put(addr, stream);
+      if (addr < 0)
+	return addr;
+    }
+  }
+  return addr;
+}
+
+
+int Menu::get(int addr, bool setvalue, Stream &stream) {
+  for (size_t j=0; j<NActions; j++) {
+    if (Actions[j]->enabled(EEPROMGet))
+      addr = Actions[j]->get(addr, setvalue, stream); {
+      if (addr < 0)
+	return addr;
+    }
+  }
+  return addr;
 }
 

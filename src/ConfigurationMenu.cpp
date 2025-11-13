@@ -89,12 +89,37 @@ void RemoveConfigAction::execute(Stream &stream) {
 }
 
 
+void PutConfigAction::execute(Stream &stream) {
+  bool save = Action::yesno("Do you really want to write the configuration settings to EEPROM?",
+			    true, echo(), stream);
+  stream.println();
+  if (save) {
+    root()->put(stream);
+    stream.println();
+  }
+}
+
+
+void GetConfigAction::execute(Stream &stream) {
+  stream.println("Reloading the configuration file will discard all changes.");
+  bool r = Action::yesno("Do you really want to reload the configuration from EEPROM?",
+		      true, echo(), stream);
+  stream.println();
+  if (r) {
+    root()->get(stream);
+    stream.println();
+  }
+}
+
+
 ConfigurationMenu::ConfigurationMenu(Menu &menu, SDClass &sd) :
   Menu(menu, "Configuration", Action::StreamInput),
   ReportAct(*this, "Print configuration"),
   SaveAct(*this,"Save configuration file", sd),
   LoadAct(*this, "Load configuration file", sd),
   RemoveAct(*this, "Erase configuration file", sd),
+  PutAct(*this,"Write configuration to EEPROM"),
+  GetAct(*this, "Read configuration from EEPROM"),
   ReadAct(*this, "Read configuration") {
 }
 

@@ -43,6 +43,7 @@
 #define Parameter_h
 
 
+#include <EEPROM.h>
 #include <Action.h>
 
 
@@ -71,6 +72,19 @@ class Parameter : public Action {
      on stream. */
   virtual void set(const char *val, const char *name=0,
 		   Stream &stream=Serial);
+  
+  /* Write configuration with role EEPROMPut to addr in EEPROM memory.
+     Report errors and success on stream.
+     Returns EEPROM address behind this configuration, -1 on error.
+     Default implementation returns addr. */
+  virtual int put(int addr, Stream &stream=Serial) const;
+  
+  /* Read configuration with role EEPROMGet from addr in EEPROM memory.
+     Only if setvalue is true set the actions value to EEPROM content.
+     Report errors and success on stream.
+     Returns EEPROM address behind this configuration, -1 on error.
+     Default implementation returns addr. */
+  virtual int get(int addr, bool setvalue, Stream &stream=Serial);
 
   /* Parse the string val and set the value of this parameter accordingly.
      If selection, then val is the input in response to an offered
@@ -98,6 +112,15 @@ class Parameter : public Action {
   
   
  protected:
+  
+  /* Write value to addr in EEPROM memory.
+     Returns EEPROM address behind this value, -1 on error. */
+  virtual int putValue(int addr) const { return addr; };
+  
+  /* Read valuefrom addr in EEPROM memory.
+     Only if setvalue is true set the actions value to EEPROM content.
+     Returns EEPROM address behind this value, -1 on error. */
+  virtual int getValue(int addr, bool setvalue) { return addr; };
 
   size_t NSelection;
   
@@ -218,6 +241,12 @@ class StringParameter : public BaseStringParameter {
 
   
  protected:
+  
+  /* Write value to addr in EEPROM memory. */
+  virtual int putValue(int addr) const;
+  
+  /* Read valuefrom addr in EEPROM memory. */
+  virtual int getValue(int addr, bool setvalue);
 
   char Value[N];
   
@@ -257,6 +286,12 @@ class StringPointerParameter : public BaseStringParameter {
 
   
  protected:
+  
+  /* Write value to addr in EEPROM memory. */
+  virtual int putValue(int addr) const;
+  
+  /* Read valuefrom addr in EEPROM memory. */
+  virtual int getValue(int addr, bool setvalue);
 
   char (*Value)[N];
   
@@ -337,6 +372,12 @@ class EnumParameter : public BaseEnumParameter<T> {
 
   
  protected:
+  
+  /* Write value to addr in EEPROM memory. */
+  virtual int putValue(int addr) const;
+  
+  /* Read valuefrom addr in EEPROM memory. */
+  virtual int getValue(int addr, bool setvalue);
 
   T Value;
   
@@ -381,6 +422,12 @@ class EnumPointerParameter : public BaseEnumParameter<T> {
 
   
  protected:
+  
+  /* Write value to addr in EEPROM memory. */
+  virtual int putValue(int addr) const;
+  
+  /* Read valuefrom addr in EEPROM memory. */
+  virtual int getValue(int addr, bool setvalue);
 
   T *Value;
   
@@ -396,7 +443,10 @@ class BoolParameter : public EnumParameter<bool> {
      menu. */
   BoolParameter(Menu &menu, const char *name, bool val);
 
-  /* Set the enum to val.
+  /* Return the boolean value. */
+  bool boolValue() const { return enumValue(); };
+
+  /* Set the boolean value to val.
      Return false if the parameter was disabled. */
   bool setBoolValue(bool val) { return setEnumValue(val); };
   
@@ -411,6 +461,9 @@ class BoolPointerParameter : public EnumPointerParameter<bool> {
   /* Initialize parameter with identifying name, value, and add to
      menu. */
   BoolPointerParameter(Menu &menu, const char *name, bool *val);
+
+  /* Return the boolean value. */
+  bool boolValue() const { return enumValue(); };
 
   /* Set the enum to val.
      Return false if the parameter was disabled. */
@@ -569,6 +622,12 @@ class NumberParameter : public BaseNumberParameter<T> {
   
   
  protected:
+  
+  /* Write value to addr in EEPROM memory. */
+  virtual int putValue(int addr) const;
+  
+  /* Read valuefrom addr in EEPROM memory. */
+  virtual int getValue(int addr, bool setvalue);
 
   T Value;
   
@@ -626,6 +685,12 @@ class NumberPointerParameter : public BaseNumberParameter<T> {
   
   
  protected:
+  
+  /* Write value to addr in EEPROM memory. */
+  virtual int putValue(int addr) const;
+  
+  /* Read valuefrom addr in EEPROM memory. */
+  virtual int getValue(int addr, bool setvalue);
 
   T *Value;
   
@@ -693,6 +758,21 @@ void StringParameter<N>::valueStr(char *str) const {
 
 
 template<int N>
+int StringParameter<N>::putValue(int addr) const {
+  EEPROM.put(addr, Value);
+  return addr += N;
+}
+
+  
+template<int N>
+int StringParameter<N>::getValue(int addr, bool setvalue) {
+  if (setvalue)
+    EEPROM.get(addr, Value);
+  return addr += N;
+}
+
+
+template<int N>
 StringPointerParameter<N>::StringPointerParameter(Menu &menu,
 						  const char *name,
 						  char (*str)[N],
@@ -741,6 +821,21 @@ void StringPointerParameter<N>::valueStr(char *str) const {
   int n = MaxVal < N ? MaxVal : N;
   strncpy(str, *Value, n);
   str[n-1] = '\0';
+}
+
+
+template<int N>
+int StringPointerParameter<N>::putValue(int addr) const {
+  EEPROM.put(addr, *Value);
+  return addr += N;
+}
+
+  
+template<int N>
+int StringPointerParameter<N>::getValue(int addr, bool setvalue) {
+  if (setvalue)
+    EEPROM.get(addr, *Value);
+  return addr += N;
 }
 
 
@@ -865,6 +960,21 @@ void EnumParameter<T>::valueStr(char *str) const {
 
 
 template<class T>
+int EnumParameter<T>::putValue(int addr) const {
+  EEPROM.put(addr, Value);
+  return addr += sizeof(T);
+}
+
+  
+template<class T>
+int EnumParameter<T>::getValue(int addr, bool setvalue) {
+  if (setvalue)
+    EEPROM.get(addr, Value);
+  return addr += sizeof(T);
+}
+
+
+template<class T>
 EnumPointerParameter<T>::EnumPointerParameter(Menu &menu,
 					      const char *name,
 					      T *val, const T *enums,
@@ -877,7 +987,7 @@ EnumPointerParameter<T>::EnumPointerParameter(Menu &menu,
 
 template<class T>
 const char* EnumPointerParameter<T>::value() const {
-  return this->enumStr(Value);
+  return this->enumStr(*Value);
 }
 
 
@@ -932,6 +1042,21 @@ void EnumPointerParameter<T>::valueStr(char *str) const {
   const char *es = this->enumStr(*Value);
   strncpy(str, es, Parameter::MaxVal);
   str[Parameter::MaxVal-1] = '\0';
+}
+
+
+template<class T>
+int EnumPointerParameter<T>::putValue(int addr) const {
+  EEPROM.put(addr, *Value);
+  return addr += sizeof(T);
+}
+
+  
+template<class T>
+int EnumPointerParameter<T>::getValue(int addr, bool setvalue) {
+  if (setvalue)
+    EEPROM.get(addr, *Value);
+  return addr += sizeof(T);
 }
 
 
@@ -1238,6 +1363,21 @@ void NumberParameter<T>::valueStr(char *str) const {
 
 
 template<class T>
+int NumberParameter<T>::putValue(int addr) const {
+  EEPROM.put(addr, Value);
+  return addr += sizeof(T);
+}
+
+  
+template<class T>
+int NumberParameter<T>::getValue(int addr, bool setvalue) {
+  if (setvalue)
+    EEPROM.get(addr, Value);
+  return addr += sizeof(T);
+}
+
+
+template<class T>
 NumberPointerParameter<T>::NumberPointerParameter(Menu &menu,
 						  const char *name,
 						  T *number,
@@ -1334,6 +1474,21 @@ bool NumberPointerParameter<T>::parseValue(char *val, bool selection) {
 template<class T>
 void NumberPointerParameter<T>::valueStr(char *str) const {
   valueStr(*Value, str);
+}
+
+
+template<class T>
+int NumberPointerParameter<T>::putValue(int addr) const {
+  EEPROM.put(addr, *Value);
+  return addr += sizeof(T);
+}
+
+  
+template<class T>
+int NumberPointerParameter<T>::getValue(int addr, bool setvalue) {
+  if (setvalue)
+    EEPROM.get(addr, *Value);
+  return addr += sizeof(T);
 }
 
 

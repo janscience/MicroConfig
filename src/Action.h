@@ -27,10 +27,13 @@ class Action {
     StreamInput = 16,
     StreamIO = StreamInput | StreamOutput,
     Report = 32,     // write infos to a file
+    EEPROMPut = 64,
+    EEPROMGet = 128,
+    EEPROMIO = EEPROMPut | EEPROMGet,
     // DisplayUpDownButtons,
     // DisplayTouch,
     // whatever input/output device
-    AllRoles = FileIO | StreamIO | Report
+    AllRoles = FileIO | StreamIO | EEPROMIO | Report
   };
 
   /* Ask a yes or no question on a serial I/O stream. */
@@ -141,6 +144,19 @@ class Action {
      report the new value together with name on stream. */
   virtual void set(const char *val, const char *name=0,
 		   Stream &stream=Serial) {};
+  
+  /* Write configuration with role EEPROMPut to addr in EEPROM memory.
+     Report errors and success on stream.
+     Returns EEPROM address behind this configuration, -1 on error.
+     Default implementation returns addr. */
+  virtual int put(int addr, Stream &stream=Serial) const;
+  
+  /* Read configuration with role EEPROMGet from addr in EEPROM memory.
+     Only if setvalue is true set the actions value to EEPROM content.
+     Report errors and success on stream.
+     Returns EEPROM address behind this configuration, -1 on error.
+     Default implementation returns addr. */
+  virtual int get(int addr, bool setvalue, Stream &stream=Serial);
 
   
  protected:

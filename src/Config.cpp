@@ -100,3 +100,54 @@ void Config::load(Stream &stream, SDClass *sd) {
   stream.println();
 }
 
+
+uint32_t eeprom_crc(int addr0, int addr1) {
+  // Adapted from https://docs.arduino.cc/learn/programming/eeprom-guide/
+  
+  const uint32_t crc_table[16] = {
+    0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
+    0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
+    0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
+    0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+  };
+
+  if (addr0 < 0)
+    addr0 = 0;
+  if (addr1 > EEPROM.length())
+    addr1 = EEPROM.length();
+  uint32_t crc = ~0L;
+  for (int index = addr0; index < addr1; ++index) {
+    crc = crc_table[(crc ^ EEPROM[index]) & 0x0f] ^ (crc >> 4);
+    crc = crc_table[(crc ^ (EEPROM[index] >> 4)) & 0x0f] ^ (crc >> 4);
+    crc = ~crc;
+  }
+  return crc;
+}
+
+
+bool Config::put(Stream &stream) const {
+  int start_addr = 0;
+  int addr = Menu::put(start_addr, stream);
+  if (addr > start_addr) {
+    uint32_t crc = eeprom_crc(start_addr, addr);
+    EEPROM.put(addr, crc);
+    return true;
+  }
+  else
+    return (addr == start_addr);
+}
+
+
+bool Config::get(Stream &stream) {
+  int start_addr = 0;
+  int addr = Menu::get(start_addr, false, stream);
+  if (addr > start_addr) {
+    uint32_t crc_data = eeprom_crc(start_addr, addr);
+    uint32_t crc_read;
+    EEPROM.get(addr, crc_read);
+    if (crc_data != crc_read)
+      return false;
+    addr = Menu::get(start_addr, true, stream);
+  }
+  return (addr >= start_addr);
+}

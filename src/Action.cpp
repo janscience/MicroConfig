@@ -140,3 +140,14 @@ void Action::execute(Stream &stream) {
   write(stream);
   stream.println();
 }
+
+
+int Action::put(int addr, Stream &stream) const {
+  return addr;
+}
+
+
+int Action::get(int addr, bool setvalue, Stream &stream) {
+  return addr;
+}
+

@@ -71,6 +71,18 @@ class Config : public Menu {
      If sd is NULL read from default SD card provided via setConfigFile(). */
   void load(Stream &stream=Serial, SDClass *sd=0);
 
+  /* Write configuration with role EEPROMPut to EEPROM memory.
+     Report errors and success on stream.
+     Report true on success, i.e. if EEPROM was large enough
+     and written settings can be retrieved from EEPROM unchanged. */
+  bool put(Stream &stream=Serial) const;
+  
+  /* Read configuration with role EEPROMGet from EEPROM memory.
+     Report errors and success on stream.
+     Return true on success, i.e. if EEPROM was uncorrupted
+     and all settings have been read. */
+  bool get(Stream &stream=Serial);
+
 
 protected:
 

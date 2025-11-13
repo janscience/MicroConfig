@@ -108,6 +108,17 @@ class Menu : public Action {
   virtual void set(const char *val, const char *name,
 		   Stream &stream=Serial);
 
+  /* Write configuration with role EEPROMPut to addr in EEPROM memory.
+     Returns EEPROM address behind this configuration, -1 on error.
+     Report errors and success on stream. */
+  virtual int put(int addr, Stream &stream=Serial) const;
+  
+  /* Read configuration with role EEPROMGet from addr in EEPROM memory.
+     Only if setvalue is true set the actions' values to EEPROM content.
+     Returns EEPROM address behind this configuration, -1 on error.
+     Report errors and success on stream. */
+  virtual int get(int addr, bool setvalue, Stream &stream=Serial);
+
 
 protected:
 

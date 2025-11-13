@@ -81,6 +81,28 @@ class RemoveConfigAction : public SDClassAction {
 };
 
 
+class PutConfigAction : public ReportConfigAction {
+
+ public:
+  
+  using ReportConfigAction::ReportConfigAction;
+
+  /* Write configuration settings to EEPROM. */
+  virtual void execute(Stream &stream=Serial);
+};
+
+
+class GetConfigAction : public ReportConfigAction {
+
+ public:
+  
+  using ReportConfigAction::ReportConfigAction;
+
+  /* Read configuration settings from EEPROM. */
+  virtual void execute(Stream &stream=Serial);
+};
+
+
 class ConfigurationMenu : public Menu {
 
 public:
@@ -91,6 +113,8 @@ public:
   SaveConfigAction SaveAct;
   LoadConfigAction LoadAct;
   RemoveConfigAction RemoveAct;
+  PutConfigAction PutAct;
+  GetConfigAction GetAct;
   ReadConfigAction ReadAct;
   
 };
