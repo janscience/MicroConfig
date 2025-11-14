@@ -485,8 +485,8 @@ int Menu::put(int addr, Stream &stream) const {
 
 int Menu::get(int addr, bool setvalue, Stream &stream) {
   for (size_t j=0; j<NActions; j++) {
-    if (Actions[j]->enabled(EEPROMGet))
-      addr = Actions[j]->get(addr, setvalue, stream); {
+    if (Actions[j]->enabled(EEPROMGet)) {
+      addr = Actions[j]->get(addr, setvalue, stream);
       if (addr < 0)
 	return addr;
     }

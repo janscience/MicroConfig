@@ -109,7 +109,7 @@ int Parameter::put(int addr, Stream &stream) const {
     i = strlen(name()) - 1;
   EEPROM.update(addr++, name()[0]);
   EEPROM.update(addr++, name()[i]);
-  EEPROM.update(addr++, name()[strlen(name() - 1)]);
+  EEPROM.update(addr++, name()[strlen(name()) - 1]);
   // write value:
   int addr1 = putValue(addr);
   char s[MaxVal];
@@ -123,27 +123,33 @@ int Parameter::put(int addr, Stream &stream) const {
 int Parameter::get(int addr, bool setvalue, Stream &stream) {
   if (disabled(EEPROMGet) || name() == 0 || strlen(name()) == 0)
     return addr;
-  // check first and middle character of name in EEPROM:
-  char c0 = EEPROM.read(addr++);
-  char c1 = EEPROM.read(addr++);
-  char c2 = EEPROM.read(addr++);
-  size_t i = strlen(name());
-  i /= 2;
-  if (i == 0)
-    i = 1;
-  if (i >= strlen(name()))
-    i = strlen(name()) - 1;
-  if (c0 != name()[0] || c1 != name()[i] || c2 != name()[strlen(name()) - 1])
-    return -1;
-  // read value:
-  int addr1 = getValue(addr, setvalue);
   if (setvalue) {
+    // check first, middle, and last character of name in EEPROM:
+    char c0 = EEPROM.read(addr++);
+    char c1 = EEPROM.read(addr++);
+    char c2 = EEPROM.read(addr++);
+    size_t i = strlen(name());
+    i /= 2;
+    if (i == 0)
+      i = 1;
+    if (i >= strlen(name()))
+      i = strlen(name()) - 1;
+    if (c0 != name()[0] || c1 != name()[i] || c2 != name()[strlen(name()) - 1]) {
+      stream.printf("Failed to read value for %s from EEPROM memory.\n", name());
+      return -1;
+    }
+    // read value:
+    int addr1 = getValue(addr, true);
     char s[MaxVal];
     valueStr(s);
     stream.printf("Read \"%s\" for %s ", s, name());
     stream.printf("from EEPROM at address %04x\n", addr);
+    return addr1;
   }
-  return addr1;
+  else {
+    addr = getValue(addr, false);
+    return addr + 3;
+  }
 }
 
 
