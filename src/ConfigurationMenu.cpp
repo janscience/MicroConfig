@@ -99,7 +99,7 @@ void PutConfigAction::execute(Stream &stream) {
 
 
 void GetConfigAction::execute(Stream &stream) {
-  stream.println("Reloading the configuration file will discard all changes.");
+  stream.println("Reloading the configuration settings will discard all changes.");
   bool r = Action::yesno("Do you really want to reload the configuration from EEPROM?",
 		      true, echo(), stream);
   if (r)
