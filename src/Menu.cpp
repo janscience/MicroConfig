@@ -370,17 +370,30 @@ void Menu::execute(Stream &stream) {
     def = -1;
   while (true) {
     stream.printf("%s:\n", name());
+    // count interactive entries:
+    size_t nn = 0;
+    size_t width = 0;
+    for (size_t j=0; j<NActions; j++) {
+      if (Actions[j]->enabled(StreamInput))
+	nn++;
+      if (Actions[j]->enabled(StreamIO)) {
+	if (width < strlen(Actions[j]->name()))
+	  width = strlen(Actions[j]->name());
+      }
+    }
+    // list entries:
     size_t iaction[NActions];
     size_t n = 0;
     for (size_t j=0; j<NActions; j++) {
       if (Actions[j]->enabled(StreamIO)) {
+	stream.printf("%*s", indentation(), "");
 	if (Actions[j]->enabled(StreamInput)) {
-	  stream.printf("%*s%d) ", indentation(), "", n+1);
+	  stream.printf("%d) ", n+1);
 	  iaction[n++] = j;
 	}
-	else
-	  stream.printf("%*s", indentation(), "");
-	Actions[j]->write(stream, StreamIO, 0, 0, false);
+	else if (nn > 0)
+	  stream.printf("%*s", n < 10 ? 3 : 4, "");
+	Actions[j]->write(stream, StreamIO, 0, width, false);
       }
     }
     if (n == 0) {
@@ -388,7 +401,7 @@ void Menu::execute(Stream &stream) {
       break;
     }
     while (true) {
-      stream.printf("%*sSelect", indentation(), "");
+      stream.print("Select");
       if (def >= 0)
 	stream.printf(" [%d]: ", def + 1);
       else
@@ -415,7 +428,21 @@ void Menu::execute(Stream &stream) {
 	def = 0;
 	continue;
       }
-      if (strcmp(pval, "reboot") == 0)
+      if (strcmp(pval, "show") == 0) {
+	stream.println();
+	stream.println("Menu settings:");
+	stream.printf("%*sdetailed:    %s\n", indentation(), "",
+		      Root->detailed() ? "on" : "off");
+	stream.printf("%*secho:        %s\n", indentation(), "",
+		      Root->echo() ? "on" : "off");
+	stream.printf("%*sindentation: %d\n", indentation(), "",
+		      Root->indentation());
+	stream.printf("%*stimeout:     %.3fs\n", indentation(), "",
+		      0.001*Root->timeOut());
+	stream.println();
+	break;
+      }
+      else if (strcmp(pval, "reboot") == 0)
 	reboot_board(stream);
       else if (strcmp(pval, "detailed on") == 0)
 	Root->setDetailed(true);
