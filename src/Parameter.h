@@ -10,20 +10,20 @@
   *Parameter class owns the value, and it has to be retrieved by
   calling value().  The *PointerParameter class just stores a pointer
   to the value, so that this external variable is updated immediately
-  whenever it is configured without the need to retrieve it from the
+  whenever it is configured - without the need to retrieve it from the
   class instance.
 
   Via the constructors, parameter classes get their name and are added
   to a Menu. Via the value() and the valueStr() member functions,
   the current value can be obtained directly or as a string representation.
-  Everything else is handled by the Menu class.
 
-  All classes support selections. These are lists of valid
-  values. When provided, values can be chosen from these selections
-  and only values that are contained in selections are considered
-  valid.
+  All Parameter-derived classes support selections. These are lists of
+  valid values. When provided, values can be chosen from these
+  selections and only values that are contained in selections are
+  considered valid.
 
   Classes:
+  
   - Parameter: Base class for configurable parameters, i.e. name-value pairs.
   - BaseStringParameter: Base class for string values.
   - ConstStringParameter: A non-editable parameter whose value points to a static string.
@@ -77,14 +77,14 @@ class Parameter : public Action {
      Report errors and success on stream.
      Returns EEPROM address behind this configuration, -1 on error.
      Default implementation returns addr. */
-  virtual int put(int addr, Stream &stream=Serial) const;
+  virtual int put(int addr, int &num, Stream &stream=Serial) const;
   
   /* Read configuration with role EEPROMGet from addr in EEPROM memory.
      Only if setvalue is true set the actions value to EEPROM content.
      Report errors and success on stream.
      Returns EEPROM address behind this configuration, -1 on error.
      Default implementation returns addr. */
-  virtual int get(int addr, bool setvalue, Stream &stream=Serial);
+  virtual int get(int addr, int &num, bool setvalue, Stream &stream=Serial);
 
   /* Parse the string val and set the value of this parameter accordingly.
      If selection, then val is the input in response to an offered
@@ -112,6 +112,12 @@ class Parameter : public Action {
   
   
  protected:
+
+  static const size_t NIdent = 4;
+
+  /* Generate an identifier for this Parameter.
+     This is used to mark entries in the EEPROM memory. */
+  void makeIdentifier(int num, char ident[NIdent]) const;
   
   /* Write value to addr in EEPROM memory.
      Returns EEPROM address behind this value, -1 on error. */

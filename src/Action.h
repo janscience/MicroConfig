@@ -146,17 +146,21 @@ class Action {
 		   Stream &stream=Serial) {};
   
   /* Write configuration with role EEPROMPut to addr in EEPROM memory.
+     num is the current index of this Action.
+     It is incremented when this Action stores values in EEPROM.
      Report errors and success on stream.
      Returns EEPROM address behind this configuration, -1 on error.
      Default implementation returns addr. */
-  virtual int put(int addr, Stream &stream=Serial) const;
+  virtual int put(int addr, int &num, Stream &stream=Serial) const;
   
   /* Read configuration with role EEPROMGet from addr in EEPROM memory.
+     num is the current index of this Action.
+     It is incremented when this Action stores values in EEPROM.
      Only if setvalue is true set the actions value to EEPROM content.
      Report errors and success on stream.
      Returns EEPROM address behind this configuration, -1 on error.
      Default implementation returns addr. */
-  virtual int get(int addr, bool setvalue, Stream &stream=Serial);
+  virtual int get(int addr, int &num, bool setvalue, Stream &stream=Serial);
 
   
  protected:

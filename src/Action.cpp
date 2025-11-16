@@ -142,12 +142,12 @@ void Action::execute(Stream &stream) {
 }
 
 
-int Action::put(int addr, Stream &stream) const {
+int Action::put(int addr, int &num, Stream &stream) const {
   return addr;
 }
 
 
-int Action::get(int addr, bool setvalue, Stream &stream) {
+int Action::get(int addr, int &num, bool setvalue, Stream &stream) {
   return addr;
 }
 

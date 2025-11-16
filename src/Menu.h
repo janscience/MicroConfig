@@ -109,15 +109,19 @@ class Menu : public Action {
 		   Stream &stream=Serial);
 
   /* Write configuration with role EEPROMPut to addr in EEPROM memory.
+     num is the current index for numbering actions.
+     It is incremented by each of the children storing values in EEPROM.
      Returns EEPROM address behind this configuration, -1 on error.
      Report errors and success on stream. */
-  virtual int put(int addr, Stream &stream=Serial) const;
+  virtual int put(int addr, int &num, Stream &stream=Serial) const;
   
   /* Read configuration with role EEPROMGet from addr in EEPROM memory.
+     num is the current index for numbering actions.
+     It is incremented by each of the children storing values in EEPROM.
      Only if setvalue is true set the actions' values to EEPROM content.
      Returns EEPROM address behind this configuration, -1 on error.
      Report errors and success on stream. */
-  virtual int get(int addr, bool setvalue, Stream &stream=Serial);
+  virtual int get(int addr, int &num, bool setvalue, Stream &stream=Serial);
 
 
 protected:

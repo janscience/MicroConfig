@@ -97,21 +97,33 @@ void Parameter::set(const char *val, const char *name, Stream &stream) {
 }
 
 
-int Parameter::put(int addr, Stream &stream) const {
-  if (disabled(EEPROMPut) || name() == 0 || strlen(name()) == 0)
-    return addr;
-  // write first and middle character of name to EEPROM:
+void Parameter::makeIdentifier(int num, char ident[NIdent]) const {
   size_t i = strlen(name());
   i /= 2;
   if (i == 0)
     i = 1;
   if (i >= strlen(name()))
     i = strlen(name()) - 1;
-  EEPROM.update(addr++, name()[0]);
-  EEPROM.update(addr++, name()[i]);
-  EEPROM.update(addr++, name()[strlen(name()) - 1]);
+  ident[0] = uint8_t(num);
+  ident[1] = name()[0];
+  ident[2] = name()[i];
+  ident[3] = name()[strlen(name()) - 1];
+}
+
+
+int Parameter::put(int addr, int &num, Stream &stream) const {
+  if (disabled(EEPROMPut) || name() == 0 || strlen(name()) == 0)
+    return addr;
+  // write identifier:
+  char ident[NIdent];
+  makeIdentifier(num, ident);
+  EEPROM.put(addr, ident);
+  addr += NIdent;
   // write value:
   int addr1 = putValue(addr);
+  num++;
+  if (addr1 >= EEPROM.length())
+    return -1;
   char s[MaxVal];
   valueStr(s);
   stream.printf("Wrote %s with value \"%s\" ", name(), s);
@@ -120,26 +132,24 @@ int Parameter::put(int addr, Stream &stream) const {
 }
 
 
-int Parameter::get(int addr, bool setvalue, Stream &stream) {
-  if (disabled(EEPROMGet) || name() == 0 || strlen(name()) == 0)
+int Parameter::get(int addr, int &num, bool setvalue, Stream &stream) {
+  if (disabled(EEPROMGet) || disabled(SetValue) ||
+      name() == 0 || strlen(name()) == 0)
     return addr;
   if (setvalue) {
-    // check first, middle, and last character of name in EEPROM:
-    char c0 = EEPROM.read(addr++);
-    char c1 = EEPROM.read(addr++);
-    char c2 = EEPROM.read(addr++);
-    size_t i = strlen(name());
-    i /= 2;
-    if (i == 0)
-      i = 1;
-    if (i >= strlen(name()))
-      i = strlen(name()) - 1;
-    if (c0 != name()[0] || c1 != name()[i] || c2 != name()[strlen(name()) - 1]) {
+    // check identifier:
+    char p_ident[NIdent];
+    makeIdentifier(num, p_ident);
+    char e_ident[NIdent];
+    EEPROM.get(addr, e_ident);
+    addr += NIdent;
+    if (memcmp(p_ident, e_ident, NIdent) != 0) {
       stream.printf("Failed to read value for %s from EEPROM memory.\n", name());
       return -1;
     }
     // read value:
     int addr1 = getValue(addr, true);
+    num++;
     char s[MaxVal];
     valueStr(s);
     stream.printf("Read \"%s\" for %s ", s, name());
@@ -148,7 +158,8 @@ int Parameter::get(int addr, bool setvalue, Stream &stream) {
   }
   else {
     addr = getValue(addr, false);
-    return addr + 3;
+    num++;
+    return addr + NIdent;
   }
 }
 

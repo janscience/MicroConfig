@@ -125,36 +125,42 @@ uint32_t eeprom_crc(int addr0, int addr1) {
 }
 
 
-bool Config::put(Stream &stream) const {
+int Config::put(Stream &stream) const {
   int start_addr = 0;
-  int addr = Menu::put(start_addr, stream);
+  int num = 0;
+  int addr = Menu::put(start_addr, num, stream);
   if (addr > start_addr) {
     uint32_t crc = eeprom_crc(start_addr, addr);
     EEPROM.put(addr, crc);
-    return true;
+    return num;
   }
   else {
     if (addr < 0)
       stream.println("ERROR! Failed to write settings to EEPROM memory.");
-    return (addr == start_addr);
+    return addr == start_addr ? 0 : -1;
   }
 }
 
 
-bool Config::get(Stream &stream) {
+int Config::get(Stream &stream) {
   int start_addr = 0;
-  int addr = Menu::get(start_addr, false, stream);
+  int num = 0;
+  int addr = Menu::get(start_addr, num, false, stream);
   if (addr > start_addr) {
     uint32_t crc_data = eeprom_crc(start_addr, addr);
     uint32_t crc_read;
     EEPROM.get(addr, crc_read);
     if (crc_data != crc_read) {
       stream.println("ERROR! EEPROM memory corrupted.");
-      return false;
+      return -1;
     }
-    addr = Menu::get(start_addr, true, stream);
-    if (addr <= start_addr)
+    num = 0;
+    addr = Menu::get(start_addr, num, true, stream);
+    if (addr <= start_addr) {
       stream.println("ERROR! Failed to read settings from EEPROM memory.");
+      return -1;
+    }
+    return num;
   }
-  return (addr >= start_addr);
+  return addr == start_addr ? 0 : -1;
 }

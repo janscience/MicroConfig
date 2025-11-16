@@ -73,15 +73,17 @@ class Config : public Menu {
 
   /* Write configuration with role EEPROMPut to EEPROM memory.
      Report errors and success on stream.
-     Report true on success, i.e. if EEPROM was large enough
-     and written settings can be retrieved from EEPROM unchanged. */
-  bool put(Stream &stream=Serial) const;
+     Return the number of written actions,
+     0 if there is no configurable action,
+     and -1 on error, i.e. EEPROM is too small. */
+  int put(Stream &stream=Serial) const;
   
   /* Read configuration with role EEPROMGet from EEPROM memory.
      Report errors and success on stream.
-     Return true on success, i.e. if EEPROM was uncorrupted
-     and all settings have been read. */
-  bool get(Stream &stream=Serial);
+     Return the number of configured actions,
+     0 if there is no configurable action,
+     and -1 on error, i.e. if EEPROM was corrupted. */
+  int get(Stream &stream=Serial);
 
 
 protected:
