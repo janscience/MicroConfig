@@ -317,5 +317,3 @@ BoolPointerParameter::BoolPointerParameter(Menu &menu,
   EnumPointerParameter<bool>(menu, name, val, BoolEnums, YesNoStrings, 2) {
   strcpy(TypeStr, "boolean");
 }
-
-

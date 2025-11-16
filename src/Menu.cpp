@@ -243,13 +243,20 @@ void Menu::write(Stream &stream, unsigned int roles, size_t indent,
       if (Actions[j]->enabled(roles) && strlen(Actions[j]->name()) > ww)
 	ww = strlen(Actions[j]->name());
     }
-    for (size_t j=0; j<NActions; j++) {
-      if (Actions[j]->enabled(roles))
-	Actions[j]->write(stream, roles, indent, ww, descend);
-    }
+    for (size_t j=0; j<NActions; j++)
+      Actions[j]->write(stream, roles, indent, ww, descend);
   }
-  else if (enabled(roles) && strlen(name()) > 0)
-    stream.printf("%*s%s ...\n", indent, "", name());
+  else if (enabled(roles) && strlen(name()) > 0) {
+    size_t n = 0;
+    for (size_t j=0; j<NActions; j++) {
+      if (Actions[j]->enabled(StreamInput))
+	n++;
+    }
+    if (n > 0)
+      stream.printf("%*s%s ...\n", indent, "", name());
+    else
+      stream.printf("%*s%s\n", indent, "", name());
+  }
 }
 
 
@@ -366,11 +373,19 @@ void Menu::execute(Stream &stream) {
     size_t iaction[NActions];
     size_t n = 0;
     for (size_t j=0; j<NActions; j++) {
-      if (Actions[j]->enabled(StreamInput)) {
-	stream.printf("%*s%d) ", indentation(), "", n+1);
+      if (Actions[j]->enabled(StreamIO)) {
+	if (Actions[j]->enabled(StreamInput)) {
+	  stream.printf("%*s%d) ", indentation(), "", n+1);
+	  iaction[n++] = j;
+	}
+	else
+	  stream.printf("%*s", indentation(), "");
 	Actions[j]->write(stream, StreamIO, 0, 0, false);
-	iaction[n++] = j;
       }
+    }
+    if (n == 0) {
+      stream.println();
+      break;
     }
     while (true) {
       stream.printf("%*sSelect", indentation(), "");

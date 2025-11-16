@@ -126,7 +126,9 @@ class Action {
   bool detailed() const;
 
   /* Write the action's name and potential values or infos to stream
-     with proper indentation. roles must be enabled.
+     with proper indentation.
+     Each reimplementation needs to check by itself,
+     whether the right roles are enabled.
      If descend, also display children. */
   virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
 		     size_t indent=0, size_t width=0, bool descend=true) const;
