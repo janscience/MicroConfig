@@ -93,6 +93,7 @@ Special commands:
 - 'detailed off': do not print additional infos (default)
 - 'echo on'     : echo inputs (default)
 - 'echo off'    : do not echo inputs
+- 'show'        : show current menu settings
 - 'print'       : print menu again
 - 'reboot'      : reboot
 
