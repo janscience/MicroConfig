@@ -133,9 +133,10 @@ int Parameter::put(int addr, int &num, Stream &stream) const {
 
 
 int Parameter::get(int addr, int &num, bool setvalue, Stream &stream) {
-  if (disabled(EEPROMGet) || disabled(SetValue) ||
-      name() == 0 || strlen(name()) == 0)
+  if (disabled(EEPROMPut) || name() == 0 || strlen(name()) == 0)
     return addr;
+  if (disabled(EEPROMGet) || disabled(SetValue))
+    setvalue = false;
   if (setvalue) {
     // check identifier:
     char p_ident[NIdent];

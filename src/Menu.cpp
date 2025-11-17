@@ -515,11 +515,9 @@ void Menu::set(const char *val, const char *name,
 
 int Menu::put(int addr, int &num, Stream &stream) const {
   for (size_t j=0; j<NActions; j++) {
-    if (Actions[j]->enabled(EEPROMPut)) {
-      addr = Actions[j]->put(addr, num, stream);
-      if (addr < 0)
-	return addr;
-    }
+    addr = Actions[j]->put(addr, num, stream);
+    if (addr < 0)
+      return addr;
   }
   return addr;
 }
@@ -527,11 +525,9 @@ int Menu::put(int addr, int &num, Stream &stream) const {
 
 int Menu::get(int addr, int &num, bool setvalue, Stream &stream) {
   for (size_t j=0; j<NActions; j++) {
-    if (Actions[j]->enabled(EEPROMGet)) {
-      addr = Actions[j]->get(addr, num, setvalue, stream);
-      if (addr < 0)
-	return addr;
-    }
+    addr = Actions[j]->get(addr, num, setvalue, stream);
+    if (addr < 0)
+      return addr;
   }
   return addr;
 }
