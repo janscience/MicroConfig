@@ -94,17 +94,11 @@ void updateFirmware(SDClass &sdcard, bool echo, bool detailed,
     }
   }
   stream.printf("Selected \"%s\" for firmware update\n", hex_file_name);
-  if (detailed)
-    stream.println(".");
-  else
-    stream.println();
+  stream.println();
   // check again:
   stream.println("WARNING: a firmware update could make your device unusable!");
   stream.println("WARNING: make sure that your device stays powered during the entire firmware update!");
-  if (detailed)
-    stream.println(".");
-  else
-    stream.println();
+  stream.println();
   if (!Action::yesno("Do you really want to update the firmware?",
 		     false, echo, stream)) {
     stream.println();
