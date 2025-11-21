@@ -368,37 +368,39 @@ void Menu::execute(Stream &stream) {
   int def = 0;
   if (timeout > 0)
     def = -1;
+  bool printit = false;
   while (true) {
-    stream.printf("%s:\n", name());
     // count interactive entries:
+    size_t iaction[NActions];
     size_t nn = 0;
     size_t width = 0;
     for (size_t j=0; j<NActions; j++) {
       if (Actions[j]->enabled(StreamInput))
-	nn++;
+	iaction[nn++] = j;
       if (Actions[j]->enabled(StreamIO)) {
 	if (width < strlen(Actions[j]->name()))
 	  width = strlen(Actions[j]->name());
       }
     }
     // list entries:
-    size_t iaction[NActions];
-    size_t n = 0;
-    for (size_t j=0; j<NActions; j++) {
-      if (Actions[j]->enabled(StreamIO)) {
-	stream.printf("%*s", indentation(), "");
-	if (Actions[j]->enabled(StreamInput)) {
-	  stream.printf("%d) ", n+1);
-	  iaction[n++] = j;
+    if (!gui() || printit) {
+      stream.printf("%s:\n", name());
+      size_t n = 0;
+      for (size_t j=0; j<NActions; j++) {
+	if (Actions[j]->enabled(StreamIO)) {
+	  stream.printf("%*s", indentation(), "");
+	  if (Actions[j]->enabled(StreamInput))
+	    stream.printf("%d) ", ++n);
+	  else if (nn > 0)
+	    stream.printf("%*s", n < 10 ? 3 : 4, "");
+	  Actions[j]->write(stream, StreamIO, 0, width, false);
 	}
-	else if (nn > 0)
-	  stream.printf("%*s", n < 10 ? 3 : 4, "");
-	Actions[j]->write(stream, StreamIO, 0, width, false);
       }
-    }
-    if (n == 0) {
-      stream.println();
-      break;
+      printit = false;
+      if (n == 0) {
+	stream.println();
+	break;
+      }
     }
     while (true) {
       stream.print("Select");
@@ -431,10 +433,12 @@ void Menu::execute(Stream &stream) {
       if (strcmp(pval, "show") == 0) {
 	stream.println();
 	stream.println("Menu settings:");
-	stream.printf("%*sdetailed:    %s\n", indentation(), "",
-		      Root->detailed() ? "on" : "off");
 	stream.printf("%*secho:        %s\n", indentation(), "",
 		      Root->echo() ? "on" : "off");
+	stream.printf("%*sdetailed:    %s\n", indentation(), "",
+		      Root->detailed() ? "on" : "off");
+	stream.printf("%*sgui:         %s\n", indentation(), "",
+		      Root->gui() ? "on" : "off");
 	stream.printf("%*sindentation: %d\n", indentation(), "",
 		      Root->indentation());
 	stream.printf("%*stimeout:     %.3fs\n", indentation(), "",
@@ -452,14 +456,25 @@ void Menu::execute(Stream &stream) {
 	Root->setEcho(true);
       else if (strcmp(pval, "echo off") == 0)
 	Root->setEcho(false);
+      else if (strcmp(pval, "gui on") == 0)
+	Root->setGUI(true);
+      else if (strcmp(pval, "gui off") == 0)
+	Root->setGUI(false);
+      else if (strncmp(pval, "indent ", 7) == 0) {
+	char *end;
+	long i = strtol(pval + 7, &end, 10);
+	if (end > pval + 7 && i > 0)
+	  Root->setIndentation(i);
+      }
       else if (strcmp(pval, "print") == 0) {
 	stream.println();
+	printit = true;
 	break;
       }
       else {
 	char *end;
 	long i = strtol(pval, &end, 10) - 1;
-	if (end != pval && i >= 0 && i < (long)n &&
+	if (end != pval && i >= 0 && i < (long)nn &&
 	    iaction[i] < NActions) {
 	  def = i;
 	  stream.println();

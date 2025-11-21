@@ -125,6 +125,9 @@ class Action {
   /* If true, more details should be provided in execute(). */
   bool detailed() const;
 
+  /* If true, a GUI is operating the interactive menu. */
+  bool gui() const;
+
   /* Write the action's name and potential values or infos to stream
      with proper indentation.
      Each reimplementation needs to check by itself,

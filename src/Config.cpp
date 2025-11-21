@@ -8,6 +8,7 @@ Config::Config() :
   TimeOut(10000),
   Echo(true),
   Detailed(false),
+  GUI(false),
   ConfigFile(0),
   SDC(0) {
   Root = this;
@@ -26,6 +27,7 @@ Config::Config(const char *name, unsigned int roles) :
   TimeOut(10000),
   Echo(true),
   Detailed(false),
+  GUI(false),
   ConfigFile(0),
   SDC(0) {
   Root = this;

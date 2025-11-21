@@ -54,6 +54,9 @@ class Config : public Menu {
   /* Set whether more details should be provided in execute(). */
   void setDetailed(bool detailed) { Detailed = detailed; };
 
+  /* Set whether a GUI is operating the interactive menu. */
+  void setGUI(bool gui) { GUI = gui; };
+
   /* Report configuration menu on stream
      (all actions with FileOutput and Report roles). */
   void report(Stream &stream=Serial) const;
@@ -92,6 +95,7 @@ protected:
   unsigned long TimeOut;
   bool Echo;
   bool Detailed;
+  bool GUI;
   
   const char *ConfigFile;
   SDClass *SDC;

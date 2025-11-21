@@ -129,6 +129,11 @@ bool Action::detailed() const {
 }
 
 
+bool Action::gui() const {
+  return Root == 0 ? false : Root->GUI;
+}
+
+
 void Action::write(Stream &stream, unsigned int roles, size_t indent,
 		   size_t width, bool descend) const {
   if (enabled(roles))

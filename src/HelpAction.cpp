@@ -10,6 +10,8 @@ Special commands:
 - 'detailed off': do not print additional infos (default)
 - 'echo on'     : echo inputs (default)
 - 'echo off'    : do not echo inputs
+- 'gui on'      : inform the menu that a GUI is operating it
+- 'gui off'     : manual interaction with the menu (default)
 - 'show'        : show current menu settings
 - 'print'       : print menu again
 - 'reboot'      : reboot)HLP";
