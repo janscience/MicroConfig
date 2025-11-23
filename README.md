@@ -17,6 +17,7 @@ C++ code.
 - Transfer configuration to and from host computer.
 - Configures key-value pairs, with values being strings, enums, booleans, integer types, or floats.
 - Numerical types with units and unit conversion.
+- Two levels of access to configurable parameters: user and admin mode.
 - Object-oriented and templated interface.
 - Stores pointers to arbitarily sized action names (no memory consuming copies).
 - Predefined menu for reporting, saving, loading and erasing configuration file on SD card as well as for putting and getting configuration from EEPROM.
@@ -25,7 +26,6 @@ C++ code.
 
 ## ToDo
 
-- [ ] Add two levels of acces (user and admin mode)
 - [ ] Make the [serialmonitor.py](utils/serialmonitor.py) and the
       general aspects of the [logger configuration
       GUI](https://github.com/janscience/TeeGrid/blob/main/utils/loggerconf.py)
