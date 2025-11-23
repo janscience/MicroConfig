@@ -30,10 +30,9 @@ class MessageAction : public Action {
      Make sure that the text is static. */
   void setText(const char *text);
 
-  /* Write the actions's name and the text to stream.
-     roles must be enabled. */
-  virtual void write(Stream &stream, unsigned int roles=AllRoles,
-		     size_t indent=0, size_t width=0, bool descend=true) const;
+  /* Write the actions's name and the text to stream. */
+  virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
+		     size_t indent=0, size_t width=0) const;
 
   /* Print out text on stream. */
   virtual void execute(Stream &stream=Serial);

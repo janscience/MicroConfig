@@ -46,13 +46,9 @@ class InfoAction : public Action {
      Return the index of key on succes, otherwise -1. */
   int setValue(const char *key, const char *value);
 
-  /* Write the actions's name and all the key-value pairs to stream.
-     roles must be enabled. */
-  virtual void write(Stream &stream, unsigned int roles=AllRoles,
-		     size_t indent=0, size_t width=0, bool descend=true) const;
-
-  /* Print out text on stream. */
-  virtual void execute(Stream &stream=Serial);
+  /* Write the actions's name and all the key-value pairs to stream. */
+  virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
+		     size_t indent=0, size_t width=0) const;
 
 
  protected:

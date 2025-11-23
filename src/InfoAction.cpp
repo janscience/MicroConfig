@@ -67,28 +67,18 @@ int InfoAction::setValue(const char *key, const char *value) {
 
 
 void InfoAction::write(Stream &stream, unsigned int roles,
-		       size_t indent, size_t width, bool descend) const {
+		       size_t indent, size_t width) const {
   if (disabled(roles))
     return;
-  if (descend) {
-    if (strlen(name()) > 0) {
-      stream.printf("%*s%s:\n", indent, "", name());
-      indent += indentation();
-      width = MaxWidth;
-    }
-    else if (width < MaxWidth)
-      width = MaxWidth;
-    for (size_t k=0; k<NKeyVals; k++) {
-      size_t kw = width >= strlen(Keys[k]) ? width - strlen(Keys[k]) : 0;
-      stream.printf("%*s%s:%*s %s\n", indent, "", Keys[k], kw, "", Values[k]);
-    }
+  if (name() != 0 && strlen(name()) > 0) {
+    stream.printf("%*s%s:\n", indent, "", name());
+    indent += indentation();
+    width = MaxWidth;
   }
-  else if (strlen(name()) > 0)
-    Action::write(stream, roles, indent, width, descend);
-}
-
-
-void InfoAction::execute(Stream &stream) {
-  write(stream, AllRoles, 0, MaxWidth, true);
-  stream.println();
+  else if (width < MaxWidth)
+    width = MaxWidth;
+  for (size_t k=0; k<NKeyVals; k++) {
+    size_t kw = width >= strlen(Keys[k]) ? width - strlen(Keys[k]) : 0;
+    stream.printf("%*s%s:%*s %s\n", indent, "", Keys[k], kw, "", Values[k]);
+  }
 }

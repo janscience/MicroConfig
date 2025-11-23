@@ -9,8 +9,16 @@ Parameter::Parameter(Menu &menu, const char *name, size_t n) :
 }
 
 
+void Parameter::writeEntry(Stream &stream, size_t width) const {
+  char pval[MaxVal];
+  valueStr(pval);
+  size_t kw = width >= strlen(name()) ? width - strlen(name()) : 0;
+  stream.printf("%s:%*s %s\n", name(), kw, "", pval);
+}
+
+
 void Parameter::write(Stream &stream, unsigned int roles, size_t indent,
-		      size_t width, bool descend) const {
+		      size_t width) const {
   if (enabled(roles)) {
     char pval[MaxVal];
     valueStr(pval);

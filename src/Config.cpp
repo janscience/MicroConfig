@@ -51,7 +51,7 @@ void Config::setConfigFile(const char *fname, SDClass *sd) {
 
 
 void Config::report(Stream &stream) const {
-  write(stream, FileOutput | Report, 0, 0, true);
+  write(stream, FileOutput | Report);
 }
 
 

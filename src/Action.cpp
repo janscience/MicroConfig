@@ -134,15 +134,18 @@ bool Action::gui() const {
 }
 
 
+void Action::writeEntry(Stream &stream, size_t width) const {
+  stream.println(name());
+}
+
+
 void Action::write(Stream &stream, unsigned int roles, size_t indent,
-		   size_t width, bool descend) const {
-  if (enabled(roles))
-    stream.printf("%*s%s\n", indent, "", name());
+		   size_t width) const {
 }
 
 
 void Action::execute(Stream &stream) {
-  write(stream);
+  write(stream, StreamOutput);
   stream.println();
 }
 

@@ -229,34 +229,34 @@ void Menu::disable(const char *name, unsigned int roles) {
 }
 
 
+void Menu::writeEntry(Stream &stream, size_t width) const {
+  size_t n = 0;
+  for (size_t j=0; j<NActions; j++) {
+    if (Actions[j]->enabled(StreamInput))
+      n++;
+  }
+  if (n > 0)
+    stream.printf("%s ...\n", name());
+  else
+    stream.println(name());
+}
+
+
 void Menu::write(Stream &stream, unsigned int roles, size_t indent,
-		 size_t width, bool descend) const {
-  // write actions to serial:
-  if (descend) {
-    if (enabled(roles) && strlen(name()) > 0) {
-      stream.printf("%*s%s:\n", indent, "", name());
-      indent += indentation();
-    }
-    // longest name:
-    size_t ww = 0;
-    for (size_t j=0; j<NActions; j++) {
-      if (Actions[j]->enabled(roles) && strlen(Actions[j]->name()) > ww)
-	ww = strlen(Actions[j]->name());
-    }
-    for (size_t j=0; j<NActions; j++)
-      Actions[j]->write(stream, roles, indent, ww, descend);
+		 size_t width) const {
+  if (enabled(roles) && name() != 0 && strlen(name()) > 0) {
+    stream.printf("%*s%s:\n", indent, "", name());
+    indent += indentation();
   }
-  else if (enabled(roles) && strlen(name()) > 0) {
-    size_t n = 0;
-    for (size_t j=0; j<NActions; j++) {
-      if (Actions[j]->enabled(StreamInput))
-	n++;
-    }
-    if (n > 0)
-      stream.printf("%*s%s ...\n", indent, "", name());
-    else
-      stream.printf("%*s%s\n", indent, "", name());
+  // longest name:
+  size_t ww = 0;
+  for (size_t j=0; j<NActions; j++) {
+    if (Actions[j]->enabled(roles) &&
+	Actions[j]->name() != 0 && strlen(Actions[j]->name()) > ww)
+      ww = strlen(Actions[j]->name());
   }
+  for (size_t j=0; j<NActions; j++)
+    Actions[j]->write(stream, roles, indent, ww);
 }
 
 
@@ -375,6 +375,8 @@ void Menu::execute(Stream &stream) {
     size_t nn = 0;
     size_t width = 0;
     for (size_t j=0; j<NActions; j++) {
+      if (Actions[j]->name() == 0 || strlen(Actions[j]->name()) == 0)
+	continue;
       if (Actions[j]->enabled(StreamInput))
 	iaction[nn++] = j;
       if (Actions[j]->enabled(StreamIO)) {
@@ -387,13 +389,15 @@ void Menu::execute(Stream &stream) {
       stream.printf("%s:\n", name());
       size_t n = 0;
       for (size_t j=0; j<NActions; j++) {
+	if (Actions[j]->name() == 0 || strlen(Actions[j]->name()) == 0)
+	  continue;
 	if (Actions[j]->enabled(StreamIO)) {
 	  stream.printf("%*s", indentation(), "");
 	  if (Actions[j]->enabled(StreamInput))
-	    stream.printf("%d) ", ++n);
+	    stream.printf("%2d) ", ++n);
 	  else if (nn > 0)
-	    stream.printf("%*s", n < 10 ? 3 : 4, "");
-	  Actions[j]->write(stream, StreamIO, 0, width, false);
+	    stream.print("    ");
+	  Actions[j]->writeEntry(stream, width);
 	}
       }
       printit = false;

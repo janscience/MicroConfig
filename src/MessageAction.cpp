@@ -21,19 +21,15 @@ void MessageAction::setText(const char *text) {
 
 
 void MessageAction::write(Stream &stream, unsigned int roles,
-			  size_t indent, size_t width, bool descend) const {
+			  size_t indent, size_t width) const {
   if (disabled(roles))
     return;
-  if (descend) {
-    if (strlen(name()) > 0) {
-      stream.printf("%*s%s:\n", indent, "", name());
-      indent += indentation();
-    }
-    if (Text != 0)
-      stream.printf("%*s%s:\n", indent, "", Text);
+  if (name() != 0 && strlen(name()) > 0) {
+    stream.printf("%*s%s:\n", indent, "", name());
+    indent += indentation();
   }
-  else
-    Action::write(stream, roles, indent, width, descend);
+  if (Text != 0)
+    stream.printf("%*s%s:\n", indent, "", Text);
 }
 
 

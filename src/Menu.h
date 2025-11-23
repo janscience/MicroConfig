@@ -91,10 +91,14 @@ class Menu : public Action {
   /* Disable the roles of the action matching name. */
   void disable(const char *name, unsigned int roles=AllRoles);
 
+  /* Write the menu's name followed by '...' to stream
+     for display as a menu entry. */
+  virtual void writeEntry(Stream &stream=Serial, size_t width=0) const;
+  
   /* Write name to stream. If descend, also display name and values
      of children. roles must be enabled. */
   virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
-		     size_t indent=0, size_t width=0, bool descend=true) const;
+		     size_t indent=0, size_t width=0) const;
 
   /* Read configuration settings from instream as long as data are available
      or a line starting with "DONE" is encountered, and

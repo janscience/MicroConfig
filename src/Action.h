@@ -41,11 +41,16 @@ class Action {
 		    bool echo=true, Stream &stream=Serial);
 
   /* Initialize action with name and supported roles.
-     Warning: only a pointer to name is stored. */
+     Warning: only a pointer to name is stored.
+     That is, name must be a static character array.
+     This spares memory when passing a literal string.
+     If you want the string to be copied, however, then
+     use setName(). */
   Action(const char *name, unsigned int roles=AllRoles);
 
   /* Initialize action with name and supported roles and add it to menu.
      Warning: only a pointer to name is stored.
+     That is, name must be a static character array.
      This spares memory when passing a literal string.
      If you want the string to be copied, however, then
      use setName(). */
@@ -129,19 +134,28 @@ class Action {
   bool gui() const;
 
   /* Write the action's name and potential values or infos to stream
-     with proper indentation.
+     for display as a menu entry.
+     Just a one-liner with a single newline at the end.
+     Called from Menu::execute() when StreamInput is enabled for this action.
+     You usually do not need to reimplement this function, since
+     Parameter and Menu actions do already the right thing. */
+  virtual void writeEntry(Stream &stream=Serial, size_t width=0) const;
+
+  /* Write some infos to stream with proper indentation.
+     The stream can be, for example, a file or output to a console.
      Each reimplementation needs to check by itself,
      whether the right roles are enabled.
-     If descend, also display children. */
+     The roles are FileOutput or Report.
+     This default implementation does nothing. */
   virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
-		     size_t indent=0, size_t width=0, bool descend=true) const;
+		     size_t indent=0, size_t width=0) const;
   
   /* Execute this action with user interactions via serial stream.
      StreamInput and StreamOutput must be enabled.
      Returns from menu after timeOut() milliseconds.
      If echo(), print out received input.
      If detailed() provide additional infos for GUI applications.
-     Default calls report(stream). */
+     Default calls write(stream, StreamOutput). */
   virtual void execute(Stream &stream=Serial);
 
   /* Parse the string val and configure the action accordingly.
