@@ -3,7 +3,7 @@
 
 
 ReportConfigAction::ReportConfigAction(Menu &menu, const char *name) :
-  Action(menu, name, StreamInput) {
+  Action(menu, name) {
 }
 
 
@@ -27,7 +27,7 @@ void ReadConfigAction::execute(Stream &stream) {
 
 
 SDClassAction::SDClassAction(Menu &menu, const char *name, SDClass &sd) : 
-  Action(menu, name, StreamInput),
+  Action(menu, name),
   SDC(sd) {
 }
 

@@ -3,7 +3,7 @@
 
 
 Config::Config() :
-  Menu("Menu", AllRoles),
+  Menu("Menu", ConfigRoles),
   Indentation(4),
   TimeOut(10000),
   Echo(true),
@@ -11,6 +11,7 @@ Config::Config() :
   GUI(false),
   ConfigFile(0),
   SDC(0) {
+  ActType = MainMenuType;
   Root = this;
 }
 
@@ -30,6 +31,7 @@ Config::Config(const char *name, unsigned int roles) :
   GUI(false),
   ConfigFile(0),
   SDC(0) {
+  ActType = MainMenuType;
   Root = this;
 }
 

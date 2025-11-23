@@ -16,11 +16,12 @@ class Menu : public Action {
  public:
 
   /* Initialize top level menu with name and roles. 
-     StreamOutput, FileIO, and Report are disabled. */
-  Menu(const char *name, unsigned int roles=AllRoles);
+     FileInput and EEPROMIO roles are disabled. */
+  Menu(const char *name, unsigned int roles=MenuRoles);
 
-  /* Initialize menu with name and roles and add it to menu. */
-  Menu(Menu &menu, const char *name, unsigned int roles=AllRoles);
+  /* Initialize menu with name and roles and add it to menu. 
+     FileInput and EEPROMIO roles are disabled. */
+  Menu(Menu &menu, const char *name, unsigned int roles=MenuRoles);
 
   /* Destructor. */
   virtual ~Menu();
@@ -33,45 +34,45 @@ class Menu : public Action {
 
   /* Add a non-editable string parameter to this Menu. */
   ConstStringParameter *addConstString(const char *name, const char *str,
-				      unsigned int roles=StreamOutput | Report);
+				       unsigned int roles=ConstParameterRoles);
 
   /* Add a string parameter of size N to this Menu. */
   template<int N>
   BaseStringParameter *addString(const char *name, const char *str,
-				 unsigned int roles=SetValue | AllRoles);
+				 unsigned int roles=ParameterRoles);
 
   /* Add a string parameter of size N with selection to this Menu. */
   template<int N>
   BaseStringParameter *addString(const char *name, const char *str,
 				 const char **selection, size_t n_selection=0,
-				 unsigned int roles=SetValue | AllRoles);
+				 unsigned int roles=ParameterRoles);
   
   /* Add a boolean parameter to this Menu. */
   BoolParameter *addBoolean(const char *name, bool value,
-			    unsigned int roles=SetValue | AllRoles);
+			    unsigned int roles=ParameterRoles);
   
   /* Add a integer parameter to this Menu. */
   NumberParameter<int> *addInteger(const char *name, int value,
 				   const char *unit=0,
-				   unsigned int roles=SetValue | AllRoles);
+				   unsigned int roles=ParameterRoles);
   
   /* Add a integer parameter to this Menu. */
   NumberParameter<int> *addInteger(const char *name, int value,
 				   int minimum, int maximum,
 				   const char *unit=0, const char *outunit=0,
-				   unsigned int roles=SetValue | AllRoles);
+				   unsigned int roles=ParameterRoles);
   
   /* Add a float parameter to this Menu. */
   NumberParameter<float> *addFloat(const char *name, float value,
 				   const char *format="%g", const char *unit=0,
-				   unsigned int roles=SetValue | AllRoles);
+				   unsigned int roles=ParameterRoles);
   
   /* Add a float parameter to this Menu. */
   NumberParameter<float> *addFloat(const char *name, float value,
 				   float minimum, float maximum,
 				   const char *format="%g", const char *unit=0,
 				   const char *outunit=0,
-				   unsigned int roles=SetValue | AllRoles);
+				   unsigned int roles=ParameterRoles);
 
   /* Move action that was already added to this Menu to new position index. */
   void move(const Action *action, size_t index);

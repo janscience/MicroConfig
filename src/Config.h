@@ -27,7 +27,7 @@ class Config : public Menu {
   Config(const char *fname, SDClass *sd);
 
   /* Initialize top level menu with name and roles. */
-  Config(const char *name, unsigned int roles=AllRoles);
+  Config(const char *name, unsigned int roles=ConfigRoles);
 
   /* Recursively set the root menu of all children. */
   void setRoot();

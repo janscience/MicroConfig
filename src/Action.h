@@ -18,22 +18,37 @@ class Action {
 
  public:
 
+  // roles an action supports:
   enum Role {
-    SetValue = 1,    // set value from a string
-    FileOutput = 2,  // write to configuration file
-    FileInput = 4,   // read from configuration file
+    SetValue = 1,     // set value from a string using set() function.
+    FileOutput = 2,   // write to configuration file using write() function.
+    FileInput = 4,    // read from configuration file using set() function.
     FileIO = FileInput | FileOutput,
-    StreamOutput = 8,
-    StreamInput = 16,
+    StreamOutput = 8, // report infos on stream using write() function.
+    StreamInput = 16, // interactive action supporting execute() function.
     StreamIO = StreamInput | StreamOutput,
-    Report = 32,     // write infos to a file
-    EEPROMPut = 64,
-    EEPROMGet = 128,
+    Report = 32,      // write infos to a file using write() function.
+    EEPROMPut = 64,   // write to EEPROM using put() function.
+    EEPROMGet = 128,  // read from EEPROM using get() function.
     EEPROMIO = EEPROMPut | EEPROMGet,
-    // DisplayUpDownButtons,
-    // DisplayTouch,
-    // whatever input/output device
+    ActionRoles = StreamInput,
+    ParameterRoles = SetValue | FileIO | StreamIO | EEPROMIO | Report,
+    ConstParameterRoles = StreamOutput | Report,
+    MenuRoles = FileIO | StreamIO | Report,
+    ConfigRoles = StreamIO,
     AllRoles = FileIO | StreamIO | EEPROMIO | Report
+  };
+
+  enum Mode {
+    Admin,  // administration mode for actions that should not be visible for normal users
+    User    // user mode for normal actions the user should see
+  };
+
+  enum ActionTypes {
+    ActionType = 1,      // Action is neither a Parameter nor a Menu.
+    ParameterType = 2,   // Action is a Parameter.
+    MenuType = 4,        // Action is a Menu.
+    MainMenuType = 12    // Action is the main menu (Config class).
   };
 
   /* Ask a yes or no question on a serial I/O stream. */
@@ -46,7 +61,7 @@ class Action {
      This spares memory when passing a literal string.
      If you want the string to be copied, however, then
      use setName(). */
-  Action(const char *name, unsigned int roles=AllRoles);
+  Action(const char *name, unsigned int roles=ActionRoles);
 
   /* Initialize action with name and supported roles and add it to menu.
      Warning: only a pointer to name is stored.
@@ -54,10 +69,13 @@ class Action {
      This spares memory when passing a literal string.
      If you want the string to be copied, however, then
      use setName(). */
-  Action(Menu &menu, const char *name, unsigned int roles=AllRoles);
+  Action(Menu &menu, const char *name, unsigned int roles=ActionRoles);
 
   /* Destructor. */
   virtual ~Action();
+
+  /* The type of this action. */
+  ActionTypes actionType() const { return ActType; };
 
   /* The name identifying the action. */
   const char *name() const { return Name; }
@@ -143,9 +161,9 @@ class Action {
 
   /* Write some infos to stream with proper indentation.
      The stream can be, for example, a file or output to a console.
-     Each reimplementation needs to check by itself,
-     whether the right roles are enabled.
-     The roles are FileOutput or Report.
+     This function is only called, if this Action has roles enabled.
+     However, an implementation might take roles into account (roles
+     can be StreamOutput, FileOutput or Report).
      This default implementation does nothing. */
   virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
 		     size_t indent=0, size_t width=0) const;
@@ -184,6 +202,7 @@ class Action {
   
  protected:
 
+  ActionTypes ActType;
   char *Name;
   unsigned int SupportedRoles;
   unsigned int Roles;

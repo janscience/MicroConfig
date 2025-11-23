@@ -3,8 +3,9 @@
 
 
 Parameter::Parameter(Menu &menu, const char *name, size_t n) :
-  Action(menu, name, SetValue | AllRoles),
+  Action(menu, name, ParameterRoles),
   NSelection(n) {
+  ActType = ParameterType;
   TypeStr[0] = '\0';
 }
 

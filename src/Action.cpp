@@ -38,6 +38,7 @@ Action::Action(const char *name, unsigned int roles) :
 
 Action::Action(Menu &menu, const char *name, unsigned int roles) :
   Action(name, roles) {
+  ActType = ActionType;
   menu.add(this);
 }
 

@@ -22,9 +22,9 @@ Menu::Menu(const char *name, unsigned int roles) :
   Action(name, roles),
   NActions(0),
   GoHome(false) {
-  disableSupported(StreamOutput);
-  disableSupported(FileIO);
-  disableSupported(Report);
+  ActType = MenuType;
+  disableSupported(FileInput);
+  disableSupported(EEPROMIO);
 }
 
 
@@ -32,6 +32,9 @@ Menu::Menu(Menu &menu, const char *name, unsigned int roles) :
   Action(menu, name, roles),
   NActions(0),
   GoHome(false) {
+  ActType = MenuType;
+  disableSupported(FileInput);
+  disableSupported(EEPROMIO);
 }
 
 
@@ -251,12 +254,16 @@ void Menu::write(Stream &stream, unsigned int roles, size_t indent,
   // longest name:
   size_t ww = 0;
   for (size_t j=0; j<NActions; j++) {
-    if (Actions[j]->enabled(roles) &&
+    if (((Actions[j]->actionType() & MenuType) > 0 ||
+	 Actions[j]->enabled(roles)) &&
 	Actions[j]->name() != 0 && strlen(Actions[j]->name()) > ww)
       ww = strlen(Actions[j]->name());
   }
-  for (size_t j=0; j<NActions; j++)
-    Actions[j]->write(stream, roles, indent, ww);
+  for (size_t j=0; j<NActions; j++) {
+    if ((Actions[j]->actionType() & MenuType) > 0 ||
+	Actions[j]->enabled(roles))
+      Actions[j]->write(stream, roles, indent, ww);
+  }
 }
 
 
