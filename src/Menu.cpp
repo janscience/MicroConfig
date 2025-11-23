@@ -387,6 +387,7 @@ void Menu::execute(Stream &stream) {
     // list entries:
     if (!gui() || printit) {
       stream.printf("%s:\n", name());
+      size_t wd = nn >= 10 ? 2 : 1;
       size_t n = 0;
       for (size_t j=0; j<NActions; j++) {
 	if (Actions[j]->name() == 0 || strlen(Actions[j]->name()) == 0)
@@ -394,9 +395,9 @@ void Menu::execute(Stream &stream) {
 	if (Actions[j]->enabled(StreamIO)) {
 	  stream.printf("%*s", indentation(), "");
 	  if (Actions[j]->enabled(StreamInput))
-	    stream.printf("%2d) ", ++n);
+	    stream.printf("%*d) ", wd, ++n);
 	  else if (nn > 0)
-	    stream.print("    ");
+	    stream.printf("%*s", wd + 2, "");
 	  Actions[j]->writeEntry(stream, width);
 	}
       }
