@@ -2,8 +2,8 @@
 #include <Parameter.h>
 
 
-Parameter::Parameter(Menu &menu, const char *name, size_t n) :
-  Action(menu, name, ParameterRoles),
+Parameter::Parameter(Menu &menu, const char *name, size_t n, Modes mode) :
+  Action(menu, name, ParameterRoles, mode),
   NSelection(n) {
   ActType = ParameterType;
   TypeStr[0] = '\0';
@@ -176,8 +176,16 @@ int Parameter::get(int addr, int &num, bool setvalue, Stream &stream) {
 
 void Parameter::instructions(char *str) const {
   *str = '\0';
-  if (detailed())
-    strcpy(str, TypeStr);
+  if (detailed()) {
+    char *sp = str;
+    if (mode() & User)
+      *sp++ = 'U';
+    if (mode() & Admin)
+      *sp++ = 'A';
+    *sp++ = ',';
+    *sp++ = ' ';
+    strcpy(sp, TypeStr);
+  }
 }
 
 
@@ -252,8 +260,9 @@ float Parameter::changeUnit(float val, const char *oldunit,
 }
 
 
-BaseStringParameter::BaseStringParameter(Menu &menu, const char *name) :
-  Parameter(menu, name),
+BaseStringParameter::BaseStringParameter(Menu &menu, const char *name,
+					 Modes mode) :
+  Parameter(menu, name, 0, mode),
   Selection(0) {
 }
 
@@ -261,8 +270,8 @@ BaseStringParameter::BaseStringParameter(Menu &menu, const char *name) :
 BaseStringParameter::BaseStringParameter(Menu &menu,
 					 const char *name,
 					 const char **selection,
-					 size_t n) :
-  Parameter(menu, name, n),
+					 size_t n, Modes mode) :
+  Parameter(menu, name, n, mode),
   Selection(selection) {
 }
 
@@ -294,11 +303,11 @@ const bool BaseStringParameter::BoolEnums[2] = {false, true};
 
 
 ConstStringParameter::ConstStringParameter(Menu &menu, const char *name,
-					   const char *str) :
-  BaseStringParameter(menu, name),
+					   const char *str, Modes mode) :
+  BaseStringParameter(menu, name, mode),
   Value(str) {
+  setRoles(ConstParameterRoles);
   sprintf(TypeStr, "string %hu", strlen(str) + 1);
-  disableSupported(SetValue);
 }
 
 
@@ -316,14 +325,17 @@ void ConstStringParameter::valueStr(char *str) const {
 }
 
 
-BoolParameter::BoolParameter(Menu &menu, const char *name, bool val) :
-  EnumParameter<bool>(menu, name, val, BoolEnums, YesNoStrings, 2) {
+BoolParameter::BoolParameter(Menu &menu, const char *name,
+			     bool val, Modes mode) :
+  EnumParameter<bool>(menu, name, val,
+		      BoolEnums, YesNoStrings, 2, mode) {
   strcpy(TypeStr, "boolean");
 }
 
 
-BoolPointerParameter::BoolPointerParameter(Menu &menu,
-					   const char *name, bool *val) :
-  EnumPointerParameter<bool>(menu, name, val, BoolEnums, YesNoStrings, 2) {
+BoolPointerParameter::BoolPointerParameter(Menu &menu, const char *name,
+					   bool *val, Modes mode) :
+  EnumPointerParameter<bool>(menu, name, val,
+			     BoolEnums, YesNoStrings, 2, mode) {
   strcpy(TypeStr, "boolean");
 }

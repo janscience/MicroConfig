@@ -12,6 +12,9 @@ Special commands:
 - 'echo off'    : do not echo inputs
 - 'gui on'      : inform the menu that a GUI is operating it
 - 'gui off'     : manual interaction with the menu (default)
+- 'mode user'   : only show actions for user mode (default)
+- 'mode admin'  : only show actions for admin mode
+- 'mode both'   : show actions for both user and admin mode
 - 'show'        : show current menu settings
 - 'print'       : print menu again
 - 'reboot'      : reboot)HLP";

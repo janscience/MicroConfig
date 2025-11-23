@@ -8,7 +8,8 @@ Menu settings(config, "Settings");            // settings menu
 // string parameter with max 32 characters:
 StringParameter<32> path(settings,            // add it to settings menu
                          "Path",              // name
-                         "recordings/");      // initial value
+                         "recordings/",       // initial value
+			 Action::Admin);      // show only in admin mode
 
 // string pointer parameter:
 char filename[64] = "recording.wav";
@@ -64,7 +65,8 @@ void setup() {
   printMicroConfigBanner();
   SD.begin(BUILTIN_SDCARD);
   // shortcuts to dynamically adding parameter:
-  settings.addConstString("Amplifier", "differential");    // add string parameter.
+  settings.addConstString("Amplifier", "differential",
+			  Action::Admin);                  // add string parameter.
   settings.addFloat("Highpass", 54.3, "%.1f", "Hz");       // add float parameter.
   // modify values:
   message.setText("Just another demonstration!");          // change the text printed out

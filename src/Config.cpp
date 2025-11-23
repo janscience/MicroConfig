@@ -9,6 +9,7 @@ Config::Config() :
   Echo(true),
   Detailed(false),
   GUI(false),
+  CurrentMode(User),
   ConfigFile(0),
   SDC(0) {
   ActType = MainMenuType;
@@ -29,6 +30,7 @@ Config::Config(const char *name, unsigned int roles) :
   Echo(true),
   Detailed(false),
   GUI(false),
+  CurrentMode(User),
   ConfigFile(0),
   SDC(0) {
   ActType = MainMenuType;

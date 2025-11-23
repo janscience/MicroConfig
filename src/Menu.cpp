@@ -68,80 +68,93 @@ void Menu::setRoot(Config *root) {
 
 ConstStringParameter *Menu::addConstString(const char *name,
 					   const char *str,
-					   unsigned int roles) {
+					   Action::Modes mode) {
   if ((name == 0) || (str == 0))
     return 0;
-  ConstStringParameter *act = new ConstStringParameter(*this, name, str);
+  ConstStringParameter *act = new ConstStringParameter(*this, name,
+						       str, mode);
   Own[NActions - 1] = true;
-  act->setRoles(roles);
   return act;
 }
 
 
 BoolParameter *Menu::addBoolean(const char *name, bool value,
-				unsigned int roles) {
+				Action::Modes mode) {
   if (name == 0)
     return 0;
-  BoolParameter *act = new BoolParameter(*this, name, value);
+  BoolParameter *act = new BoolParameter(*this, name, value, mode);
   Own[NActions - 1] = true;
-  act->setRoles(roles);
   return act;
 }
 
   
 NumberParameter<int> *Menu::addInteger(const char *name, int value,
-				       const char *unit, unsigned int roles) {
+				       const char *unit,
+				       Action::Modes mode) {
   if (name == 0)
     return 0;
-  NumberParameter<int> *act = new NumberParameter<int>(*this, name, value,
-						       "%d", unit);
+  NumberParameter<int> *act = new NumberParameter<int>(*this, name,
+						       value,
+						       "%d", unit,
+						       0, 0, 0,
+						       mode);
   Own[NActions - 1] = true;
-  act->setRoles(roles);
   return act;
 }
 
   
 NumberParameter<int> *Menu::addInteger(const char *name, int value,
 				       int minimum, int maximum,
-				       const char *unit, const char *outunit,
-				       unsigned int roles) {
+				       const char *unit,
+				       const char *outunit,
+				       Action::Modes mode) {
   if (name == 0)
     return 0;
-  NumberParameter<int> *act = new NumberParameter<int>(*this, name, value,
-						       minimum, maximum,
-						       "%d", unit, outunit);
+  NumberParameter<int> *act = new NumberParameter<int>(*this, name,
+						       value,
+						       minimum,
+						       maximum,
+						       "%d", unit,
+						       outunit,
+						       mode);
   Own[NActions - 1] = true;
-  act->setRoles(roles);
   return act;
 }
 
   
 NumberParameter<float> *Menu::addFloat(const char *name, float value,
-				       const char *format, const char *unit,
-				       unsigned int roles) {
+				       const char *format,
+				       const char *unit,
+				       Action::Modes mode) {
   if (name == 0)
     return 0;
-  NumberParameter<float> *act = new NumberParameter<float>(*this, name, value,
-							   format, unit);
+  NumberParameter<float> *act = new NumberParameter<float>(*this, name,
+							   value,
+							   format,
+							   unit, 0, 0,
+							   0, mode);
   Own[NActions - 1] = true;
-  act->setRoles(roles);
   return act;
 }
 
   
 NumberParameter<float> *Menu::addFloat(const char *name, float value,
 				       float minimum, float maximum,
-				       const char *format, const char *unit,
+				       const char *format,
+				       const char *unit,
 				       const char *outunit,
-				       unsigned int roles) {
+				       Action::Modes mode) {
   if (name == 0)
     return 0;
-  NumberParameter<float> *act = new NumberParameter<float>(*this, name, value,
-							   minimum, maximum,
+  NumberParameter<float> *act = new NumberParameter<float>(*this, name,
+							   value,
+							   minimum,
+							   maximum,
 							   format,
-							   unit, outunit);
+							   unit,
+							   outunit,
+							   mode);
   Own[NActions - 1] = true;
-  act->setRoles(roles);
   return act;
 }
 
@@ -382,7 +395,8 @@ void Menu::execute(Stream &stream) {
     size_t nn = 0;
     size_t width = 0;
     for (size_t j=0; j<NActions; j++) {
-      if (Actions[j]->name() == 0 || strlen(Actions[j]->name()) == 0)
+      if (Actions[j]->name() == 0 || strlen(Actions[j]->name()) == 0 ||
+	  (Actions[j]->mode() & currentMode()) == 0)
 	continue;
       if (Actions[j]->enabled(StreamInput))
 	iaction[nn++] = j;
@@ -397,7 +411,8 @@ void Menu::execute(Stream &stream) {
       size_t wd = nn >= 10 ? 2 : 1;
       size_t n = 0;
       for (size_t j=0; j<NActions; j++) {
-	if (Actions[j]->name() == 0 || strlen(Actions[j]->name()) == 0)
+	if (Actions[j]->name() == 0 || strlen(Actions[j]->name()) == 0 ||
+	    (Actions[j]->mode() & currentMode()) == 0)
 	  continue;
 	if (Actions[j]->enabled(StreamIO)) {
 	  stream.printf("%*s", indentation(), "");
@@ -416,8 +431,13 @@ void Menu::execute(Stream &stream) {
     }
     while (true) {
       stream.print("Select");
-      if (def >= 0)
+      if (def >= 0) {
+	if (def >= (int)nn)
+	  def = nn - 1;
+	if (def < 0)
+	  def = 0;
 	stream.printf(" [%d]: ", def + 1);
+      }
       else
 	stream.printf(": ");
       elapsedMillis time = 0;
@@ -446,13 +466,18 @@ void Menu::execute(Stream &stream) {
 	stream.println();
 	stream.println("Menu settings:");
 	stream.printf("%*secho:        %s\n", indentation(), "",
-		      Root->echo() ? "on" : "off");
+		      echo() ? "on" : "off");
 	stream.printf("%*sdetailed:    %s\n", indentation(), "",
-		      Root->detailed() ? "on" : "off");
+		      detailed() ? "on" : "off");
+	stream.printf("%*smode:        ", indentation(), "");
+	if (currentMode() & Admin)
+	  stream.println("admin");
+	else
+	  stream.println("user");
 	stream.printf("%*sgui:         %s\n", indentation(), "",
-		      Root->gui() ? "on" : "off");
+		      gui() ? "on" : "off");
 	stream.printf("%*sindentation: %d\n", indentation(), "",
-		      Root->indentation());
+		      indentation());
 	stream.printf("%*stimeout:     %.3fs\n", indentation(), "",
 		      0.001*Root->timeOut());
 	stream.println();
@@ -472,6 +497,21 @@ void Menu::execute(Stream &stream) {
 	Root->setGUI(true);
       else if (strcmp(pval, "gui off") == 0)
 	Root->setGUI(false);
+      else if (strcmp(pval, "mode user") == 0) {
+	Root->setCurrentMode(User);
+	stream.println();
+	break;
+      }
+      else if (strcmp(pval, "mode admin") == 0) {
+	Root->setCurrentMode(Admin);
+	stream.println();
+	break;
+      }
+      else if (strcmp(pval, "mode both") == 0) {
+	Root->setCurrentMode(AllModes);
+	stream.println();
+	break;
+      }
       else if (strncmp(pval, "indent ", 7) == 0) {
 	char *end;
 	long i = strtol(pval + 7, &end, 10);

@@ -33,48 +33,54 @@ class Menu : public Action {
   virtual void setRoot(Config *root);
 
   /* Add a non-editable string parameter to this Menu. */
-  ConstStringParameter *addConstString(const char *name, const char *str,
-				       unsigned int roles=ConstParameterRoles);
+  ConstStringParameter *addConstString(const char *name,
+				       const char *str,
+				       Modes mode=User);
 
   /* Add a string parameter of size N to this Menu. */
   template<int N>
   BaseStringParameter *addString(const char *name, const char *str,
-				 unsigned int roles=ParameterRoles);
+				 Modes mode=User);
 
   /* Add a string parameter of size N with selection to this Menu. */
   template<int N>
   BaseStringParameter *addString(const char *name, const char *str,
-				 const char **selection, size_t n_selection=0,
-				 unsigned int roles=ParameterRoles);
+				 const char **selection,
+				 size_t n_selection=0,
+				 Modes mode=User);
   
   /* Add a boolean parameter to this Menu. */
   BoolParameter *addBoolean(const char *name, bool value,
-			    unsigned int roles=ParameterRoles);
+			    Modes mode=User);
   
   /* Add a integer parameter to this Menu. */
   NumberParameter<int> *addInteger(const char *name, int value,
 				   const char *unit=0,
-				   unsigned int roles=ParameterRoles);
+				   Modes mode=User);
   
   /* Add a integer parameter to this Menu. */
   NumberParameter<int> *addInteger(const char *name, int value,
 				   int minimum, int maximum,
-				   const char *unit=0, const char *outunit=0,
-				   unsigned int roles=ParameterRoles);
+				   const char *unit=0,
+				   const char *outunit=0,
+				   Modes mode=User);
   
   /* Add a float parameter to this Menu. */
   NumberParameter<float> *addFloat(const char *name, float value,
-				   const char *format="%g", const char *unit=0,
-				   unsigned int roles=ParameterRoles);
+				   const char *format="%g",
+				   const char *unit=0,
+				   Modes mode=User);
   
   /* Add a float parameter to this Menu. */
   NumberParameter<float> *addFloat(const char *name, float value,
 				   float minimum, float maximum,
-				   const char *format="%g", const char *unit=0,
+				   const char *format="%g",
+				   const char *unit=0,
 				   const char *outunit=0,
-				   unsigned int roles=ParameterRoles);
+				   Modes mode=User);
 
-  /* Move action that was already added to this Menu to new position index. */
+  /* Move action that was already added to this Menu to new position
+     index. */
   void move(const Action *action, size_t index);
 
   /* Return the Action matching name. */
@@ -98,11 +104,12 @@ class Menu : public Action {
   
   /* Write name to stream. If descend, also display name and values
      of children. roles must be enabled. */
-  virtual void write(Stream &stream=Serial, unsigned int roles=AllRoles,
+  virtual void write(Stream &stream=Serial,
+		     unsigned int roles=AllRoles,
 		     size_t indent=0, size_t width=0) const;
 
-  /* Read configuration settings from instream as long as data are available
-     or a line starting with "DONE" is encountered, and
+  /* Read configuration settings from instream as long as data are
+     available or a line starting with "DONE" is encountered, and
      report errors on outstream. */
   virtual void read(Stream &instream=Serial, Stream &outstream=Serial);
   
@@ -115,18 +122,22 @@ class Menu : public Action {
 
   /* Write configuration with role EEPROMPut to addr in EEPROM memory.
      num is the current index for numbering actions.
-     It is incremented by each of the children storing values in EEPROM.
+     It is incremented by each of the children storing values in
+     EEPROM.
      Returns EEPROM address behind this configuration, -1 on error.
      Report errors and success on stream. */
   virtual int put(int addr, int &num, Stream &stream=Serial) const;
   
   /* Read configuration with role EEPROMGet from addr in EEPROM memory.
      num is the current index for numbering actions.
-     It is incremented by each of the children storing values in EEPROM.
-     Only if setvalue is true set the actions' values to EEPROM content.
+     It is incremented by each of the children storing values in
+     EEPROM.
+     Only if setvalue is true set the actions' values to EEPROM
+     content.
      Returns EEPROM address behind this configuration, -1 on error.
      Report errors and success on stream. */
-  virtual int get(int addr, int &num, bool setvalue, Stream &stream=Serial);
+  virtual int get(int addr, int &num, bool setvalue,
+		  Stream &stream=Serial);
 
 
 protected:
@@ -142,12 +153,12 @@ protected:
 
 template<int N>
 BaseStringParameter *Menu::addString(const char *name, const char *str,
-				     unsigned int roles) {
+				     Modes mode) {
   if ((name == 0) || (str == 0))
     return 0;
-  StringParameter<N> *act = new StringParameter<N>(*this, name, str);
+  StringParameter<N> *act = new StringParameter<N>(*this, name, str,
+						   mode);
   Own[NActions - 1] = true;
-  act->setRoles(roles);
   return act;
 }
 
@@ -155,13 +166,15 @@ BaseStringParameter *Menu::addString(const char *name, const char *str,
 template<int N>
 BaseStringParameter *Menu::addString(const char *name, const char *str,
 				     const char **selection,
-				     size_t n_selection, unsigned int roles) {
+				     size_t n_selection,
+				     Modes mode) {
   if ((name == 0) || (str == 0))
     return 0;
   StringParameter<N> *act = new StringParameter<N>(*this, name, str,
-						   selection, n_selection);
+						   selection,
+						   n_selection,
+						   mode);
   Own[NActions - 1] = true;
-  act->setRoles(roles);
   return act;
 }
 

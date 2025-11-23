@@ -27,7 +27,8 @@ bool Action::yesno(const char *request, bool defval,
 }
 
 
-Action::Action(const char *name, unsigned int roles) :
+Action::Action(const char *name, unsigned int roles, Modes mode) :
+  Mode(mode),
   Name(const_cast<char *>(name)),
   SupportedRoles(roles),
   Roles(roles),
@@ -36,8 +37,9 @@ Action::Action(const char *name, unsigned int roles) :
 }
 
 
-Action::Action(Menu &menu, const char *name, unsigned int roles) :
-  Action(name, roles) {
+Action::Action(Menu &menu, const char *name, unsigned int roles,
+	       Modes mode) :
+  Action(name, roles, mode) {
   ActType = ActionType;
   menu.add(this);
 }
@@ -132,6 +134,11 @@ bool Action::detailed() const {
 
 bool Action::gui() const {
   return Root == 0 ? false : Root->GUI;
+}
+
+
+Action::Modes Action::currentMode() const {
+  return Root == 0 ? AllModes : Root->CurrentMode;
 }
 
 

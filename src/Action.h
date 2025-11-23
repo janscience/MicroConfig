@@ -40,9 +40,10 @@ class Action {
     AllRoles = FileIO | StreamIO | EEPROMIO | Report
   };
 
-  enum Mode {
-    Admin,  // administration mode for actions that should not be visible for normal users
-    User    // user mode for normal actions the user should see
+  enum Modes {
+    Admin = 1,  // administration mode for actions that should not be visible for normal users
+    User = 2,   // user mode for normal actions the user should see
+    AllModes = Admin | User
   };
 
   enum ActionTypes {
@@ -56,21 +57,24 @@ class Action {
   static bool yesno(const char *request, bool defval=true,
 		    bool echo=true, Stream &stream=Serial);
 
-  /* Initialize action with name and supported roles.
+  /* Initialize action with name and supported roles and mode.
      Warning: only a pointer to name is stored.
      That is, name must be a static character array.
      This spares memory when passing a literal string.
      If you want the string to be copied, however, then
      use setName(). */
-  Action(const char *name, unsigned int roles=ActionRoles);
+  Action(const char *name, unsigned int roles=ActionRoles,
+	 Modes mode=AllModes);
 
-  /* Initialize action with name and supported roles and add it to menu.
+  /* Initialize action with name and supported roles and mode
+     and add it to menu.
      Warning: only a pointer to name is stored.
      That is, name must be a static character array.
      This spares memory when passing a literal string.
      If you want the string to be copied, however, then
      use setName(). */
-  Action(Menu &menu, const char *name, unsigned int roles=ActionRoles);
+  Action(Menu &menu, const char *name, unsigned int roles=ActionRoles,
+	 Modes mode=AllModes);
 
   /* Destructor. */
   virtual ~Action();
@@ -133,8 +137,14 @@ class Action {
   /* Return the roles this action in general supports. */
   unsigned int supportedRoles() const { return SupportedRoles; };
 
-  /* set supported roles and current roles to roles. */
+  /* Set supported roles and current roles to roles. */
   void setRoles(unsigned int roles=AllRoles);
+
+  /* Return modes supported by this action. */
+  Modes mode() const { return Mode; };
+
+  /* Set modes supported by this action to mode. */
+  void setMode(Modes mode) { Mode = mode; };
 
   /* Timeout in milliseconds for interactive menus.
      This implementation returns 0. */
@@ -151,6 +161,9 @@ class Action {
 
   /* If true, a GUI is operating the interactive menu. */
   bool gui() const;
+
+  /* Return the current mode of the interactive menu (Admin or User). */
+  Modes currentMode() const;
 
   /* Write the action's name and potential values or infos to stream
      for display as a menu entry.
@@ -204,6 +217,7 @@ class Action {
  protected:
 
   ActionTypes ActType;
+  Modes Mode;
   char *Name;
   unsigned int SupportedRoles;
   unsigned int Roles;

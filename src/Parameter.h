@@ -57,7 +57,7 @@ class Parameter : public Action {
 
   /* Initialize parameter with identifying name, n selections
      and add it to menu. */
-  Parameter(Menu &menu, const char *name, size_t n=0);
+  Parameter(Menu &menu, const char *name, size_t n=0, Action::Modes mode=Action::User);
 
   /* Write the parameter's name within width characters
      followed by its value to stream for display as a menu entry. */
@@ -151,12 +151,12 @@ class BaseStringParameter : public Parameter {
  public:
   
   /* Initialize parameter with identifying name and add it to menu. */
-  BaseStringParameter(Menu &menu, const char *name);
+  BaseStringParameter(Menu &menu, const char *name, Modes mode);
   
   /* Initialize parameter with identifying name, list of n selections,
      and add it to menu. */
   BaseStringParameter(Menu &menu, const char *name,
-		      const char **selection, size_t n);
+		      const char **selection, size_t n, Modes mode);
 
   /* Return the string. */
   virtual const char* value() const = 0;
@@ -196,7 +196,8 @@ class ConstStringParameter : public BaseStringParameter {
   
   /* Initialize parameter with identifying name, pointer str to value
      variable, and add it to menu. */
-  ConstStringParameter(Menu &menu, const char *name, const char *str);
+  ConstStringParameter(Menu &menu, const char *name, const char *str,
+		       Action::Modes mode=Action::User);
 
   /* Return the string. */
   virtual const char* value() const { return Value; };
@@ -228,9 +229,14 @@ class StringParameter : public BaseStringParameter {
   
   /* Initialize parameter with identifying name, value, list of n
      selections and add it to menu. */
-  StringParameter(Menu &menu, const char *name,
-		  const char str[N],
-		  const char **selection=0, size_t n=0);
+  StringParameter(Menu &menu, const char *name, const char str[N],
+		  const char **selection, size_t n,
+		  Action::Modes mode=Action::User);
+  
+  /* Initialize parameter with identifying name and value
+     and add it to menu. */
+  StringParameter(Menu &menu, const char *name, const char str[N],
+		  Action::Modes mode=Action::User);
 
   /* Return the string. */
   virtual const char* value() const { return Value; };
@@ -272,9 +278,14 @@ class StringPointerParameter : public BaseStringParameter {
   
   /* Initialize parameter with identifying name, pointer str to value
      variable, list of n selections, and add it to menu. */
-  StringPointerParameter(Menu &menu, const char *name,
-			 char (*str)[N], const char **selection=0,
-			 size_t n=0);
+  StringPointerParameter(Menu &menu, const char *name, char (*str)[N],
+			 const char **selection, size_t n,
+			 Action::Modes mode=Action::User);
+  
+  /* Initialize parameter with identifying name, pointer str to value
+     variable and add it to menu. */
+  StringPointerParameter(Menu &menu, const char *name, char (*str)[N],
+			 Action::Modes mode=Action::User);
 
   /* Return the string. */
   virtual const char* value() const { return *Value; };
@@ -316,7 +327,8 @@ class BaseEnumParameter : public BaseStringParameter {
   /* Initialize parameter with identifying name, list of n enum values
      and coresponding string representations, and add it to menu. */
   BaseEnumParameter(Menu &menu, const char *name,
-		    const T *enums, const char **selection, size_t n);
+		    const T *enums, const char **selection, size_t n,
+		    Modes mode);
 
   /* Provide a selection of n enums with corresponding string
      representations. */
@@ -354,7 +366,8 @@ class EnumParameter : public BaseEnumParameter<T> {
      values and coresponding string representations, and add to
      menu. */
   EnumParameter(Menu &menu, const char *name, T val,
-		const T *enums, const char **selection, size_t n);
+		const T *enums, const char **selection, size_t n,
+		Action::Modes mode=Action::User);
 
   /* Return the enum string. */
   virtual const char* value() const;
@@ -404,7 +417,7 @@ class EnumPointerParameter : public BaseEnumParameter<T> {
      menu. */
   EnumPointerParameter(Menu &menu, const char *name, T *val,
 		       const T *enums, const char **selection,
-		       size_t n);
+		       size_t n, Action::Modes mode=Action::User);
 
   /* Return the enum string. */
   virtual const char* value() const;
@@ -450,7 +463,7 @@ class BoolParameter : public EnumParameter<bool> {
   
   /* Initialize parameter with identifying name, value, and add to
      menu. */
-  BoolParameter(Menu &menu, const char *name, bool val);
+  BoolParameter(Menu &menu, const char *name, bool val, Action::Modes mode=Action::User);
 
   /* Return the boolean value. */
   bool boolValue() const { return enumValue(); };
@@ -469,7 +482,8 @@ class BoolPointerParameter : public EnumPointerParameter<bool> {
   
   /* Initialize parameter with identifying name, value, and add to
      menu. */
-  BoolPointerParameter(Menu &menu, const char *name, bool *val);
+  BoolPointerParameter(Menu &menu, const char *name, bool *val,
+		       Action::Modes mode=Action::User);
 
   /* Return the boolean value. */
   bool boolValue() const { return enumValue(); };
@@ -490,15 +504,15 @@ class BaseNumberParameter : public Parameter {
   /* Initialize parameter with identifying name,
      format string, unit, and selection, and add it to menu. */
   BaseNumberParameter(Menu &menu, const char *name,
-		      const char *format, const char *unit=0,
-		      const char *outunit=0, const T *selection=0,
-		      size_t n=0);
+		      const char *format, const char *unit,
+		      const char *outunit, const T *selection,
+		      size_t n, Modes mode);
   
   /* Initialize parameter with identifying name,
      minimum, maximum, format string, and unit, and add it to menu. */
   BaseNumberParameter(Menu &menu, const char *name,
 		      T minimu, T maximum, const char *format,
-		      const char *unit=0, const char *outunit=0);
+		      const char *unit, const char *outunit, Modes mode);
 
   /* The format string for formatting a number. */
   const char *format() const { return Format; };
@@ -591,13 +605,14 @@ class NumberParameter : public BaseNumberParameter<T> {
   NumberParameter(Menu &menu, const char *name, T value,
 		  const char *format, const char *unit=0,
 		  const char *outunit=0, const T *selection=0,
-		  size_t n=0);
+		  size_t n=0, Action::Modes mode=Action::User);
   
   /* Initialize parameter with identifying name, value,
      minimum and maximum, format string, unit, and add it to menu. */
   NumberParameter(Menu &menu, const char *name, T value,
 		  T minimum, T maximum, const char *format,
-		  const char *unit=0, const char *outunit=0);
+		  const char *unit=0, const char *outunit=0,
+		  Action::Modes mode=Action::User);
 
   /* Return the value of the number in its unit(). */
   T value() const { return Value; };
@@ -654,13 +669,14 @@ class NumberPointerParameter : public BaseNumberParameter<T> {
   NumberPointerParameter(Menu &menu, const char *name, T *value,
 			 const char *format, const char *unit=0,
 			 const char *outunit=0, const T *selection=0,
-			 size_t n=0);
+			 size_t n=0, Action::Modes mode=Action::User);
   
   /* Initialize parameter with identifying name, pointer to value,
      minimum, maximum, format string, and unit, and add it to menu. */
   NumberPointerParameter(Menu &menu, const char *name, T *value,
 			 T minimum, T maximum, const char *format,
-			 const char *unit=0, const char *outunit=0);
+			 const char *unit=0, const char *outunit=0,
+			 Action::Modes mode=Action::User);
 
   /* Return the value of the number. */
   T value() const { return *Value; };
@@ -709,8 +725,19 @@ class NumberPointerParameter : public BaseNumberParameter<T> {
 template<int N>
 StringParameter<N>::StringParameter(Menu &menu, const char *name,
 				    const char str[N],
-				    const char **selection, size_t n) :
-  BaseStringParameter(menu, name, selection, n) {
+				    const char **selection, size_t n,
+				    Action::Modes mode) :
+  BaseStringParameter(menu, name, selection, n, mode) {
+  strncpy(Value, str, N);
+  Value[N-1] = '\0';
+  sprintf(TypeStr, "string %d", N);
+}
+
+
+template<int N>
+StringParameter<N>::StringParameter(Menu &menu, const char *name,
+				    const char str[N], Action::Modes mode) :
+  BaseStringParameter(menu, name, mode) {
   strncpy(Value, str, N);
   Value[N-1] = '\0';
   sprintf(TypeStr, "string %d", N);
@@ -786,8 +813,19 @@ StringPointerParameter<N>::StringPointerParameter(Menu &menu,
 						  const char *name,
 						  char (*str)[N],
 						  const char **selection,
-						  size_t n) :
-  BaseStringParameter(menu, name, selection, n),
+						  size_t n, Action::Modes mode) :
+  BaseStringParameter(menu, name, selection, n, mode),
+  Value(str) {
+  sprintf(TypeStr, "string %d", N);
+}
+
+
+template<int N>
+StringPointerParameter<N>::StringPointerParameter(Menu &menu,
+						  const char *name,
+						  char (*str)[N],
+						  Action::Modes mode) :
+  BaseStringParameter(menu, name, mode),
   Value(str) {
   sprintf(TypeStr, "string %d", N);
 }
@@ -853,8 +891,8 @@ BaseEnumParameter<T>::BaseEnumParameter(Menu &menu,
 					const char *name,
 					const T *enums,
 					const char **selection,
-					size_t n) :
-  BaseStringParameter(menu, name, selection, n),
+					size_t n, Action::Modes mode) :
+  BaseStringParameter(menu, name, selection, n, mode),
   Enums(enums) {
   strcpy(TypeStr, "enum");
 }
@@ -899,8 +937,9 @@ const char *BaseEnumParameter<T>::enumStr(T val) const {
 template<class T>
 EnumParameter<T>::EnumParameter(Menu &menu, const char *name,
 				T val, const T *enums,
-				const char **selection, size_t n) :
-  BaseEnumParameter<T>(menu, name, enums, selection, n),
+				const char **selection, size_t n,
+				Action::Modes mode) :
+  BaseEnumParameter<T>(menu, name, enums, selection, n, mode),
   Value(val) {
 }
 
@@ -988,8 +1027,9 @@ EnumPointerParameter<T>::EnumPointerParameter(Menu &menu,
 					      const char *name,
 					      T *val, const T *enums,
 					      const char **selection,
-					      size_t n) :
-  BaseEnumParameter<T>(menu, name, enums, selection, n),
+					      size_t n,
+					      Action::Modes mode) :
+  BaseEnumParameter<T>(menu, name, enums, selection, n, mode),
   Value(val) {
 }
 
@@ -1076,8 +1116,8 @@ BaseNumberParameter<T>::BaseNumberParameter(Menu &menu,
 					    const char *unit,
 					    const char *outunit,
 					    const T *selection,
-					    size_t n) :
-  Parameter(menu, name, n),
+					    size_t n, Action::Modes mode) :
+  Parameter(menu, name, n, mode),
   Format(""),
   Unit(""),
   OutUnit(""),
@@ -1106,8 +1146,9 @@ BaseNumberParameter<T>::BaseNumberParameter(Menu &menu,
 					    T minimum, T maximum,
 					    const char *format,
 					    const char *unit,
-					    const char *outunit) :
-  Parameter(menu, name, 0),
+					    const char *outunit,
+					    Action::Modes mode) :
+  Parameter(menu, name, 0, mode),
   Format(""),
   Unit(""),
   OutUnit(""),
@@ -1192,9 +1233,8 @@ void BaseNumberParameter<T>::listSelection(Stream &stream) const {
 
 template<class T>
 void BaseNumberParameter<T>::instructions(char *str) const {
-  *str = '\0';
+  Parameter::instructions(str);
   if (detailed()) {
-    strcpy(str, TypeStr);
     strcat(str, ", ");
     strcat(str, Unit);
   }
@@ -1282,9 +1322,10 @@ NumberParameter<T>::NumberParameter(Menu &menu, const char *name,
 				    T number, const char *format,
 				    const char *unit,
 				    const char *outunit,
-				    const T *selection, size_t n) :
+				    const T *selection, size_t n,
+				    Action::Modes mode) :
   BaseNumberParameter<T>(menu, name, format, unit, outunit,
-			 selection, n),
+			 selection, n, mode),
   Value(number) {
 }
 
@@ -1292,9 +1333,12 @@ NumberParameter<T>::NumberParameter(Menu &menu, const char *name,
 template<class T>
 NumberParameter<T>::NumberParameter(Menu &menu, const char *name,
 				    T number, T minimum, T maximum,
-				    const char *format, const char *unit,
-				    const char *outunit) :
-  BaseNumberParameter<T>(menu, name, minimum, maximum, format, unit, outunit),
+				    const char *format,
+				    const char *unit,
+				    const char *outunit,
+				    Action::Modes mode) :
+  BaseNumberParameter<T>(menu, name, minimum, maximum, format,
+			 unit, outunit, mode),
   Value(number) {
 }
 
@@ -1394,9 +1438,10 @@ NumberPointerParameter<T>::NumberPointerParameter(Menu &menu,
 						  const char *unit,
 						  const char *outunit,
 						  const T *selection,
-						  size_t n) :
+						  size_t n,
+						  Action::Modes mode) :
   BaseNumberParameter<T>(menu, name, format, unit, outunit,
-			 selection, n),
+			 selection, n, mode),
   Value(number) {
 }
 
@@ -1408,8 +1453,10 @@ NumberPointerParameter<T>::NumberPointerParameter(Menu &menu,
 						  T minimum, T maximum,
 						  const char *format,
 						  const char *unit,
-						  const char *outunit) :
-  BaseNumberParameter<T>(menu, name, minimum, maximum, format, unit, outunit),
+						  const char *outunit,
+						  Action::Modes mode) :
+  BaseNumberParameter<T>(menu, name, minimum, maximum, format,
+			 unit, outunit, mode),
   Value(number) {
 }
 
