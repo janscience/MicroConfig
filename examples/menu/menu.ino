@@ -69,9 +69,10 @@ void setup() {
   // modify values:
   message.setText("Just another demonstration!");          // change the text printed out
   info.setValue("color", "green");                         // change the "color" value
-  config.load();
+  config.get();                  // get configuration from EEPROM
+  config.load();                 // load configuration file from SD card
   if (Serial)
-    config.execute();
+    config.execute();            // execute the main menu, default 10s timeout
   // print reportable actions:
   Serial.println("Report:");
   config.write(Serial, Action::Report);

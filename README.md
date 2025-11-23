@@ -12,17 +12,20 @@ C++ code.
 ## Features
 
 - Interactive configuration and execution via serial streams.
+- Store and retrieve configuration from EEPROM.
 - Read and write YAML configuration file on SD card.
+- Transfer configuration to and from host computer.
 - Configures key-value pairs, with values being strings, enums, booleans, integer types, or floats.
 - Numerical types with units and unit conversion.
 - Object-oriented and templated interface.
 - Stores pointers to arbitarily sized action names (no memory consuming copies).
-- Predefined menu for reporting, saving, loading and erasing configuration file on SD card.
+- Predefined menu for reporting, saving, loading and erasing configuration file on SD card as well as for putting and getting configuration from EEPROM.
 - Predefined menu for uploading firmware, based on [FlasherX](https://github.com/joepasquariello/FlasherX).
 
 
 ## ToDo
 
+- [ ] Add two levels of acces (user and admin mode)
 - [ ] Make the [serialmonitor.py](utils/serialmonitor.py) and the
       general aspects of the [logger configuration
       GUI](https://github.com/janscience/TeeGrid/blob/main/utils/loggerconf.py)
@@ -30,7 +33,6 @@ C++ code.
 - [ ] In unit conversion do not only check the prefix but also the unit itself.
 - [ ] Support transfer of configuration to another micro controller via
       a serial stream.
-- [ ] Store and retrieve configuration to EEPROM in a compact way.
 
 
 ## Usage
@@ -63,10 +65,11 @@ Load the configuration file and execute the menu like this:
 void setup() {
   Serial.begin(9600);
   while (!Serial && millis() < 2000) {};
-  SD.begin(BUILTIN_SDCARD);              // initialize SD card
-  config.load();                         // load configuration file from SD card
+  SD.begin(BUILTIN_SDCARD);      // initialize SD card
+  config.get();                  // get configuration from EEPROM
+  config.load();                 // load configuration file from SD card
   if (Serial)
-    config.execute();                    // execute the main menu, default 10s timeout
+    config.execute();            // execute the main menu, default 10s timeout
 }
 ```
 

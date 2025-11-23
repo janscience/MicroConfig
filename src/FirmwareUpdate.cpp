@@ -134,7 +134,7 @@ void updateFirmware(SDClass &sdcard, bool echo, bool detailed,
 		buffer_size/1024, IN_FLASH(buffer_addr) ? "FLASH" : "RAM",
 		buffer_addr, buffer_addr + buffer_size);
   // read hex file, write new firmware to flash, clean up, reboot
-  stream.println("- updating frimware ...");
+  stream.println("- updating firmware ...");
   stream.println();
   update_firmware(&hex_file, &stream, buffer_addr, buffer_size);
   // return from update_firmware() means error or user abort, so clean up and

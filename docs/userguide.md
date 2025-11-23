@@ -56,7 +56,7 @@ Let's also add the predefined menus for handling the configuration
 file, firmware updates, and printing a help message:
 
 ```c
-ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
+ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file as well as put or get configuration from EEPROM
 FirmwareMenu firmware_menu(config, SD);            // menu for uploading hex files from SD card
 HelpAction help_act(config, "Help");               // action showing how to use the menu
 ```
@@ -93,14 +93,14 @@ Special commands:
 - 'detailed off': do not print additional infos (default)
 - 'echo on'     : echo inputs (default)
 - 'echo off'    : do not echo inputs
+- 'gui on'      : inform the menu that a GUI is operating it
+- 'gui off'     : manual interaction with the menu (default)
 - 'show'        : show current menu settings
 - 'print'       : print menu again
 - 'reboot'      : reboot
-
 ```
 
-Try them out! The effect of `detailed on`, however, affects mostly
-parameters.
+Try them out! The effect of `detailed on` affects mostly parameters.
 
 Let us now populate the sub menus with some parameter.
 
@@ -348,14 +348,19 @@ Enter `h` and then `3` to select the configuration menu:
 ```txt
 Configuration:
   1) Print configuration
-  2) Save configuration
-  3) Load configuration
-  4) Erase configuration
+  2) Save configuration file
+  3) Load configuration file
+  4) Erase configuration file
+  5) Put configuration to EEPROM
+  6) Get configuration from EEPROM
+  7) Read configuration from stream
   Select [1]: 
 ```
 
-This menu contains four actions that allow you to print, save, load and
-erase the configuration.
+This menu contains seven actions that allow you to print, save, load
+and erase the configuration file as well as to put and get the
+configuration from EEPROM. Action 1) and 7) can also be used to
+transfer the configuration to and from a host computer.
 
 Enter `1` to print the current configuration:
 
@@ -384,12 +389,23 @@ Do you want to overwrite the configuration file? [Y/n]
 Hit `y` or `enter` (the capital `Y` indicates the default) to
 overwrite the existing configuration file.
 
-"Load configuration" reads the configuration file and overwrites the
+"Load configuration file" reads the configuration file and overwrites the
 current configuration. This is why this action also asks for
 confirmation first.
 
-"Erase configuration" erases the configuration file on SD card after
+"Erase configuration file" erases the configuration file on SD card after
 confirmation.
+
+"Put configuration to EEPROM" writes the configuration into EEPROM
+(permanent memory of your microcontroller) followed by a CRC value.
+
+"Get configuration from EEPROM" reads the configuration from EEPROM
+only if the EEPROM data match the CRC value. This way, no corrupted
+data is read in case nothing is stored there yet.
+
+"Read configuration from stream" receives key-value pairs from a host
+computer. This way, the configuration can be transfered from a
+computer to the microcontroller.
 
 
 ### Firmware menu
@@ -446,7 +462,7 @@ Successfully opened firmware file "R4-logger.ino.hex".
 Updating firmware:
 - initializing flash buffer ...
 - created flash buffer = 8024K FLASH (60026000 - 607FC000)
-- updating frimware ...
+- updating firmware ...
 
 reading hex lines...
 

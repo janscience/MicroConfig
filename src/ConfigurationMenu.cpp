@@ -114,8 +114,8 @@ ConfigurationMenu::ConfigurationMenu(Menu &menu, SDClass &sd) :
   SaveAct(*this,"Save configuration file", sd),
   LoadAct(*this, "Load configuration file", sd),
   RemoveAct(*this, "Erase configuration file", sd),
-  PutAct(*this,"Write configuration to EEPROM"),
-  GetAct(*this, "Read configuration from EEPROM"),
+  PutAct(*this,"Put configuration to EEPROM"),
+  GetAct(*this, "Get configuration from EEPROM"),
   ReadAct(*this, "Read configuration from stream") {
 }
 
