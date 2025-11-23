@@ -17,11 +17,11 @@ class InfoAction : public Action {
   /* Initialize and add to configuration menu.
      You need to add ket-value pairs later on using add(). */
   InfoAction(Menu &menu, const char *name,
-	     unsigned int roles=StreamIO | Report);
+	     unsigned int roles=ReportRoles);
 
   /* Initialize and add to configuration menu.
      Key-value pairs are added to the action using add().
-     The InfoAction gets StreamIO and Report roles enabled. */
+     The InfoAction gets ReportRoles enabled. */
   InfoAction(Menu &menu, const char *name,
 	     const char *key1, const char *value1,
 	     const char *key2=0, const char *value2=0,

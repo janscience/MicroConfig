@@ -16,7 +16,7 @@ InfoAction::InfoAction(Menu &menu, const char *name,
 		       const char *key4, const char *value4,
 		       const char *key5, const char *value5,
 		       const char *key6, const char *value6) :
-  Action(menu, name, StreamIO | Report),
+  Action(menu, name, ReportRoles),
   NKeyVals(0) {
   add(key1, value1);
   add(key2, value2);
@@ -68,8 +68,6 @@ int InfoAction::setValue(const char *key, const char *value) {
 
 void InfoAction::write(Stream &stream, unsigned int roles,
 		       size_t indent, size_t width) const {
-  if (disabled(roles))
-    return;
   if (name() != 0 && strlen(name()) > 0) {
     stream.printf("%*s%s:\n", indent, "", name());
     indent += indentation();

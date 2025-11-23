@@ -31,7 +31,8 @@ class Action {
     EEPROMPut = 64,   // write to EEPROM using put() function.
     EEPROMGet = 128,  // read from EEPROM using get() function.
     EEPROMIO = EEPROMPut | EEPROMGet,
-    ActionRoles = StreamInput,
+    ActionRoles = StreamInput,         // Action that can executs
+    ReportRoles = StreamIO | Report,   // Action that can also report
     ParameterRoles = SetValue | FileIO | StreamIO | EEPROMIO | Report,
     ConstParameterRoles = StreamOutput | Report,
     MenuRoles = FileIO | StreamIO | Report,
