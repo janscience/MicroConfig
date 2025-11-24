@@ -260,18 +260,25 @@ void Menu::writeEntry(Stream &stream, size_t width) const {
 
 void Menu::write(Stream &stream, unsigned int roles, size_t indent,
 		 size_t width) const {
+  // longest name and number of active entries:
+  size_t nn = 0;
+  size_t ww = 0;
+  for (size_t j=0; j<NActions; j++) {
+    if (((Actions[j]->actionType() & MenuType) > 0 ||
+	 Actions[j]->enabled(roles))) {
+      nn++;
+      if (Actions[j]->name() != 0 && strlen(Actions[j]->name()) > ww)
+	ww = strlen(Actions[j]->name());
+    }
+  }
+  if (nn == 0)
+    return;
+  // write name:
   if (enabled(roles) && name() != 0 && strlen(name()) > 0) {
     stream.printf("%*s%s:\n", indent, "", name());
     indent += indentation();
   }
-  // longest name:
-  size_t ww = 0;
-  for (size_t j=0; j<NActions; j++) {
-    if (((Actions[j]->actionType() & MenuType) > 0 ||
-	 Actions[j]->enabled(roles)) &&
-	Actions[j]->name() != 0 && strlen(Actions[j]->name()) > ww)
-      ww = strlen(Actions[j]->name());
-  }
+  // write children:
   for (size_t j=0; j<NActions; j++) {
     if ((Actions[j]->actionType() & MenuType) > 0 ||
 	Actions[j]->enabled(roles))
