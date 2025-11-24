@@ -393,6 +393,7 @@ void Menu::execute(Stream &stream) {
     // count interactive entries:
     size_t iaction[NActions];
     size_t nn = 0;
+    size_t mm = 0;
     size_t width = 0;
     for (size_t j=0; j<NActions; j++) {
       if (Actions[j]->name() == 0 || strlen(Actions[j]->name()) == 0 ||
@@ -400,12 +401,16 @@ void Menu::execute(Stream &stream) {
 	continue;
       if (Actions[j]->enabled(StreamInput))
 	iaction[nn++] = j;
+      else if (Actions[j]->actionType() == ParameterType)
+	mm++;
       if (Actions[j]->enabled(StreamIO)) {
 	if (width < strlen(Actions[j]->name()))
 	  width = strlen(Actions[j]->name());
       }
     }
     // list entries:
+    if (mm > 0)
+      printit = true;      // non editable parameters in menu
     if (!gui() || printit) {
       stream.printf("%s:\n", name());
       size_t wd = nn >= 10 ? 2 : 1;
