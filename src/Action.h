@@ -31,13 +31,13 @@ class Action {
     EEPROMPut = 64,   // write to EEPROM using put() function.
     EEPROMGet = 128,  // read from EEPROM using get() function.
     EEPROMIO = EEPROMPut | EEPROMGet,
-    ActionRoles = StreamInput,         // Action that can executs
-    ReportRoles = StreamIO | Report,   // Action that can also report
+    ActionRoles = StreamInput,         // Action that can execute
+    ReportRoles = StreamIO | Report,   // Action that can execute and report
     ParameterRoles = SetValue | FileIO | StreamIO | EEPROMIO | Report,
     ConstParameterRoles = StreamOutput | Report,
     MenuRoles = FileIO | StreamIO | Report,
     ConfigRoles = StreamIO,
-    AllRoles = FileIO | StreamIO | EEPROMIO | Report
+    AllRoles = FileIO | StreamIO | EEPROMGet | Report  // EEPROMPut must no be touched to keep EEPROM memory intact when disabling or enabling actions
   };
 
   enum Modes {
