@@ -160,6 +160,7 @@ int Config::get(Stream &stream) {
       stream.println("ERROR! EEPROM memory corrupted.");
       return -1;
     }
+    stream.println("Read configuration from EEPROM ...");
     num = 0;
     addr = Menu::get(start_addr, num, true, stream);
     if (addr <= start_addr) {

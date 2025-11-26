@@ -154,16 +154,30 @@ int Parameter::get(int addr, int &num, bool setvalue, Stream &stream) {
     EEPROM.get(addr, e_ident);
     addr += NIdent;
     if (memcmp(p_ident, e_ident, NIdent) != 0) {
-      stream.printf("Failed to read value for %s from EEPROM memory.\n", name());
+      if (enabled(StreamOutput))
+	stream.printf("Failed to read value for %s from EEPROM memory.\n",
+		      name());
       return -1;
     }
     // read value:
     int addr1 = getValue(addr, true);
     num++;
-    char s[MaxVal];
-    valueStr(s);
-    stream.printf("Read \"%s\" for %s ", s, name());
-    stream.printf("from EEPROM at address %04x\n", addr);
+    if (enabled(StreamOutput)) {
+      size_t kn = strlen(name()) + 1;
+      if (parent() != 0 && strlen(parent()->name()) > 0)
+	kn += strlen(parent()->name()) + 1;
+      char keyname[kn];
+      keyname[0] = '\0';
+      if (parent() != 0 && strlen(parent()->name()) > 0) {
+	strcpy(keyname, parent()->name());
+	strcat(keyname, ">");
+      }
+      strcat(keyname, name());
+      char pval[MaxVal];
+      valueStr(pval);
+      stream.printf("%*sset %-25s to %-25s from EEPROM address %04x\n",
+		    indentation(), "", keyname, pval, addr);
+    }
     return addr1;
   }
   else {
