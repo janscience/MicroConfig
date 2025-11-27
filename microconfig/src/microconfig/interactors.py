@@ -5,6 +5,7 @@ try:
 except ImportError:
     from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtCore import QObject
+from PyQt5.QtGui import QPalette, QColor
 from PyQt5.QtWidgets import QWidget, QFrame, QPushButton
 
             
@@ -226,8 +227,7 @@ class ReportButton(Interactor, QPushButton, metaclass=InteractorQPushButton):
         if len(self.start) == 0:
             self.setVisible(False)
 
-    def run(self, ident='run'):
+    def run(self):
         """ Activate the menu entry.
         """
-        self.sigReadRequest.emit(self, ident, self.start, ['select'])
-
+        self.sigReadRequest.emit(self, 'run', self.start, ['select'])
