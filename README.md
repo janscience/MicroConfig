@@ -26,10 +26,9 @@ C++ code.
 
 ## ToDo
 
-- [ ] Make the [serialmonitor.py](utils/serialmonitor.py) and the
-      general aspects of the [logger configuration
+- [ ] Add the general aspects of the [logger configuration
       GUI](https://github.com/janscience/TeeGrid/blob/main/utils/loggerconf.py)
-      a proper python package.
+      to the microconfig package.
 - [ ] In unit conversion do not only check the prefix but also the unit itself.
 - [ ] Support transfer of configuration to another micro controller via
       a serial stream.
@@ -164,12 +163,13 @@ the MicroConfig libraries.
 - [menu](examples/menu): Example demonstrating most features of the MicroConfig library.
 
 
-## Utilities
+## microconfig python package
 
-In [utils/](utils) you find useful python scripts:
+The content of the [microconfig/](microconfig) folder is a python package.
+It provides the 
 
-- [serialmonitor](utils/serialmonitor.py): serial monitor for the
-  console that automatically detects Teensys connected to USB.
+- [serialmonitor](microconfig-src-microconfig/serialmonitor.py):
+  serial monitor for the console that automatically detects Teensys connected to USB.
 
 
 ## Applications of the MicroConfig libraries

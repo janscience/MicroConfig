@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "microconfig"
+dynamic = ["version"]
+dependencies = [
+  "pyserial",
+  "pyusb"
+]
+requires-python = ">=3.6"
+authors = [
+  {name = "Jan Benda", email = "jan.benda@uni-tuebingen.de"},
+]
+maintainers = [
+  {name = "Jan Benda", email = "jan.benda@uni-tuebingen.de"},
+]
+description = "Interacting with a micro controller via a MicroConfig menu."
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Environment :: X11 Applications :: Qt",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Terminals :: Serial",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Repository    = "https://github.com/janscience/MicroConfig"
+Documentation = "https://github.com/janscience/MicroConfig/microconfig"
+
+[project.scripts]
+serialmonitor = "microconfig.serialmonitor:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "microconfig.version.__version__"}
+
+[tool.pytest.ini_options]
+pythonpath = "src"
