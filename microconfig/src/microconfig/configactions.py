@@ -1,0 +1,369 @@
+"""# configactions
+
+## Classes
+
+`class ConfigActions`: buttons for managing the configuration of a microcontroller.
+
+
+"""
+
+from .interactors import Interactor, InteractorQWidget
+
+try:
+    from PyQt5.QtCore import Signal
+except ImportError:
+    from PyQt5.QtCore import pyqtSignal as Signal
+from PyQt5.QtWidgets import QVBoxLayout, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import QFileDialog
+
+    
+class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
+    """Buttons for managing the configuration of a microcontroller.
+    """
+
+    sigVerifyParameter = Signal(str, str)
+    sigSetParameter = Signal(str, str)
+    sigConfigFile = Signal(bool)
+    sigShowStartup = Signal()
+    
+    def __init__(self, *args, **kwargs):
+        super(QWidget, self).__init__(*args, **kwargs)
+        self.put_button = QPushButton('&Put', self)
+        self.put_button.setToolTip('Put configuration to EEPROM memory (Alt+P)')
+        self.get_button = QPushButton('&Get', self)
+        self.get_button.setToolTip('Get configuration from EEPROM memory (Alt+G)')
+        self.clear_button = QPushButton('Clear', self)
+        self.clear_button.setToolTip('Clear the full EEPROM memory')
+        self.save_button = QPushButton('&Save', self)
+        self.save_button.setToolTip('Save the configuration to file on SD card (Alt+S)')
+        self.load_button = QPushButton('&Load', self)
+        self.load_button.setToolTip('Load the configuration from file on SD card (Alt+L)')
+        self.erase_button = QPushButton('&Erase', self)
+        self.erase_button.setToolTip('Erase configuration file on SD card (Alt+E)')
+        self.check_button = QPushButton('&Check', self)
+        self.check_button.setToolTip('Check whether this GUI matches configuration on the logger (Alt+C)')
+        self.import_button = QPushButton('&Import', self)
+        self.import_button.setToolTip('Import configuration from host (Alt+I)')
+        self.export_button = QPushButton('E&xport', self)
+        self.export_button.setToolTip('Export configuration file to host (Alt+X)')
+        self.firmware_button = QPushButton('&Firmware', self)
+        self.firmware_button.setToolTip('Upload new firmware (Alt+F)')
+        self.show_firmware = True
+        self.reboot_button = QPushButton('Re&boot', self)
+        self.reboot_button.setToolTip('Reboot logger (Alt+B)')
+        self.startup_button = QPushButton('Startup', self)
+        self.startup_button.setToolTip('Show startup messages')
+        self.run_button = QPushButton('&Run', self)
+        self.run_button.setToolTip('Run logger (Alt+R)')
+        self.put_button.clicked.connect(self.put)
+        self.get_button.clicked.connect(self.get)
+        self.clear_button.clicked.connect(self.clear)
+        self.save_button.clicked.connect(self.save)
+        self.load_button.clicked.connect(self.load)
+        self.erase_button.clicked.connect(self.erase)
+        self.check_button.clicked.connect(self.check)
+        self.import_button.clicked.connect(self.importc)
+        self.export_button.clicked.connect(self.exportc)
+        self.firmware_button.clicked.connect(self.firmware)
+        self.startup_button.clicked.connect(self.sigShowStartup)
+        self.reboot_button.clicked.connect(self.reboot)
+        self.run_button.clicked.connect(self.run)
+        box = QVBoxLayout(self)
+        box.setContentsMargins(0, 0, 0, 0)
+        box.addWidget(QLabel('<b>EEPROM:</b>'))
+        box.addWidget(self.put_button)
+        box.addWidget(self.get_button)
+        box.addWidget(self.clear_button)
+        box.addItem(QSpacerItem(0, 1000, QSizePolicy.Expanding,
+                                QSizePolicy.Expanding))
+        box.addWidget(QLabel('<b>File:</b>'))
+        box.addWidget(self.save_button)
+        box.addWidget(self.load_button)
+        box.addWidget(self.erase_button)
+        box.addItem(QSpacerItem(0, 1000, QSizePolicy.Expanding,
+                                QSizePolicy.Expanding))
+        box.addWidget(QLabel('<b>Host:</b>'))
+        box.addWidget(self.import_button)
+        box.addWidget(self.export_button)
+        box.addItem(QSpacerItem(0, 1000, QSizePolicy.Expanding,
+                                QSizePolicy.Expanding))
+        box.addWidget(QLabel('<b>Logger:</b>'))
+        box.addWidget(self.check_button)
+        box.addItem(QSpacerItem(0, 1000, QSizePolicy.Expanding,
+                                QSizePolicy.Expanding))
+        box.addWidget(self.startup_button)
+        box.addWidget(self.reboot_button)
+        box.addWidget(self.firmware_button)
+        box.addWidget(self.run_button)
+        self.start_check = []
+        self.start_save = []
+        self.start_load = []
+        self.start_erase = []
+        self.start_put = []
+        self.start_get = []
+        self.start_clear = []
+        self.start_import = []
+        self.start_list_firmware = []
+        self.start_update_firmware = []
+        self.update_stream = []
+        self.matches = False
+        self.stream_len = 0
+        self.config_file = None
+    
+    def setup(self, menu):
+        self.start_check = self.retrieve('configuration>print', menu)
+        self.start_put = self.retrieve('configuration>put configuration to eeprom', menu)
+        self.start_get = self.retrieve('configuration>get configuration from eeprom', menu)
+        self.start_clear = self.retrieve('clear eeprom memory', menu)
+        self.start_save = self.retrieve('configuration>save', menu)
+        self.start_load = self.retrieve('configuration>load', menu)
+        self.start_erase = self.retrieve('configuration>erase', menu)
+        self.start_import = self.retrieve('configuration>read configuration from stream', menu)
+        self.start_list_firmware = self.retrieve('firmware>list', menu)
+        self.start_update_firmware = self.retrieve('firmware>update', menu)
+        if len(self.start_list_firmware) == 0:
+            self.show_firmware = False
+        else:
+            self.sigReadRequest.emit(self, 'firmwarecheck',
+                                     self.start_list_firmware, ['select'])
+        if len(self.start_update_firmware) > 0:
+            self.start_update_firmware.append('STAY')
+        else:
+            self.show_firmware = False
+        self.firmware_button.setVisible(self.show_firmware)
+
+    def set_sdcard(self, present):
+        if self.show_firmware and not present:
+            self.show_firmware = False
+
+    def set_mode(self, mode):
+        self.clear_button.setVisible('A' in mode)
+        self.check_button.setVisible('A' in mode)
+        self.firmware_button.setVisible('A' in mode and self.show_firmware)
+        self.startup_button.setVisible('A' in mode)
+
+    def put(self):
+        self.sigReadRequest.emit(self, 'confput', self.start_put, ['select'])
+
+    def get(self):
+        self.sigReadRequest.emit(self, 'confget', self.start_get, ['select'])
+
+    def clear(self):
+        self.sigReadRequest.emit(self, 'confclear', self.start_clear, ['select'])
+
+    def save(self):
+        self.sigReadRequest.emit(self, 'confsave', self.start_save, ['select'])
+
+    def load(self):
+        self.sigReadRequest.emit(self, 'confload', self.start_load, ['select'])
+
+    def erase(self):
+        self.sigReadRequest.emit(self, 'conferase', self.start_erase, ['select'])
+
+    def check(self):
+        self.sigReadRequest.emit(self, 'confcheck', self.start_check, ['select'])
+
+    def importc(self):
+        fname = 'logger.cfg' if self.config_file is None else self.config_file
+        file_path, _ = QFileDialog.getOpenFileName(self,
+                                                   'Load configuration file',
+                                                   fname,
+                                                   'configuration files (*.cfg)')
+        if not file_path:
+            return
+        conf_lines = ''
+        with open(file_path, 'r') as sf:
+            conf_lines = [line.rstrip() for line in sf.readlines()]
+        self.sigWriteRequest.emit('DONE', self.start_import + conf_lines)
+        self.sigReadRequest.emit(self, 'confimport', self.start_check, ['select'])
+
+    def exportc(self):
+        self.sigReadRequest.emit(self, 'confexport', self.start_check,
+                                 ['select'])
+
+    def reboot(self):
+        self.sigReadRequest.emit(self, 'reboot', ['reboot'], [''])
+
+    def firmware(self):
+        self.sigReadRequest.emit(self, 'updatefirmware',
+                                 self.start_update_firmware, ['select'])
+
+    def run(self):
+        self.sigReadRequest.emit(self, 'run', ['q'], ['halt'])
+
+    def read(self, ident, stream, success):
+        if ident == 'run':
+            if len(stream) != self.stream_len:
+                self.sigDisplayTerminal.emit('Run logger', stream)
+                self.stream_len = len(stream)
+        elif 'firmware' in ident:
+            if ident == 'firmwarecheck':
+                if len(stream) > 1 and 'no firmware files' in stream[1].lower():
+                    self.show_firmware = False
+            elif ident == 'updatefirmware':
+                self.update_stream = []
+                if len(stream) > 0 and 'available' in stream[0].lower():
+                    del stream[0]
+                for k in range(len(stream)):
+                    if len(stream[k].strip()) == 0:
+                        while k < len(stream):
+                            del stream[k]
+                        break
+                if len(stream) == 1:
+                    self.sigReadRequest.emit(self, 'runfirmware1',
+                                             ['1', 'STAY'],
+                                             ['select', 'enter', 'error'])
+                else:
+                    text = '<style type="text/css"> td { padding: 0 15px; } th { padding: 0 15px; }</style>'
+                    text += '<table>'
+                    text += f'<tr><th align="right">No</th><th align="left">Name</th></tr>'
+                    for l in stream:
+                        p = l.split()
+                        number = p[1].rstrip(')')
+                        name = p[2]
+                        text += f'<tr><td align="right">{number}</td><td align="left">{name}</td></tr>'
+                    text += '</table>'
+                    self.sigDisplayTerminal.emit('Firmware', text)
+                    self.sigReadRequest.emit(self, 'runfirmware1',
+                                             ['n', 'STAY'],
+                                             ['select', 'enter', 'error'])
+            elif ident == 'runfirmware1':
+                if len(stream) > 0 and 'aborted' in stream[0].lower():
+                    for k in range(len(self.start_update_firmware) - 2):
+                        self.sigWriteRequest.emit('q', [])
+                elif len(stream) > 0:
+                    self.sigDisplayTerminal.emit('Update firmware', stream)
+                    if len(stream) > 1 and \
+                       'enter' in stream[-2] and 'to flash' in stream[-2]:
+                        self.update_stream = list(stream)
+                        unlock_code = stream[-2].split()[1]
+                        self.sigReadRequest.emit(self, 'runfirmware2',
+                                                 [unlock_code, 'STAY'],
+                                                 ['reboot'])
+            elif ident == 'runfirmware2':
+                self.sigDisplayTerminal.emit('Update firmware',
+                                             self.update_stream + stream)
+        if not ident.startswith('conf'):
+            return
+        if not success:
+            return
+        if ident == 'confcheck':
+            top_key = None
+            text = '<style type="text/css"> td { padding: 0 15px; }</style>'
+            text += '<table>'
+            for s in stream:
+                text += '<tr>'
+                cs = s.split(':')
+                if len(cs) > 1 and len(cs[1].strip()) > 0:
+                    key = cs[0].strip()
+                    value = (":".join(cs[1:])).strip()
+                    keys = f'{top_key}>{key}' if top_key else key
+                    self.sigVerifyParameter.emit(keys, value)
+                    text += f'<td></td><td>{key}</td><td><b>{value}</b></td>'
+                    if self.matches:
+                        text += '<td>&#x2705;</td>'
+                    else:
+                        text += '<td>&#x274C;</td>'
+                else:
+                    top_key = cs[0].strip()
+                    text += f'<td colspan=4><b>{top_key}</b></td>'
+                text += '</tr>'
+            text += '</table>'
+            self.sigDisplayTerminal.emit('Current configuration on the logger',
+                                         text)
+        elif ident == 'confimport':
+            top_key = None
+            for s in stream:
+                cs = s.split(':')
+                if len(cs) > 1 and len(cs[1].strip()) > 0:
+                    key = cs[0].strip()
+                    value = (":".join(cs[1:])).strip()
+                    keys = f'{top_key}>{key}' if top_key else key
+                    self.sigSetParameter.emit(keys, value)
+                else:
+                    top_key = cs[0].strip()
+        elif ident == 'confexport':
+            fname = 'logger.cfg' if self.config_file is None else self.config_file
+            file_path, _ = QFileDialog.getSaveFileName(self,
+                                                       'Save configuration file',
+                                                       fname,
+                                                       'configuration files (*.cfg)')
+            if not file_path:
+                return
+            with open(file_path, 'w') as df:
+                for s in stream:
+                    df.write(s)
+                    df.write('\n')
+        elif ident == 'confload':
+            if len(stream) == 0:
+                return
+            if 'not found' in stream[0]:
+                self.sigDisplayMessage.emit(stream[0].strip())
+                return
+            title = stream[0].strip()
+            text = '<style type="text/css"> td { padding: 0 15px; }</style>'
+            text += '<table>'
+            for s in stream[1:]:
+                cs = s.split(' to ')
+                key = cs[0].strip()[4:]
+                value = cs[1].strip()
+                self.sigSetParameter.emit(key, value) 
+                text += f'<tr><td>set</td><td>{key}</td><td>to</td><td><b>{value}</b></td>'
+                if self.matches:
+                    text += '<td>&#x2705;</td></tr>'
+                else:
+                    text += '<td>&#x274C;</td></tr>'
+            text += '</table>'
+            self.sigDisplayTerminal.emit(title, text)
+        elif ident == 'confget':
+            if len(stream) == 0:
+                return
+            if 'error' in stream[0].lower():
+                self.sigDisplayMessage.emit(stream[0].strip())
+                return
+            title = stream[0].strip()
+            text = '<style type="text/css"> td { padding: 0 15px; }</style>'
+            text += '<table>'
+            for s in stream[1:]:
+                cs = s.split(' to ')
+                key = cs[0].strip()[4:]
+                cs = cs[1].split(' from ')
+                value = cs[0].strip()
+                cs = cs[1].split()
+                addr = cs[-1]
+                self.sigSetParameter.emit(key, value) 
+                text += f'<tr><td>set</td><td>{key}</td><td>to</td><td><b>{value}</b></td><td>from address <tt>{addr}</tt></td>'
+                if self.matches:
+                    text += '<td>&#x2705;</td></tr>'
+                else:
+                    text += '<td>&#x274C;</td></tr>'
+            text += '</table>'
+            self.sigDisplayTerminal.emit(title, text)
+        elif ident == 'confput':
+            error = False
+            for s in stream:
+                if 'error' in s.lower():
+                    error = True
+                    break
+            if error:
+                self.sigDisplayMessage.emit('\n'.join(stream))
+            else:
+                self.sigDisplayTerminal.emit('EEPROM', stream)
+        elif ident == 'confclear':
+            self.sigDisplayMessage.emit('\n'.join(stream))
+        else:
+            text = ''
+            for s in stream:
+                if ident == 'confsave' and \
+                   s.strip().lower().startswith('saved'):
+                    self.sigConfigFile.emit(True)
+                elif ident == 'conferase' and \
+                   s.strip().lower().startswith('removed'):
+                    self.sigConfigFile.emit(False)
+                text += s.rstrip()
+                text += '\n'
+            if len(text) > 0:
+                self.sigDisplayMessage.emit(text)
+            self.sigUpdate.emit()
+
