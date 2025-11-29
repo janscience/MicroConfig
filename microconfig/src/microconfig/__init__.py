@@ -14,3 +14,4 @@ from .interactors import Interactor, InteractorQObject, InteractorQWidget
 from .interactors import ReportButton, InfoFrame
 from .terminal import Terminal
 from .spinbox import SpinBox
+from .configactions import ConfigActions
