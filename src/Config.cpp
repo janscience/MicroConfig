@@ -54,6 +54,14 @@ void Config::setConfigFile(const char *fname, SDClass *sd) {
 }
 
 
+void Config::execute(Stream &stream) {
+  if (disabled(StreamInput))
+    return;
+  stream.println("\n::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
+  Menu::execute(stream);
+}
+
+
 void Config::report(Stream &stream) const {
   write(stream, FileOutput | Report);
 }

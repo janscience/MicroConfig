@@ -59,6 +59,10 @@ class Config : public Menu {
 
   /* Set current mode of the interactive menu (Admin or User). */
   void setCurrentMode(Modes mode) { CurrentMode = mode; };
+  
+  /* Interactive menu via serial stream.
+     Output a line of ":" in front. */
+  virtual void execute(Stream &stream=Serial);
 
   /* Report configuration menu on stream
      (all actions with FileOutput and Report roles). */

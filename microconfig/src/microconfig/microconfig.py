@@ -142,7 +142,7 @@ class MicroConfig(QMainWindow):
         self.input = []
         self.read_count = 0
         self.read_state = 0
-        self.read_func = self.parse_logo
+        self.read_func = self.read_startup
         self.read_timer.start(2)
 
     def write(self, text):
@@ -270,27 +270,24 @@ class MicroConfig(QMainWindow):
         self.stack.setCurrentWidget(self.msg)
         self.read_func = self.parse_idle
 
-    def parse_logo(self):
+    def parse_startup(self):
         title_start = None
         title_mid = None
-        title_end = None
-        for k in range(len(self.input)):
-            if 'HALT' in self.input[k]:
-                self.parse_halt(k)
-                return
-            elif self.input[k][:20] == 20*'=':
+        title_end = -1
+        for k in range(len(self.startup_input)):
+            if self.startup_input[k][:20] == 20*'=':
                 title_start = k
             elif title_start is not None and \
-                 ' by ' in self.input[k]:
+                 ' by ' in self.startup_input[k]:
                 title_mid = k
             elif title_start is not None and \
-                 self.input[k][:20] == 20*'-':
+                 self.startup_input[k][:20] == 20*'-':
                 title_end = k
         if title_start is not None and \
-           title_end is not None:
+           title_end > 0:
             if title_mid is not None:
                 s = ''
-                for l in self.input[title_start + 1:title_mid]:
+                for l in self.startup_input[title_start + 1:title_mid]:
                     if len(l.strip()) == 0:
                         continue
                     if len(s) > 0:
@@ -298,38 +295,37 @@ class MicroConfig(QMainWindow):
                     s += l
                 self.logo.setText(s)
                 title_start = title_mid - 1
-            self.softwareinfo.set(self.input[title_start + 1:title_end])
-            self.startup_input = list(self.input[:title_end + 1])
-            self.input = self.input[title_end + 1:]
-            self.read_func = self.parse_configfile
-        elif self.read_count > 100:
-            self.read_count = 0
-            self.write('reboot')
-        else:
-            self.read_count += 1
+            self.softwareinfo.set(self.startup_input[title_start + 1:title_end])
 
-    def parse_configfile(self):
-        for k in range(len(self.input)):
-            if 'configuration file "' in self.input[k].lower():
-                config_file = self.input[k].split('"')[1].strip()
+        for s in self.startup_input[title_end + 1:]:
+            if 'configuration file "' in s.lower():
+                config_file = s.split('"')[1].strip()
                 self.config_file.setText(f'<b>{config_file}</b>')
-                self.set_configfile_state(not 'not found' in self.input[k])
+                self.set_configfile_state(not 'not found' in s.lower())
                 self.configacts.config_file = config_file
-                self.startup_input.extend(self.input[:k + 1])
-                self.input = self.input[k + 1:]
-                for k in range(len(self.input)):
-                    if len(self.input[k].strip()) == 0:
-                        self.startup_input.extend(self.input[:k])
-                        self.input = self.input[k:]
-                        break
-                self.read_func = self.configure_menu
                 break
-            elif '! error: no sd card present' in self.input[k].lower():
-                self.startup_input.extend(self.input[:k + 1])
-                self.input = self.input[k + 1:]
+            elif '! error: no sd card present' in s.lower():
                 self.set_configfile_state(False)
-                self.read_func = self.configure_menu
                 break
+        
+    def read_startup(self):
+        while len(self.input) > 0:
+            s = self.input.pop(0)
+            self.startup_input.append(s)
+            if 'HALT' in s:
+                self.parse_halt(len(self.input) - 1)
+                return
+            elif s[:20] == 20*':':
+                self.input = []
+                self.parse_startup()
+                self.read_func = self.configure_menu
+                return
+        if len(self.startup_input) < 10:
+            if self.read_count > 100:
+                self.read_count = 0
+                self.write('reboot')
+            else:
+                self.read_count += 1
 
     def configure_menu(self):
         if self.read_state == 0:
@@ -687,6 +683,10 @@ class MicroConfig(QMainWindow):
             self.read_func = self.parse_request_stack
 
     def read(self):
+        """Read from serial stream.
+
+        And call self.read_func() for processing the read in data.
+        """
         if self.ser is None:
             try:
                 self.ser = Serial(self.device)

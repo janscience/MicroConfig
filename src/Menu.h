@@ -113,7 +113,7 @@ class Menu : public Action {
      report errors on outstream. */
   virtual void read(Stream &instream=Serial, Stream &outstream=Serial);
   
-  /* Interactive menu via serial stream.. */
+  /* Interactive menu via serial stream. */
   virtual void execute(Stream &stream=Serial);
 
   /* Set the provided name-value pair and report on stream. */
