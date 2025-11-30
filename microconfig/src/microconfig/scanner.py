@@ -51,7 +51,7 @@ class Scanner(QMainWindow):
                     self.devices[d][0] = True
                 else:
                     logger = self.device_gui(dev, self)
-                    logger.activate(dev)
+                    logger.start(dev)
                     logger.show()
                     self.devices[d] = [True, logger]
                     changed = True

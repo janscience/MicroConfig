@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
 from PyQt5.QtWidgets import QWidget, QLabel, QRadioButton
 
 from .interactors import InfoFrame
+from .parameter import Parameter
 
 
 class ConfigEditor(InfoFrame):
@@ -76,8 +77,13 @@ class ConfigEditor(InfoFrame):
                         self.configuration.addItem(QSpacerItem(10, 0), row, 0)
                         param_label = QLabel(sk + ': ', self)
                         self.configuration.addWidget(param_label, row, 1)
-                        param = action[2][sk][2]
+                        pargs = action[2][sk][2]
+                        param = Parameter(*pargs[:3])
+                        param.initialize(pargs[3])
+                        param.set_selection(pargs[4])
+                        param.sigTransmitRequest.connect(self.sigTransmitRequest)
                         param.setup(self, param_label, title)
+                        action[2][sk][2] = param
                         self.configuration.addWidget(param.edit_widget, row, 2)
                         self.configuration.addWidget(param.state_widget,
                                                  row, 3)

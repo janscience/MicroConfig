@@ -17,5 +17,6 @@ from .spinbox import SpinBox
 from .configactions import ConfigActions
 from .configeditor import ConfigEditor
 from .parameter import Parameter
-from .scanner import Scanner
+from .communicator import Communicator
 from .microconfig import MicroConfig
+from .scanner import Scanner
