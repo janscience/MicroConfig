@@ -17,3 +17,4 @@ from .spinbox import SpinBox
 from .configactions import ConfigActions
 from .parameter import Parameter
 from .scanner import Scanner
+from .microconfig import MicroConfig
