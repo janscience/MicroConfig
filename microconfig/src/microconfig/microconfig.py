@@ -1,6 +1,7 @@
+import sys
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QMainWindow, QMessageBox
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QStackedWidget
 from PyQt5.QtWidgets import QWidget, QLabel
 
@@ -9,6 +10,8 @@ from .configactions import ConfigActions
 from .configeditor import ConfigEditor
 from .terminal import Terminal
 from .communicator import Communicator
+from .scanner import Scanner
+from .discover import discover_teensy
 
 
 class SoftwareInfo(QLabel):
@@ -47,7 +50,7 @@ class MicroConfig(Communicator, QMainWindow):
         Communicator.__init__(self, device)
         QMainWindow.__init__(self, *args, **kwargs)
 
-        self.title = title
+        self.title = title if title is not None else 'MicroConfig'
         self.setWindowTitle(f'{self.title} {__version__}: {device.device}')
 
         self.logo = QLabel(self)
@@ -231,3 +234,15 @@ class MicroConfig(Communicator, QMainWindow):
         super().setup()
         self.configacts.setup(self.menu)
         self.configeditor.setup(self.menu)
+        self.stack.setCurrentWidget(self.boxw)
+
+        
+def main():
+    app = QApplication(sys.argv)
+    main = Scanner([discover_teensy], MicroConfig)
+    main.show()
+    app.exec_()
+
+    
+if __name__ == '__main__':
+    main()

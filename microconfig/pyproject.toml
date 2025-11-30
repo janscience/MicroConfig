@@ -41,6 +41,7 @@ Documentation = "https://github.com/janscience/MicroConfig/microconfig"
 
 [project.scripts]
 serialmonitor = "microconfig.serialmonitor:main"
+microconfig   = "microconfig.microconfig:main"
 
 [tool.setuptools.dynamic]
 version = {attr = "microconfig.version.__version__"}
