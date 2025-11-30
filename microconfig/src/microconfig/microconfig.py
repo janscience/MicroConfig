@@ -4,13 +4,12 @@ from serial.serialutil import SerialException
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
-from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QGridLayout
-from PyQt5.QtWidgets import QSpacerItem, QSizePolicy
-from PyQt5.QtWidgets import QStackedWidget, QLabel
-from PyQt5.QtWidgets import QWidget, QFrame, QRadioButton
+from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QStackedWidget
+from PyQt5.QtWidgets import QWidget, QLabel
 
 from .version import __version__
 from .configactions import ConfigActions
+from .configeditor import ConfigEditor
 from .parameter import Parameter
 from .terminal import Terminal
 
@@ -64,16 +63,8 @@ class MicroConfig(QMainWindow):
         
         self.msg = QLabel(self)
         
-        self.conf = QFrame(self)
-        self.conf.setFrameStyle(QFrame.Panel | QFrame.Sunken)
-        self.configuration = QGridLayout(self.conf)
-        self.config_parames = []
-        self.config_file = QLabel()
-        self.config_status = QLabel()
-        self.config_status.setTextFormat(Qt.RichText)
-        self.config_status.setToolTip('Indicates presence of configuration file')
-        self.user_button = None
-        self.admin_button = None
+        self.configeditor = ConfigEditor(self)
+        
         self.configacts = ConfigActions(self)
         self.configacts.sigReadRequest.connect(self.read_request)
         self.configacts.sigWriteRequest.connect(self.write_request)
@@ -81,13 +72,14 @@ class MicroConfig(QMainWindow):
         self.configacts.sigDisplayMessage.connect(self.display_message)
         self.configacts.sigVerifyParameter.connect(self.verify_parameter)
         self.configacts.sigSetParameter.connect(self.set_parameter)
-        self.configacts.sigConfigFile.connect(self.set_configfile_state)
+        self.configacts.sigConfigFile.connect(self.configeditor.set_configfile_state)
         self.configacts.sigShowStartup.connect(self.show_startup)
+        self.configeditor.sigSetMode.connect(self.configacts.set_mode)        
                 
         self.boxw = QWidget(self)
         self.box = QHBoxLayout(self.boxw)
         self.box.addWidget(self.configacts)
-        self.box.addWidget(self.conf)
+        self.box.addWidget(self.configeditor)
         
         self.term = Terminal(self)
         self.term.done.clicked.connect(lambda x: self.stack.setCurrentWidget(self.boxw))
@@ -185,27 +177,6 @@ class MicroConfig(QMainWindow):
 
     def show_startup(self):
         self.display_terminal('Startup messages', self.startup_input)
-
-    def set_mode(self, checked):
-        mode = 'A' if self.admin_button.isChecked() else 'U'
-        self.configacts.set_mode(mode)        
-        title_widget = None
-        set_focus = True
-        n = 0
-        for p in self.config_params:
-            if title_widget != p.title_widget:
-                if title_widget is not None:
-                    title_widget.setVisible(n > 0);
-                title_widget = p.title_widget
-                n = 0
-            v = p.set_mode(mode)
-            if set_focus and v:
-                p.edit_widget.setFocus(Qt.MouseFocusReason)
-                set_focus = False                
-            if v:
-                n += 1
-        if title_widget is not None:
-            title_widget.setVisible(n > 0);
         
     def find_parameter(self, keys, menu):
         found = False
@@ -252,12 +223,6 @@ class MicroConfig(QMainWindow):
             p.set_value(value)
             self.configacts.matches = p.matches
 
-    def set_configfile_state(self, present):
-        if present:
-            self.config_status.setText('&#x2705;')
-        else:
-            self.config_status.setText('&#x274C;')
-
     def parse_idle(self):
         pass
         
@@ -300,12 +265,12 @@ class MicroConfig(QMainWindow):
         for s in self.startup_input[title_end + 1:]:
             if 'configuration file "' in s.lower():
                 config_file = s.split('"')[1].strip()
-                self.config_file.setText(f'<b>{config_file}</b>')
-                self.set_configfile_state(not 'not found' in s.lower())
+                self.configeditor.set_configfile(config_file,
+                                                 not 'not found' in s.lower())
                 self.configacts.config_file = config_file
                 break
             elif '! error: no sd card present' in s.lower():
-                self.set_configfile_state(False)
+                self.configeditor.set_configfile_state(False)
                 break
         
     def read_startup(self):
@@ -405,7 +370,7 @@ class MicroConfig(QMainWindow):
                 self.menu_ids.pop()
                 if len(self.menu_iter) == 0:
                     self.write('gui on')
-                    self.init_menu()
+                    self.setup()
                     self.clear_input()
                     self.read_func = self.parse_request_stack
                 else:
@@ -455,77 +420,11 @@ class MicroConfig(QMainWindow):
             self.write('keepthevalue')
             self.read_state = 0
             
-
-    def init_menu(self):
+    def setup(self):
         if 'Help' in self.menu:
             self.menu.pop('Help')
         self.configacts.setup(self.menu)
-        self.config_params = []
-        missing_tools = False
-        first_param = True
-        row = 0
-        title = None
-        for mk in self.menu:
-            menu = self.menu[mk]
-            add_title = True
-            if menu[1] == 'menu':
-                for sk in menu[2]:
-                    if menu[2][sk][1] == 'param':
-                        if add_title:
-                            title = QLabel('<b>' + mk + '</b>', self)
-                            title.setSizePolicy(QSizePolicy.Policy.Preferred,
-                                                QSizePolicy.Policy.Fixed)
-                            self.configuration.addWidget(title, row, 0, 1, 4)
-                            row += 1
-                            add_title = False
-                        self.configuration.addItem(QSpacerItem(10, 0), row, 0)
-                        param_label = QLabel(sk + ': ', self)
-                        self.configuration.addWidget(param_label, row, 1)
-                        param = menu[2][sk][2]
-                        param.setup(self, param_label, title)
-                        self.configuration.addWidget(param.edit_widget, row, 2)
-                        self.configuration.addWidget(param.state_widget,
-                                                 row, 3)
-                        if first_param:
-                            param.edit_widget.setFocus(Qt.MouseFocusReason)
-                            first_param = False
-                        row += 1
-                        self.config_params.append(param)
-                    elif menu[2][sk][1] == 'action':
-                        if not missing_tools:
-                            print('WARNING! the following tool actions are not supported:')
-                            missing_tools = True
-                        if add_title:
-                            print(f'{mk}:')
-                            add_title = False
-                        print(f'  {sk}')
-        self.configuration.addItem(QSpacerItem(0, 0,
-                                               QSizePolicy.Policy.Minimum,
-                                               QSizePolicy.Policy.Expanding),
-                                   row, 0)
-        row += 1
-        self.configuration.addWidget(QLabel('Configuration file'), row, 0, 1, 2)
-        self.configuration.addWidget(self.config_file, row, 2)
-        self.configuration.addWidget(self.config_status, row, 3)
-        row += 1
-        fm = self.fontMetrics()
-        self.configuration.addItem(QSpacerItem(0, 2*fm.averageCharWidth(),
-                                               QSizePolicy.Policy.Minimum,
-                                               QSizePolicy.Policy.Minimum),
-                                   row, 0)
-        row += 1
-        self.configuration.addWidget(QLabel('Mode'), row, 0, 1, 2)
-        boxw = QWidget(self)
-        box = QHBoxLayout(boxw)
-        self.user_button = QRadioButton('&User', self)
-        self.admin_button = QRadioButton('&Admin', self)
-        self.user_button.toggled.connect(self.set_mode)
-        self.user_button.setChecked(True)
-        self.admin_button.toggled.connect(self.set_mode)
-        box.addWidget(self.user_button)
-        box.addWidget(self.admin_button)
-        self.configuration.addWidget(boxw, row, 2)
-        row += 1
+        self.configeditor.setup(self.menu)
             
     def parse_request_stack(self):
         if len(self.request_stack) == 0:

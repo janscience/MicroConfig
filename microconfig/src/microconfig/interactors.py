@@ -12,7 +12,8 @@ from PyQt5.QtWidgets import QWidget, QFrame, QPushButton
 class Interactor(ABC):
     """Abstract base class for interacting with a microconfig menu entry.
 
-    A derived class needs to implement the setup() and read() functions.
+    A derived class needs to implement the setup() function and in most
+    cases also the read() function.
     In setup() the menu entry this class acts on should be selected
     using `retrieve()`.
 
@@ -121,7 +122,6 @@ class Interactor(ABC):
             print(key, 'not found')
         return []
 
-    @abstractmethod
     def read(self, ident, stream, success):
         """Read stream from microcontroller.
         

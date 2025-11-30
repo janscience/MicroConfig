@@ -15,6 +15,7 @@ from .interactors import ReportButton, InfoFrame
 from .terminal import Terminal
 from .spinbox import SpinBox
 from .configactions import ConfigActions
+from .configeditor import ConfigEditor
 from .parameter import Parameter
 from .scanner import Scanner
 from .microconfig import MicroConfig

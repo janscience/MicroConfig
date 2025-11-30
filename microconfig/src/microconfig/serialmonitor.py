@@ -60,7 +60,7 @@ class KeyboardInput(threading.Thread):
                 try:
                     self.serial.write(x.encode('latin1'))
                     self.serial.write(b'\n')
-                    self.serial.flush();
+                    self.serial.flush()
                 except (OSError, SerialException):
                     self.serial = None
 
