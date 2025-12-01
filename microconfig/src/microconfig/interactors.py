@@ -154,31 +154,31 @@ class InteractorQWidget(type(Interactor), type(QWidget)):
     pass
 
         
-class InteractorQFrame(type(Interactor), type(QFrame)):
+class _InteractorQFrame(type(Interactor), type(QFrame)):
     # this class is needed for multiple inheritance of ABC ...
     pass
 
         
-class InteractorQPushButton(type(Interactor), type(QPushButton)):
+class _InteractorQPushButton(type(Interactor), type(QPushButton)):
     # this class is needed for multiple inheritance of ABC ...
     pass
 
 
-class InfoFrame(Interactor, QFrame, metaclass=InteractorQFrame):
+class InfoFrame(Interactor, QFrame, metaclass=_InteractorQFrame):
     """ An interactor producing a frame with lots of infos.
     """
     
     def __init__(self, *args, **kwargs):
-        super(QFrame, self).__init__(*args, **kwargs)
+        QFrame.__init__(self, *args, **kwargs)
         self.setFrameStyle(QFrame.Panel | QFrame.Sunken)
 
                 
-class ReportButton(Interactor, QPushButton, metaclass=InteractorQPushButton):
-    """ A small button that activates an entry of a microconf menu.
+class ActionButton(Interactor, QPushButton, metaclass=_InteractorQPushButton):
+    """ A normal button that activates an entry of a microconf menu.
     """
     
     def __init__(self, key, text, *args, **kwargs):
-        """ Initialize the ReportButton.
+        """ Initialize the ActionButton.
 
         Parameters
         ----------
@@ -187,7 +187,7 @@ class ReportButton(Interactor, QPushButton, metaclass=InteractorQPushButton):
         text: str
             A text displayed on the button.
         """
-        super(QPushButton, self).__init__(*args, **kwargs)
+        QPushButton.__init__(self, *args, **kwargs)
         self.setText(text)
         self.clicked.connect(self.run)
         self.key = key
@@ -201,10 +201,7 @@ class ReportButton(Interactor, QPushButton, metaclass=InteractorQPushButton):
         text: str
             Text to be displayed on the button.
         """
-        super().setText(text)
-        bbox = self.fontMetrics().boundingRect(text)
-        self.setMaximumWidth(bbox.width() + 10)
-        self.setMaximumHeight(bbox.height() + 2)
+        QPushButton.setText(self, text)
 
     def set_button_color(self, color):
         """ Se the background color of the button.
@@ -223,11 +220,43 @@ class ReportButton(Interactor, QPushButton, metaclass=InteractorQPushButton):
     def setup(self, menu):
         """ Retrieve the buttons key from the menu.
         """
-        self.start = self.retrieve(self.key, menu)
-        if len(self.start) == 0:
-            self.setVisible(False)
+        if self.key:
+            self.start = self.retrieve(self.key, menu)
+            if len(self.start) == 0:
+                self.setVisible(False)
 
     def run(self):
         """ Activate the menu entry.
         """
         self.sigReadRequest.emit(self, 'run', self.start, ['select'])
+
+
+                
+class ReportButton(ActionButton):
+    """ A small button that activates an entry of a microconf menu.
+    """
+    
+    def __init__(self, key, text, *args, **kwargs):
+        """ Initialize the ReportButton.
+
+        Parameters
+        ----------
+        key: str
+            The key of the menu entry this button should activate.
+        text: str
+            A text displayed on the button.
+        """
+        super().__init__(key, text, *args, **kwargs)
+
+    def setText(self, text):
+        """ Se the text of the button.
+
+        Parameters
+        ----------
+        text: str
+            Text to be displayed on the button.
+        """
+        super().setText(text)
+        bbox = self.fontMetrics().boundingRect(text)
+        self.setMaximumWidth(bbox.width() + 10)
+        self.setMaximumHeight(bbox.height() + 2)

@@ -166,22 +166,26 @@ class MicroConfig(Communicator, QMainWindow):
         return None
 
     def verify_parameter(self, key, value):
+        # TODO? move this function to ConfigActions
+        # this would also require to move self.menu and self.find_parameter there
         keys = [k.strip() for k in key.split('>') if len(k.strip()) > 0]
         p = self.find_parameter(keys, self.menu)
         if p is None:
             print('WARNING in verify():', key, 'not found')
         else:
             p.verify(value)
-            self.configacts.matches = p.matches
+            self.configacts.set_match(p.matches)
 
     def set_parameter(self, key, value):
+        # TODO? move this function to ConfigActions
+        # this would also require to move self.menu and self.find_parameter there
         keys = [k.strip() for k in key.split('>') if len(k.strip()) > 0]
         p = self.find_parameter(keys, self.menu)
         if p is None:
             print('WARNING in verify():', key, 'not found')
         else:
             p.set_value(value)
-            self.configacts.matches = p.matches
+            self.configacts.set_match(p.matches)
         
     def parse_halt(self, k):
         super().parse_halt(k)
@@ -224,7 +228,7 @@ class MicroConfig(Communicator, QMainWindow):
                 config_file = s.split('"')[1].strip()
                 self.configeditor.set_configfile(config_file,
                                                  not 'not found' in s.lower())
-                self.configacts.config_file = config_file
+                self.configacts.set_config_file(config_file)
                 break
             elif '! error: no sd card present' in s.lower():
                 self.configeditor.set_configfile_state(False)

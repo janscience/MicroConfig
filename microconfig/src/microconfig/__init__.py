@@ -11,7 +11,7 @@ __all__ = ['discover', 'units']
 from .discover import Discover, discover_teensy
 from .units import parse_number, change_unit
 from .interactors import Interactor, InteractorQObject, InteractorQWidget
-from .interactors import ReportButton, InfoFrame
+from .interactors import InfoFrame, ActionButton, ReportButton
 from .terminal import Terminal
 from .spinbox import SpinBox
 from .configactions import ConfigActions
