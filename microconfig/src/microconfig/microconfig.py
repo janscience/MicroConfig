@@ -239,7 +239,7 @@ class MicroConfig(Communicator, QMainWindow):
         
 def main():
     app = QApplication(sys.argv)
-    main = Scanner([discover_teensy], MicroConfig)
+    main = Scanner('device', [discover_teensy], MicroConfig)
     main.show()
     app.exec_()
 

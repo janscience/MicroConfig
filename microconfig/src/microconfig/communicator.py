@@ -6,7 +6,7 @@ class Communicator:
     
     def __init__(self, device):
         self.device = device.device
-        self.ser = None
+        self.serial = None
         self.read_count = 0
         self.read_state = 0
         self.startup_input = []
@@ -56,11 +56,11 @@ class Communicator:
         read() periodically every few milliseconds.
         """
         try:
-            self.ser = Serial(self.device)
-            self.ser.reset_input_buffer()
-            self.ser.reset_output_buffer()
+            self.serial = Serial(self.device)
+            self.serial.reset_input_buffer()
+            self.serial.reset_output_buffer()
         except (OSError, SerialException):
-            self.ser = None
+            self.serial = None
         self.input = []
         self.read_count = 0
         self.read_state = 0
@@ -69,16 +69,16 @@ class Communicator:
     def stop(self):
         """ Reimplement and call this.
         """
-        if self.ser is not None:
-            self.ser.close()
-        self.ser = None
+        if self.serial is not None:
+            self.serial.close()
+        self.serial = None
 
     def write(self, text):
-        if self.ser is not None:
+        if self.serial is not None:
             try:
-                self.ser.write(text.encode('latin1'))
-                self.ser.write(b'\n')
-                self.ser.flush()
+                self.serial.write(text.encode('latin1'))
+                self.serial.write(b'\n')
+                self.serial.flush()
             except (OSError, SerialException):
                 self.stop()
 
@@ -391,19 +391,19 @@ class Communicator:
 
         And call self.read_func() for processing the read in data.
         """
-        if self.ser is None:
+        if self.serial is None:
             try:
-                self.ser = Serial(self.device)
-                self.ser.reset_input_buffer()
-                self.ser.reset_output_buffer()
+                self.serial = Serial(self.device)
+                self.serial.reset_input_buffer()
+                self.serial.reset_output_buffer()
             except (OSError, SerialException):
-                self.ser = None
+                self.serial = None
                 self.stop()
                 return
         try:
-            if self.ser.in_waiting > 0:
+            if self.serial.in_waiting > 0:
                 # read in incoming data:
-                x = self.ser.read(self.ser.in_waiting)
+                x = self.serial.read(self.serial.in_waiting)
                 lines = x.decode('utf8').split('\n')
                 if len(self.input) == 0:
                     self.input = ['']
@@ -417,9 +417,9 @@ class Communicator:
             self.stop()
             
     def clear_input(self):
-        if self.ser is not None:
+        if self.serial is not None:
             try:
-                self.ser.reset_input_buffer()
+                self.serial.reset_input_buffer()
             except (OSError, SerialException):
                 self.stop()
         self.input = []

@@ -30,14 +30,14 @@ class SerialDevice:
         Serial port the device is connected to.
     model: str
         Name of the device.
-    serial: int
+    serial_number: int
         Serial number of the device.
     """
     
-    def __init__(self, device, model, serial):
+    def __init__(self, device, model, serial_number):
         self.device = device
         self.model = model
-        self.serial = serial
+        self.serial_number = serial_number
 
         
 class Discover:
@@ -153,7 +153,7 @@ class Discover:
         """ Print discovered devices on console.
         """
         for dev in self:
-            print(f'{dev.model} with serial number {dev.serial} on {dev.device}')
+            print(f'{dev.model} with serial number {dev.serial_number} on {dev.device}')
 
 
 def discover_teensy(port):
