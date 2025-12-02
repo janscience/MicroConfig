@@ -22,12 +22,10 @@ class Put(ActionButton):
 
     def __init__(self, *args, **kwargs):
         super().__init__('configuration>put configuration to eeprom',
-                         '&Put', *args, **kwargs)
+                         '&Put', 'confput', *args, **kwargs)
         self.setToolTip('Put configuration to EEPROM memory (Alt+P)')
 
     def read(self, ident, stream, success):
-        if not success:
-            return
         for s in stream:
             if 'error' in s.lower():
                 self.sigDisplayMessage.emit('\n'.join(stream))
@@ -42,12 +40,12 @@ class Get(ActionButton):
 
     def __init__(self, *args, **kwargs):
         super().__init__('configuration>get configuration from eeprom',
-                         '&Get', *args, **kwargs)
+                         '&Get', 'confget', *args, **kwargs)
         self.setToolTip('Get configuration from EEPROM memory (Alt+G)')
         self.matches = False
 
     def read(self, ident, stream, success):
-        if not success or len(stream) == 0:
+        if len(stream) == 0:
             return
         if 'error' in stream[0].lower():
             self.sigDisplayMessage.emit(stream[0].strip())
@@ -75,12 +73,11 @@ class Get(ActionButton):
 class Clear(ActionButton):
 
     def __init__(self, *args, **kwargs):
-        super().__init__('clear eeprom memory', 'Clear', *args, **kwargs)
+        super().__init__('clear eeprom memory', 'Clear', 'confclear',
+                         *args, **kwargs)
         self.setToolTip('Clear the full EEPROM memory')
 
     def read(self, ident, stream, success):
-        if not success:
-            return
         self.sigDisplayMessage.emit('\n'.join(stream))
         
 
@@ -89,12 +86,11 @@ class Save(ActionButton):
     sigConfigFile = Signal(bool)
 
     def __init__(self, *args, **kwargs):
-        super().__init__('configuration>save', '&Save', *args, **kwargs)
+        super().__init__('configuration>save', '&Save', 'confsave',
+                         *args, **kwargs)
         self.setToolTip('Save the configuration to file on SD card (Alt+S)')
 
     def read(self, ident, stream, success):
-        if not success:
-            return
         text = ''
         for s in stream:
             if s.strip().lower().startswith('saved'):
@@ -111,7 +107,8 @@ class Load(ActionButton):
     sigSetParameter = Signal(str, str)
 
     def __init__(self, *args, **kwargs):
-        super().__init__('configuration>load', '&Load', *args, **kwargs)
+        super().__init__('configuration>load', '&Load', 'confload',
+                         *args, **kwargs)
         self.setToolTip('Load the configuration from file on SD card (Alt+L)')
         self.matches = False
 
@@ -119,7 +116,7 @@ class Load(ActionButton):
         # TODO: this should have been done by parse_read_request:
         while len(stream) > 0 and len(stream[0].strip()) == 0:
             del stream[0]
-        if not success or len(stream) == 0:
+        if len(stream) == 0:
             return
         if 'not found' in stream[0]:
             self.sigDisplayMessage.emit(stream[0].strip())
@@ -128,7 +125,6 @@ class Load(ActionButton):
         text = '<style type="text/css"> td { padding: 0 15px; }</style>'
         text += '<table>'
         for s in stream[1:]:
-            print(s)
             cs = s.split(' to ')
             key = cs[0].strip()[4:]
             value = cs[1].strip()
@@ -147,12 +143,11 @@ class Erase(ActionButton):
     sigConfigFile = Signal(bool)
 
     def __init__(self, *args, **kwargs):
-        super().__init__('configuration>erase', '&Erase', *args, **kwargs)
+        super().__init__('configuration>erase', '&Erase', 'conferase',
+                         *args, **kwargs)
         self.setToolTip('Erase configuration file on SD card (Alt+E)')
 
     def read(self, ident, stream, success):
-        if not success:
-            return
         text = ''
         for s in stream:
             if s.strip().lower().startswith('removed'):
@@ -168,14 +163,14 @@ class Check(ActionButton):
     
     sigVerifyParameter = Signal(str, str)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__('configuration>print', '&Check', *args, **kwargs)
-        self.setToolTip('Check configuration on the logger and whether it matches the values show in the GUI (Alt+C)')
+    def __init__(self, name, *args, **kwargs):
+        super().__init__('configuration>print', '&Check', 'confcheck',
+                         *args, **kwargs)
+        self.name = name
+        self.setToolTip(f'Check configuration on the {self.name} and whether it matches the values show in the GUI (Alt+C)')
         self.matches = False
 
     def read(self, ident, stream, success):
-        if not success:
-            return
         top_key = None
         text = '<style type="text/css"> td { padding: 0 15px; }</style>'
         text += '<table>'
@@ -197,7 +192,7 @@ class Check(ActionButton):
                 text += f'<td colspan=4><b>{top_key}</b></td>'
             text += '</tr>'
         text += '</table>'
-        self.sigDisplayTerminal.emit('Current configuration on the logger',
+        self.sigDisplayTerminal.emit(f'Current configuration on the {self.name}',
                                      text)
 
             
@@ -205,18 +200,17 @@ class Import(ActionButton):
     
     sigSetParameter = Signal(str, str)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):
         super().__init__('configuration>read configuration from stream',
-                         '&Import', *args, **kwargs)
+                         '&Import', 'confimport', *args, **kwargs)
         self.setToolTip('Import configuration from host (Alt+I)')
-        self.config_file = None
+        self.config_file = f'{name}.cfg'
         self.start_print = None
 
     def run(self):
-        fname = 'logger.cfg' if self.config_file is None else self.config_file
         file_path, _ = QFileDialog.getOpenFileName(self,
                                                    'Load configuration file',
-                                                   fname,
+                                                   self.config_file,
                                                    'configuration files (*.cfg)')
         if not file_path:
             return
@@ -228,8 +222,6 @@ class Import(ActionButton):
                                  ['select'])
 
     def read(self, ident, stream, success):
-        if not success:
-            return
         top_key = None
         for s in stream:
             cs = s.split(':')
@@ -244,18 +236,15 @@ class Import(ActionButton):
                 
 class Export(ActionButton):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(None, 'E&xport', *args, **kwargs)
+    def __init__(self, name, *args, **kwargs):
+        super().__init__(None, 'E&xport', 'confexport', *args, **kwargs)
         self.setToolTip('Export configuration file to host (Alt+X)')
-        self.config_file = None
+        self.config_file = f'{name}.cfg'
 
     def read(self, ident, stream, success):
-        if not success:
-            return
-        fname = 'logger.cfg' if self.config_file is None else self.config_file
         file_path, _ = QFileDialog.getSaveFileName(self,
                                                    'Save configuration file',
-                                                   fname,
+                                                   self.config_file,
                                                    'configuration files (*.cfg)')
         if not file_path:
             return
@@ -264,8 +253,39 @@ class Export(ActionButton):
                 df.write(s)
                 df.write('\n')
 
+                
+class Reboot(ActionButton):
 
+    def __init__(self, name, *args, **kwargs):
+        super().__init__(None, 'Re&boot', None, *args, **kwargs)
+        self.name = name
+        self.setToolTip(f'Reboot {self.name} (Alt+B)')
 
+    def run(self):
+        self.sigReadRequest.emit(self, 'reboot', ['reboot'], [''])
+
+    def read(self, ident, stream, success):
+        pass
+
+                
+class Run(ActionButton):
+
+    def __init__(self, name, *args, **kwargs):
+        super().__init__(None, '&Run', None, *args, **kwargs)
+        self.name = name
+        self.setToolTip(f'Run {self.name} (Alt+R)')
+        self.stream_len = 0
+
+    def run(self):
+        self.sigReadRequest.emit(self, 'run', ['q'], ['halt'])
+        self.stream_len = 0
+
+    def read(self, ident, stream, success):
+        if len(stream) != self.stream_len:
+            self.sigDisplayTerminal.emit(f'Run {self.name}', stream)
+            self.stream_len = len(stream)
+
+        
 class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
     """Buttons for managing the configuration of a microcontroller.
     """
@@ -275,8 +295,9 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
     sigConfigFile = Signal(bool)
     sigShowStartup = Signal()
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):
         super(QWidget, self).__init__(*args, **kwargs)
+
         self.put_button = Put(self)
         self.put_button.sigReadRequest.connect(self.sigReadRequest)
         self.put_button.sigDisplayMessage.connect(self.sigDisplayMessage)
@@ -310,32 +331,34 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.erase_button.sigConfigFile.connect(self.sigConfigFile)
         self.erase_button.sigUpdate.connect(self.sigUpdate)
         
-        self.check_button = Check(self)
+        self.check_button = Check(name, self)
         self.check_button.sigReadRequest.connect(self.sigReadRequest)
         self.check_button.sigDisplayTerminal.connect(self.sigDisplayTerminal)
         self.check_button.sigVerifyParameter.connect(self.sigVerifyParameter)
         
-        self.import_button = Import(self)
+        self.import_button = Import(name, self)
         self.import_button.sigReadRequest.connect(self.sigReadRequest)
         self.import_button.sigWriteRequest.connect(self.sigWriteRequest)
         self.import_button.sigSetParameter.connect(self.sigSetParameter)
         
-        self.export_button = Export(self)
+        self.export_button = Export(name, self)
         self.export_button.sigReadRequest.connect(self.sigReadRequest)
+        
+        self.startup_button = QPushButton('Star&tup', self)
+        self.startup_button.setToolTip('Show startup messages (Alt+T)')
+        self.startup_button.clicked.connect(self.sigShowStartup)
+        
+        self.reboot_button = Reboot(name, self)
+        self.reboot_button.sigReadRequest.connect(self.sigReadRequest)
+        
+        self.run_button = Run(name, self)
+        self.run_button.sigReadRequest.connect(self.sigReadRequest)
+        self.run_button.sigDisplayTerminal.connect(self.sigDisplayTerminal)
         
         self.firmware_button = QPushButton('&Firmware', self)
         self.firmware_button.setToolTip('Upload new firmware (Alt+F)')
         self.show_firmware = True
-        self.reboot_button = QPushButton('Re&boot', self)
-        self.reboot_button.setToolTip('Reboot logger (Alt+B)')
-        self.startup_button = QPushButton('Startup', self)
-        self.startup_button.setToolTip('Show startup messages')
-        self.run_button = QPushButton('&Run', self)
-        self.run_button.setToolTip('Run logger (Alt+R)')
         self.firmware_button.clicked.connect(self.firmware)
-        self.startup_button.clicked.connect(self.sigShowStartup)
-        self.reboot_button.clicked.connect(self.reboot)
-        self.run_button.clicked.connect(self.run)
         
         box = QVBoxLayout(self)
         box.setContentsMargins(0, 0, 0, 0)
@@ -367,7 +390,6 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.start_list_firmware = []
         self.start_update_firmware = []
         self.update_stream = []
-        self.stream_len = 0
     
     def setup(self, menu):
         self.get_button.setup(menu)
@@ -381,6 +403,7 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.export_button.setup(menu)
         self.import_button.start_print = self.check_button.start
         self.export_button.start = self.check_button.start
+        
         self.start_list_firmware = self.retrieve('firmware>list', menu)
         self.start_update_firmware = self.retrieve('firmware>update', menu)
         if len(self.start_list_firmware) == 0:
@@ -413,22 +436,12 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.firmware_button.setVisible('A' in mode and self.show_firmware)
         self.startup_button.setVisible('A' in mode)
 
-    def reboot(self):
-        self.sigReadRequest.emit(self, 'reboot', ['reboot'], [''])
-
     def firmware(self):
         self.sigReadRequest.emit(self, 'updatefirmware',
                                  self.start_update_firmware, ['select'])
 
-    def run(self):
-        self.sigReadRequest.emit(self, 'run', ['q'], ['halt'])
-
     def read(self, ident, stream, success):
-        if ident == 'run':
-            if len(stream) != self.stream_len:
-                self.sigDisplayTerminal.emit('Run logger', stream)
-                self.stream_len = len(stream)
-        elif 'firmware' in ident:
+        if 'firmware' in ident:
             if ident == 'firmwarecheck':
                 if len(stream) > 1 and 'no firmware files' in stream[1].lower():
                     self.show_firmware = False

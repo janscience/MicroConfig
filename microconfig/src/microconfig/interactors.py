@@ -177,21 +177,29 @@ class ActionButton(Interactor, QPushButton, metaclass=_InteractorQPushButton):
     """ A normal button that activates an entry of a microconf menu.
     """
     
-    def __init__(self, key, text, *args, **kwargs):
-        """ Initialize the ActionButton.
+    def __init__(self, key, text, ident, *args, **kwargs):
+        """Initialize the ActionButton.
 
         Parameters
         ----------
-        key: str
+        key: str or None
             The key of the menu entry this button should activate.
+            If None do not retrieve a menu entry.
+            You then need to reimplement the run() function
+            to execute whatever you want when the button is clicked.
         text: str
             A text displayed on the button.
+        ident: str or None
+            The identifier str that is passed on to read.
+            If None, it is set to 'run', i.e. read() is called even if
+            the output of the microcontrolled has not completed yet.
         """
         QPushButton.__init__(self, *args, **kwargs)
         self.setText(text)
         self.clicked.connect(self.run)
         self.key = key
         self.start = []
+        self.ident = ident if ident is not None else 'run'
 
     def setText(self, text):
         """ Se the text of the button.
@@ -228,7 +236,7 @@ class ActionButton(Interactor, QPushButton, metaclass=_InteractorQPushButton):
     def run(self):
         """ Activate the menu entry.
         """
-        self.sigReadRequest.emit(self, 'run', self.start, ['select'])
+        self.sigReadRequest.emit(self, self.ident, self.start, ['select'])
 
 
                 
@@ -236,17 +244,24 @@ class ReportButton(ActionButton):
     """ A small button that activates an entry of a microconf menu.
     """
     
-    def __init__(self, key, text, *args, **kwargs):
+    def __init__(self, key, text, ident, *args, **kwargs):
         """ Initialize the ReportButton.
 
         Parameters
         ----------
-        key: str
+        key: str or None
             The key of the menu entry this button should activate.
+            If None do not retrieve a menu entry.
+            You then need to reimplement the run() function
+            to execute whatever you want when the button is clicked.
         text: str
             A text displayed on the button.
+        ident: str or None
+            The identifier str that is passed on to read.
+            If None, it is set to 'run', i.e. read() is called even if
+            the output of the microcontrolled has not completed yet.
         """
-        super().__init__(key, text, *args, **kwargs)
+        super().__init__(key, text, ident, *args, **kwargs)
 
     def setText(self, text):
         """ Se the text of the button.

@@ -46,12 +46,13 @@ class SoftwareInfo(QLabel):
         
 class MicroConfig(Communicator, QMainWindow):
     
-    def __init__(self, title, device, *args, **kwargs):
+    def __init__(self, title, name, device, *args, **kwargs):
         Communicator.__init__(self, device)
         QMainWindow.__init__(self, *args, **kwargs)
 
         self.title = title if title is not None else 'MicroConfig'
         self.setWindowTitle(f'{self.title} {__version__}: {device.device}')
+        self.name = name
 
         self.logo = QLabel(self)
         self.logo.setFont(QFont('monospace'))
@@ -64,7 +65,7 @@ class MicroConfig(Communicator, QMainWindow):
         
         self.msg = QLabel(self)
                 
-        self.configacts = ConfigActions(self)
+        self.configacts = ConfigActions(self.name, self)
         self.configacts.sigReadRequest.connect(self.read_request)
         self.configacts.sigWriteRequest.connect(self.write_request)
         self.configacts.sigDisplayTerminal.connect(self.display_terminal)

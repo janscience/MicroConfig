@@ -53,7 +53,7 @@ class Scanner(QMainWindow):
                 if d in self.devices:
                     self.devices[d][0] = True
                 else:
-                    configgui = self.device_gui(None, dev, self)
+                    configgui = self.device_gui(None, self.name, dev, self)
                     configgui.start(dev)
                     configgui.show()
                     self.devices[d] = [True, configgui]
