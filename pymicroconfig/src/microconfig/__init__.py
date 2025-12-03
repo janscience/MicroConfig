@@ -5,7 +5,9 @@ Interacting with a micro controller via a
     
 from .version import __version__
     
-__all__ = ['discover', 'units']
+__all__ = ['discover', 'units', 'interactors', 'terminal', 'spinbox',
+           'configactions', 'configeditor', 'parameter',
+           'communicator', 'microconfig', 'scanner']
     
 # make all important functions available in the microconfig namespace:
 from .discover import Discover, discover_teensy
