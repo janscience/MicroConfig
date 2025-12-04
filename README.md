@@ -165,11 +165,18 @@ the MicroConfig libraries.
 
 ## microconfig python package
 
-The content of the [microconfig/](microconfig) folder is a python package.
-It provides the 
+The content of the [pymicroconfig/](pymicroconfig) folder is a python package.
+It provides
 
-- [serialmonitor](microconfig-src-microconfig/serialmonitor.py):
-  serial monitor for the console that automatically detects Teensys connected to USB.
+- modules for detecting and interacting with MicroConfig menus on
+  microcontrollers.
+- [serialmonitor](pymicroconfig/src/microconfig/serialmonitor.py):
+  serial monitor for the console that automatically detects Teensys
+  connected to USB.
+- [microconfig](pymicroconfig/src/microconfig/microconfig.py):
+  GUI for setting configuration parameters on a microcontroller.
+
+See [pymicroconfig/](pymicroconfig) for more details.
 
 
 ## Applications of the MicroConfig libraries
