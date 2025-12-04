@@ -97,7 +97,7 @@ void updateFirmware(SDClass &sdcard, bool echo, bool detailed,
   stream.println();
   // check again:
   stream.println("WARNING: a firmware update could make your device unusable!");
-  stream.println("WARNING: make sure that your device stays powered during the entire firmware update!");
+  stream.println("WARNING: make sure that your device stays powered on during the entire firmware update!");
   stream.println();
   if (!Action::yesno("Do you really want to update the firmware?",
 		     false, echo, stream)) {

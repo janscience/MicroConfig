@@ -374,6 +374,8 @@ class Communicator:
             else:
                 self.request_start = None
                 self.read_state += 1
+                if not self.request_target:
+                    self.read_state += 1
         elif self.read_state == 1:
             self.clear_input()
             self.write(self.request_target)

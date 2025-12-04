@@ -158,43 +158,6 @@ class Erase(ActionButton):
             self.sigDisplayMessage.emit(text)
         self.sigUpdate.emit()
 
-
-class Check(ActionButton):
-    
-    sigVerifyParameter = Signal(str, str)
-
-    def __init__(self, name, *args, **kwargs):
-        super().__init__('configuration>print', '&Check', 'confcheck',
-                         *args, **kwargs)
-        self.name = name
-        self.setToolTip(f'Check configuration on the {self.name} and whether it matches the values show in the GUI (Alt+C)')
-        self.matches = False
-
-    def read(self, ident, stream, success):
-        top_key = None
-        text = '<style type="text/css"> td { padding: 0 15px; }</style>'
-        text += '<table>'
-        for s in stream:
-            text += '<tr>'
-            cs = s.split(':')
-            if len(cs) > 1 and len(cs[1].strip()) > 0:
-                key = cs[0].strip()
-                value = (":".join(cs[1:])).strip()
-                keys = f'{top_key}>{key}' if top_key else key
-                self.sigVerifyParameter.emit(keys, value)
-                text += f'<td></td><td>{key}</td><td><b>{value}</b></td>'
-                if self.matches:
-                    text += '<td>&#x2705;</td>'
-                else:
-                    text += '<td>&#x274C;</td>'
-            else:
-                top_key = cs[0].strip()
-                text += f'<td colspan=4><b>{top_key}</b></td>'
-            text += '</tr>'
-        text += '</table>'
-        self.sigDisplayTerminal.emit(f'Current configuration on the {self.name}',
-                                     text)
-
             
 class Import(ActionButton):
     
@@ -253,6 +216,43 @@ class Export(ActionButton):
                 df.write(s)
                 df.write('\n')
 
+
+class Check(ActionButton):
+    
+    sigVerifyParameter = Signal(str, str)
+
+    def __init__(self, name, *args, **kwargs):
+        super().__init__('configuration>print', '&Check', 'confcheck',
+                         *args, **kwargs)
+        self.name = name
+        self.setToolTip(f'Check configuration on the {self.name} and whether it matches the values show in the GUI (Alt+C)')
+        self.matches = False
+
+    def read(self, ident, stream, success):
+        top_key = None
+        text = '<style type="text/css"> td { padding: 0 15px; }</style>'
+        text += '<table>'
+        for s in stream:
+            text += '<tr>'
+            cs = s.split(':')
+            if len(cs) > 1 and len(cs[1].strip()) > 0:
+                key = cs[0].strip()
+                value = (":".join(cs[1:])).strip()
+                keys = f'{top_key}>{key}' if top_key else key
+                self.sigVerifyParameter.emit(keys, value)
+                text += f'<td></td><td>{key}</td><td><b>{value}</b></td>'
+                if self.matches:
+                    text += '<td>&#x2705;</td>'
+                else:
+                    text += '<td>&#x274C;</td>'
+            else:
+                top_key = cs[0].strip()
+                text += f'<td colspan=4><b>{top_key}</b></td>'
+            text += '</tr>'
+        text += '</table>'
+        self.sigDisplayTerminal.emit(f'Current configuration on the {self.name}',
+                                     text)
+
                 
 class Reboot(ActionButton):
 
@@ -268,6 +268,90 @@ class Reboot(ActionButton):
         pass
 
                 
+class Firmware(ActionButton):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__('firmware>update firmware', '&Firmware',
+                         'firmwareupdate', *args, **kwargs)
+        self.setToolTip('Upload new firmware (Alt+F)')
+        self.list_firmware = []
+        self.show_firmware = True
+        self.update_stream = []
+
+    def set_sdcard(self, present):
+        if self.show_firmware and not present:
+            self.show_firmware = False
+
+    def setup(self, menu):
+        self.show_firmware = True
+        super().setup(menu)
+        self.list_firmware = self.retrieve('firmware>list', menu)
+        if len(self.list_firmware) > 0:
+            self.sigReadRequest.emit(self, 'firmwarecheck',
+                                     self.list_firmware, ['select'])
+        else:
+            self.show_firmware = False
+        if len(self.start) > 0:
+            self.start.append('STAY')
+        else:
+            self.show_firmware = False
+        self.setVisible(self.show_firmware)
+
+    def read(self, ident, stream, success):
+        if ident == 'firmwarecheck':
+            if len(stream) > 1 and 'no firmware files' in stream[1].lower():
+                self.show_firmware = False
+        elif ident == 'firmwareupdate':
+            self.update_stream = []
+            if len(stream) > 0 and 'available' in stream[0].lower():
+                del stream[0]
+            for k in range(len(stream)):
+                if len(stream[k].strip()) == 0:
+                    while k < len(stream):
+                        del stream[k]
+                    break
+            if len(stream) == 1:
+                self.sigReadRequest.emit(self, 'runfirmware1',
+                                         ['1', 'STAY'],
+                                         ['select', 'aborted', 'enter', 'error'])
+            else:
+                text = '<style type="text/css"> td { padding: 0 15px; } th { padding: 0 15px; }</style>'
+                text += '<table>'
+                text += f'<tr><th align="right">No</th><th align="left">Name</th></tr>'
+                for l in stream:
+                    p = l.split()
+                    number = p[1].rstrip(')')
+                    name = p[2]
+                    text += f'<tr><td align="right">{number}</td><td align="left">{name}</td></tr>'
+                text += '</table>'
+                self.sigDisplayTerminal.emit('Firmware', text)
+                self.sigReadRequest.emit(self, 'runfirmware1',
+                                         ['n', 'STAY'],
+                                         ['select', 'enter', 'error'])
+        elif ident == 'runfirmware1':
+            while len(stream) > 0 and len(stream[0].strip()) == 0:
+                del stream[0]
+            print(stream)
+            if len(stream) > 0 and 'aborted' in stream[0].lower():
+                #for k in range(len(self.start) - 2):
+                #    self.sigWriteRequest.emit('q', [])
+                #self.sigWriteRequest.emit('h', [])
+                pass
+            elif len(stream) > 0:
+                print('UF')
+                self.sigDisplayTerminal.emit('Update firmware', stream)
+                if len(stream) > 1 and \
+                   'enter' in stream[-2] and 'to flash' in stream[-2]:
+                    self.update_stream = list(stream)
+                    unlock_code = stream[-2].split()[1]
+                    self.sigReadRequest.emit(self, 'runfirmware2',
+                                             [unlock_code, 'STAY'],
+                                             ['reboot'])
+        elif ident == 'runfirmware2':
+            self.sigDisplayTerminal.emit('Update firmware',
+                                         self.update_stream + stream)
+
+            
 class Run(ActionButton):
 
     def __init__(self, name, *args, **kwargs):
@@ -331,11 +415,6 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.erase_button.sigConfigFile.connect(self.sigConfigFile)
         self.erase_button.sigUpdate.connect(self.sigUpdate)
         
-        self.check_button = Check(name, self)
-        self.check_button.sigReadRequest.connect(self.sigReadRequest)
-        self.check_button.sigDisplayTerminal.connect(self.sigDisplayTerminal)
-        self.check_button.sigVerifyParameter.connect(self.sigVerifyParameter)
-        
         self.import_button = Import(name, self)
         self.import_button.sigReadRequest.connect(self.sigReadRequest)
         self.import_button.sigWriteRequest.connect(self.sigWriteRequest)
@@ -344,6 +423,11 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.export_button = Export(name, self)
         self.export_button.sigReadRequest.connect(self.sigReadRequest)
         
+        self.check_button = Check(name, self)
+        self.check_button.sigReadRequest.connect(self.sigReadRequest)
+        self.check_button.sigDisplayTerminal.connect(self.sigDisplayTerminal)
+        self.check_button.sigVerifyParameter.connect(self.sigVerifyParameter)
+        
         self.startup_button = QPushButton('Star&tup', self)
         self.startup_button.setToolTip('Show startup messages (Alt+T)')
         self.startup_button.clicked.connect(self.sigShowStartup)
@@ -351,15 +435,15 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.reboot_button = Reboot(name, self)
         self.reboot_button.sigReadRequest.connect(self.sigReadRequest)
         
+        self.firmware_button = Firmware(self)
+        self.firmware_button.sigReadRequest.connect(self.sigReadRequest)
+        self.firmware_button.sigWriteRequest.connect(self.sigWriteRequest)
+        self.firmware_button.sigDisplayMessage.connect(self.sigDisplayMessage)
+        
         self.run_button = Run(name, self)
         self.run_button.sigReadRequest.connect(self.sigReadRequest)
         self.run_button.sigDisplayTerminal.connect(self.sigDisplayTerminal)
-        
-        self.firmware_button = QPushButton('&Firmware', self)
-        self.firmware_button.setToolTip('Upload new firmware (Alt+F)')
-        self.show_firmware = True
-        self.firmware_button.clicked.connect(self.firmware)
-        
+                
         box = QVBoxLayout(self)
         box.setContentsMargins(0, 0, 0, 0)
         box.addWidget(QLabel('<b>EEPROM:</b>'))
@@ -379,7 +463,7 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         box.addWidget(self.export_button)
         box.addItem(QSpacerItem(0, 1000, QSizePolicy.Expanding,
                                 QSizePolicy.Expanding))
-        box.addWidget(QLabel('<b>Logger:</b>'))
+        box.addWidget(QLabel(f'<b>{name[0].upper()}{name[1:]}:</b>'))
         box.addWidget(self.check_button)
         box.addItem(QSpacerItem(0, 1000, QSizePolicy.Expanding,
                                 QSizePolicy.Expanding))
@@ -387,9 +471,6 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         box.addWidget(self.reboot_button)
         box.addWidget(self.firmware_button)
         box.addWidget(self.run_button)
-        self.start_list_firmware = []
-        self.start_update_firmware = []
-        self.update_stream = []
     
     def setup(self, menu):
         self.get_button.setup(menu)
@@ -403,23 +484,10 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.export_button.setup(menu)
         self.import_button.start_print = self.check_button.start
         self.export_button.start = self.check_button.start
-        
-        self.start_list_firmware = self.retrieve('firmware>list', menu)
-        self.start_update_firmware = self.retrieve('firmware>update', menu)
-        if len(self.start_list_firmware) == 0:
-            self.show_firmware = False
-        else:
-            self.sigReadRequest.emit(self, 'firmwarecheck',
-                                     self.start_list_firmware, ['select'])
-        if len(self.start_update_firmware) > 0:
-            self.start_update_firmware.append('STAY')
-        else:
-            self.show_firmware = False
-        self.firmware_button.setVisible(self.show_firmware)
+        self.firmware_button.setup(menu)
 
     def set_sdcard(self, present):
-        if self.show_firmware and not present:
-            self.show_firmware = False
+        self.firmware_button.set_sdcard(present)
 
     def set_config_file(self, config_file):
         self.import_button.config_file = config_file
@@ -433,58 +501,6 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
     def set_mode(self, mode):
         self.clear_button.setVisible('A' in mode)
         self.check_button.setVisible('A' in mode)
-        self.firmware_button.setVisible('A' in mode and self.show_firmware)
         self.startup_button.setVisible('A' in mode)
-
-    def firmware(self):
-        self.sigReadRequest.emit(self, 'updatefirmware',
-                                 self.start_update_firmware, ['select'])
-
-    def read(self, ident, stream, success):
-        if 'firmware' in ident:
-            if ident == 'firmwarecheck':
-                if len(stream) > 1 and 'no firmware files' in stream[1].lower():
-                    self.show_firmware = False
-            elif ident == 'updatefirmware':
-                self.update_stream = []
-                if len(stream) > 0 and 'available' in stream[0].lower():
-                    del stream[0]
-                for k in range(len(stream)):
-                    if len(stream[k].strip()) == 0:
-                        while k < len(stream):
-                            del stream[k]
-                        break
-                if len(stream) == 1:
-                    self.sigReadRequest.emit(self, 'runfirmware1',
-                                             ['1', 'STAY'],
-                                             ['select', 'enter', 'error'])
-                else:
-                    text = '<style type="text/css"> td { padding: 0 15px; } th { padding: 0 15px; }</style>'
-                    text += '<table>'
-                    text += f'<tr><th align="right">No</th><th align="left">Name</th></tr>'
-                    for l in stream:
-                        p = l.split()
-                        number = p[1].rstrip(')')
-                        name = p[2]
-                        text += f'<tr><td align="right">{number}</td><td align="left">{name}</td></tr>'
-                    text += '</table>'
-                    self.sigDisplayTerminal.emit('Firmware', text)
-                    self.sigReadRequest.emit(self, 'runfirmware1',
-                                             ['n', 'STAY'],
-                                             ['select', 'enter', 'error'])
-            elif ident == 'runfirmware1':
-                if len(stream) > 0 and 'aborted' in stream[0].lower():
-                    for k in range(len(self.start_update_firmware) - 2):
-                        self.sigWriteRequest.emit('q', [])
-                elif len(stream) > 0:
-                    self.sigDisplayTerminal.emit('Update firmware', stream)
-                    if len(stream) > 1 and \
-                       'enter' in stream[-2] and 'to flash' in stream[-2]:
-                        self.update_stream = list(stream)
-                        unlock_code = stream[-2].split()[1]
-                        self.sigReadRequest.emit(self, 'runfirmware2',
-                                                 [unlock_code, 'STAY'],
-                                                 ['reboot'])
-            elif ident == 'runfirmware2':
-                self.sigDisplayTerminal.emit('Update firmware',
-                                             self.update_stream + stream)
+        self.firmware_button.setVisible('A' in mode and
+                                        self.firmware_button.show_firmware)
