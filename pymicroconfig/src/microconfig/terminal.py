@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence, QFont
-from PyQt5.QtWidgets import QShortcut, QVBoxLayout
+from PyQt5.QtWidgets import QShortcut, QVBoxLayout, QApplication
 from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QScrollArea
 
 
@@ -63,4 +63,7 @@ class Terminal(QWidget):
         self.out.setMinimumSize(self.out.sizeHint())
         vsb = self.scroll.verticalScrollBar()
         vsb.setValue(vsb.maximum())
+        self.out.repaint()
+        QApplication.instance().processEvents()
+        
 
