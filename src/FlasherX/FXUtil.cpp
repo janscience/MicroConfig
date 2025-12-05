@@ -126,6 +126,7 @@ void update_firmware( Stream *in, Stream *out,
   else {
     out->printf( "calling flash_move() to load new firmware...\n" );
     out->flush();
+    delay(2000);
   }
   
   // move new program from buffer to flash, free buffer, and reboot

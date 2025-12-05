@@ -128,6 +128,7 @@ void updateFirmware(SDClass &sdcard, bool echo, bool detailed,
     stream.println("! REBOOT SYSTEM !");
     stream.println();
     stream.flush();
+    delay(1000);
     REBOOT;
   }
   stream.printf("- created flash buffer = %1luK %s (%08lX - %08lX)\n",
@@ -147,5 +148,6 @@ void updateFirmware(SDClass &sdcard, bool echo, bool detailed,
   stream.println("! REBOOT SYSTEM !");
   stream.flush();
   firmware_buffer_free( buffer_addr, buffer_size );
+  delay(1000);
   REBOOT;
 }

@@ -315,6 +315,8 @@ class Firmware(ActionButton):
                                          ['1', 'STAY'],
                                          ['select', 'aborted', 'enter', 'error'])
             else:
+                # select a firmware file:
+                # TODO: not supported yet!!!
                 text = '<style type="text/css"> td { padding: 0 15px; } th { padding: 0 15px; }</style>'
                 text += '<table>'
                 text += f'<tr><th align="right">No</th><th align="left">Name</th></tr>'
@@ -331,15 +333,10 @@ class Firmware(ActionButton):
         elif ident == 'runfirmware1':
             while len(stream) > 0 and len(stream[0].strip()) == 0:
                 del stream[0]
-            print(stream)
-            if len(stream) > 0 and 'aborted' in stream[0].lower():
-                #for k in range(len(self.start) - 2):
-                #    self.sigWriteRequest.emit('q', [])
-                #self.sigWriteRequest.emit('h', [])
-                pass
+            if len(stream) > 0 and 'aborted' in stream[-1].lower():
+                self.sigWriteRequest.emit('h', [])
             elif len(stream) > 0:
-                print('UF')
-                self.sigDisplayTerminal.emit('Update firmware', stream)
+                self.sigDisplayTerminal.emit('Update firmware', self.update_stream)
                 if len(stream) > 1 and \
                    'enter' in stream[-2] and 'to flash' in stream[-2]:
                     self.update_stream = list(stream)
@@ -438,7 +435,7 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.firmware_button = Firmware(self)
         self.firmware_button.sigReadRequest.connect(self.sigReadRequest)
         self.firmware_button.sigWriteRequest.connect(self.sigWriteRequest)
-        self.firmware_button.sigDisplayMessage.connect(self.sigDisplayMessage)
+        self.firmware_button.sigDisplayTerminal.connect(self.sigDisplayTerminal)
         
         self.run_button = Run(name, self)
         self.run_button.sigReadRequest.connect(self.sigReadRequest)
