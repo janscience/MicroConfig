@@ -42,38 +42,21 @@ int firmware_buffer_init( uint32_t *buffer_addr, uint32_t *buffer_size )
   return( NO_BUFFER_TYPE );
   #endif
 
-  /////////// changed begin ////////////////////////////////////////
   // buffer will begin at first sector ABOVE code and below FLASH_RESERVE
-  // start at bottom of FLASH_RESERVE and work down until large enough non-erased flash found
+  // start at bottom of FLASH_RESERVE and work down until non-erased flash found
   *buffer_addr = FLASH_BASE_ADDR + FLASH_SIZE - FLASH_RESERVE - 4;
-  uint32_t buffer_end = *buffer_addr;
-  do {
-    while (*buffer_addr > 0 && *((uint32_t *)*buffer_addr) == 0xFFFFFFFF)
-      *buffer_addr -= 4;
-    if (buffer_end - *buffer_addr > FLASH_SECTOR_SIZE) {
-      buffer_end += 4;   // address behind non-erased flash
-      *buffer_addr += 4; // first address above code
-      break;
-    }
-    else {
-      // skip non-erased flash memory:
-      while (*buffer_addr > 0 && *((uint32_t *)*buffer_addr) != 0xFFFFFFFF)
-	*buffer_addr -= 4;
-      buffer_end = *buffer_addr;
-    }
-  } while (*buffer_addr > 0);
+  while (*buffer_addr > 0 && *((uint32_t *)*buffer_addr) == 0xFFFFFFFF)
+    *buffer_addr -= 4;
+  *buffer_addr += 4; // first address above code
 
   // increase buffer_addr to next sector boundary (if not on a sector boundary)
   if ((*buffer_addr % FLASH_SECTOR_SIZE) > 0)
     *buffer_addr += FLASH_SECTOR_SIZE - (*buffer_addr % FLASH_SECTOR_SIZE);
-  // decrease buffer_end to previous sector boundary:
-  buffer_end = (buffer_end/FLASH_SECTOR_SIZE)*FLASH_SECTOR_SIZE;
-  *buffer_size = buffer_end - *buffer_addr;
-  if (*buffer_size >= FLASH_SECTOR_SIZE)
+  *buffer_size = FLASH_BASE_ADDR - *buffer_addr + FLASH_SIZE - FLASH_RESERVE;
+  if (*buffer_size > 0)
     return( FLASH_BUFFER_TYPE );
   
   return( NO_BUFFER_TYPE );
-  /////////// changed end //////////////////////////////////////////
 }
 
 //******************************************************************************
