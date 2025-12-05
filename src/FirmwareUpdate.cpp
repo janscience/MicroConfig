@@ -57,7 +57,8 @@ void updateFirmware(SDClass &sdcard, bool echo, bool detailed,
       stream.readBytesUntil('\n', pval, 32);
       if (strlen(pval) == 0)
 	strcpy(pval, "1");
-      stream.println(pval);
+      if (echo)
+	stream.println(pval);
       char *end;
       long i = strtol(pval, &end, 10) - 1;
       if (end != pval && i >= 0 && i < (long)n) {
