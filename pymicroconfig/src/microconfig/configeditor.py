@@ -86,7 +86,7 @@ class ConfigEditor(InfoFrame):
                         action[2][sk][2] = param
                         self.configuration.addWidget(param.edit_widget, row, 2)
                         self.configuration.addWidget(param.state_widget,
-                                                 row, 3)
+                                                     row, 3)
                         if first_param:
                             param.edit_widget.setFocus(Qt.MouseFocusReason)
                             first_param = False

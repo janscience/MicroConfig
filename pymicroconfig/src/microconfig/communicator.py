@@ -133,13 +133,14 @@ class Communicator:
         menu = {}
         for l in self.input[menu_start + 1:menu_end]:
             x = l.split()
-            num = x[0][:-1]
+            num = x[0][:-1] if x[0][-1] == ')' else ''
             if x[-1] == '...':
                 # sub menu:
                 name = ' '.join(x[1:-1])
                 menu[name] = (num, 'menu', {})
             else:
-                l = ' '.join(x[1:])
+                if num:
+                    l = ' '.join(x[1:])
                 if ':' in l:
                     # parameter:
                     x = l.split(':')
@@ -203,10 +204,17 @@ class Communicator:
                 self.menu_ids.append(None)
                 self.read_state = 0
         elif self.read_state == 20:
-            # request parameter:
-            self.clear_input()
-            self.write(self.menu_item[0])
-            self.read_state += 1
+            if len(self.menu_item[0]) == 0:
+                # constant string parameter:
+                pargs = (list(self.menu_ids), str(self.menu_key),
+                         str(self.menu_item[2]), 'A, string 128', [])
+                self.menu_item[2] = pargs
+                self.read_state = 0
+            else:
+                # request parameter:
+                self.clear_input()
+                self.write(self.menu_item[0])
+                self.read_state += 1
         elif self.read_state == 21:
             # parse parameter:
             list_start = None

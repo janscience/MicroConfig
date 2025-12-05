@@ -195,6 +195,8 @@ class Parameter(Interactor, QObject, metaclass=InteractorQObject):
             fm = self.edit_widget.fontMetrics()
             self.edit_widget.setMinimumWidth(32*fm.averageCharWidth())
             self.edit_widget.textChanged.connect(self.transmit_str)
+        if len(self.ids[-1]) == 0:
+            self.edit_widget.setEnabled(False)
         self.state_widget = QLabel(parent)
         self.state_widget.setTextFormat(Qt.RichText)
         self.state_widget.setToolTip('Indicate whether dialog value matches logger settings')
@@ -209,11 +211,15 @@ class Parameter(Interactor, QObject, metaclass=InteractorQObject):
         return v
 
     def transmit_bool(self, check_state):
+        if len(self.ids[-1]) == 0:
+            return
         start = list(self.ids)
         start.append('2' if check_state > 0 else '1')
         self.sigTransmitRequest.emit(self, self.name, start)
 
     def transmit_str(self, text):
+        if len(self.ids[-1]) == 0:
+            return
         start = list(self.ids)
         if len(self.selection) > 0:
             for s in self.selection:
