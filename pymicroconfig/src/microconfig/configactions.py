@@ -1,9 +1,23 @@
 """# configactions
 
+Manage configuration of a microcontroller.
+
 ## Classes
 
-`class ConfigActions`: buttons for managing the configuration of a microcontroller.
+- `class Put`: put configuration into EEPROM memory.
+- `class Get`: get configuration from EEPROM memory.
+- `class Clear`: clear EEPROM memory.
+- `class Save`: save configuration to file on SD card.
+- `class Load`: load configuration from file on SD card.
+- `class Erase`: erase configuration file from SD card.
+- `class Import`: import configuration from file on host.
+- `class Export`: export configuration to file on host.
+- `class Check`: check configuration settings on microcontroller.
+- `class Reboot`: reboot microcontroller.
+- `class Firmware`: update firmware from file on SD card.
+- `class Run`: Exit menu and run code on microcontroller.
 
+- `class ConfigActions`: buttons for managing the configuration of a microcontroller.
 
 """
 
@@ -19,6 +33,8 @@ from PyQt5.QtWidgets import QFileDialog
 
 
 class Put(ActionButton):
+    """Put configuration into EEPROM memory.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__('configuration>put configuration to eeprom',
@@ -35,6 +51,8 @@ class Put(ActionButton):
 
 
 class Get(ActionButton):
+    """Get configuration from EEPROM memory.
+    """
     
     sigSetParameter = Signal(str, str)
 
@@ -71,6 +89,8 @@ class Get(ActionButton):
         
 
 class Clear(ActionButton):
+    """Clear EEPROM memory.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__('clear eeprom memory', 'Clear', 'confclear',
@@ -82,6 +102,8 @@ class Clear(ActionButton):
         
 
 class Save(ActionButton):
+    """Save configuration to file on SD card.
+    """
     
     sigConfigFile = Signal(bool)
 
@@ -99,10 +121,12 @@ class Save(ActionButton):
             text += '\n'
         if len(text) > 0:
             self.sigDisplayMessage.emit(text)
-        self.sigUpdate.emit()
+        self.sigSDCardUpdate.emit()
 
 
 class Load(ActionButton):
+    """Load configuration from file on SD card.
+    """
     
     sigSetParameter = Signal(str, str)
 
@@ -139,6 +163,8 @@ class Load(ActionButton):
 
 
 class Erase(ActionButton):
+    """Erase configuration file from SD card.
+    """
     
     sigConfigFile = Signal(bool)
 
@@ -156,10 +182,12 @@ class Erase(ActionButton):
             text += '\n'
         if len(text) > 0:
             self.sigDisplayMessage.emit(text)
-        self.sigUpdate.emit()
+        self.sigSDCardUpdate.emit()
 
             
 class Import(ActionButton):
+    """Import configuration from file on host.
+    """
     
     sigSetParameter = Signal(str, str)
 
@@ -198,6 +226,8 @@ class Import(ActionButton):
 
                 
 class Export(ActionButton):
+    """Export configuration to file on host.
+    """
 
     def __init__(self, name, *args, **kwargs):
         super().__init__(None, 'E&xport', 'confexport', *args, **kwargs)
@@ -218,6 +248,8 @@ class Export(ActionButton):
 
 
 class Check(ActionButton):
+    """Check configuration settings of microcontroller.
+    """
     
     sigVerifyParameter = Signal(str, str)
 
@@ -255,6 +287,8 @@ class Check(ActionButton):
 
                 
 class Reboot(ActionButton):
+    """Reboot microcontroller.
+    """
 
     def __init__(self, name, *args, **kwargs):
         super().__init__(None, 'Re&boot', None, *args, **kwargs)
@@ -269,6 +303,8 @@ class Reboot(ActionButton):
 
                 
 class Firmware(ActionButton):
+    """Update firmware from file on SD card.
+    """
 
     def __init__(self, *args, **kwargs):
         super().__init__('firmware>update firmware', '&Firmware',
@@ -350,6 +386,8 @@ class Firmware(ActionButton):
 
             
 class Run(ActionButton):
+    """Exit menu and run code on microcontroller.
+    """
 
     def __init__(self, name, *args, **kwargs):
         super().__init__(None, '&Run', None, *args, **kwargs)
@@ -369,6 +407,11 @@ class Run(ActionButton):
         
 class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
     """Buttons for managing the configuration of a microcontroller.
+
+    Parameters
+    ----------
+    name: str
+        Name of the microcontroller device.
     """
 
     sigVerifyParameter = Signal(str, str)
@@ -398,7 +441,7 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.save_button.sigReadRequest.connect(self.sigReadRequest)
         self.save_button.sigDisplayMessage.connect(self.sigDisplayMessage)
         self.save_button.sigConfigFile.connect(self.sigConfigFile)
-        self.save_button.sigUpdate.connect(self.sigUpdate)
+        self.save_button.sigSDCardUpdate.connect(self.sigSDCardUpdate)
         
         self.load_button = Load(self)
         self.load_button.sigReadRequest.connect(self.sigReadRequest)
@@ -410,7 +453,7 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.erase_button.sigReadRequest.connect(self.sigReadRequest)
         self.erase_button.sigDisplayMessage.connect(self.sigDisplayMessage)
         self.erase_button.sigConfigFile.connect(self.sigConfigFile)
-        self.erase_button.sigUpdate.connect(self.sigUpdate)
+        self.erase_button.sigSDCardUpdate.connect(self.sigSDCardUpdate)
         
         self.import_button = Import(name, self)
         self.import_button.sigReadRequest.connect(self.sigReadRequest)
@@ -484,18 +527,26 @@ class ConfigActions(Interactor, QWidget, metaclass=InteractorQWidget):
         self.firmware_button.setup(menu)
 
     def set_sdcard(self, present):
+        """Inform firmware button whether SD card is present.
+        """
         self.firmware_button.set_sdcard(present)
 
     def set_config_file(self, config_file):
+        """Inform import and export button about name of configuration file.
+        """
         self.import_button.config_file = config_file
         self.export_button.config_file = config_file
 
     def set_match(self, matches):
+        """Tell get, load, and check whether GUI value matches value on microcontroller.
+        """
         self.get_button.matches = matches
         self.load_button.matches = matches
         self.check_button.matches = matches
 
     def set_mode(self, mode):
+        """Show and hide buttons depending on mode.
+        """
         self.clear_button.setVisible('A' in mode)
         self.check_button.setVisible('A' in mode)
         self.startup_button.setVisible('A' in mode)

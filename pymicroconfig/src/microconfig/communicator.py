@@ -1,8 +1,21 @@
+""" # communicator
+
+- `class Communicator`: basic infrastructure for interacting with the MicroConfig menu of the microcontroller.
+"""
+
 from serial import Serial
 from serial.serialutil import SerialException
 
 
 class Communicator:
+    """Basic infrastructure for interacting with the MicroConfig menu of the microcontroller.
+
+    A GUI exposing the MicroConfig menu should inherit the Communicator
+    class and implement a number of member functions.
+
+    TODO...
+
+    """
     
     def __init__(self, device):
         self.device = device.device

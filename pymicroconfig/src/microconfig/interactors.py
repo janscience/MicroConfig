@@ -1,3 +1,13 @@
+"""# interactors
+
+Base classes for interacting with the microcontroller's MicroConfig menu.
+
+- `class Interactor`: abstract base class for interacting with a microconfig menu entry.
+- `class InfoFrame`: an interactor producing a frame with lots of infos.
+- `class ActionButton`: a normal button that activates an entry of a microconf menu. 
+- `class ReportButton`: a small button that activates an entry of a microconf menu.
+"""
+
 from abc import ABC, abstractmethod
 
 try:
@@ -16,36 +26,44 @@ class Interactor(ABC):
     cases also the read() function.
     In setup() the menu entry this class acts on should be selected
     using `retrieve()`.
+    read() then parses the output of the microcontroller produced upon
+    activation of the menu entry via the sigReadRequest().
 
     A number of signals are provided that allow you to interact with
     the microcontroller and with the GUI.
 
     Signals
     -------
-    sigReadRequest:
-        Activate a menu entry and expect some output from the microcontroller
-        that can then be parsed by the read() function. Call it with three
-        arguments: (1) a identifier string of your choice, (2) the list
-        returned by retrieve, (3) a list of strings that indicate a
-        stop condition.
-    sigWriteRequest:
+    sigReadRequest(object, str, list, list):
+        Activate a menu entry and expect some output from the
+        microcontroller that can then be parsed by the read()
+        function. Call it with four arguments: (1) the interactor
+        instance whose read() function should be called to parse the
+        microcontroller's output, (2) an identifier string of your
+        choice, (3) the list returned by retrieve() to be used to
+        activate the menu entry, (4) a list of strings that indicate a
+        stop condition in the microcontroler's output.
+    sigWriteRequest(str, list):
         Write something to the microcontroller. The first argument is
         a string that is written to the microcontroller after a menu
-        entry has been activated by sending the list of strings given
-        as the second argument.
-    sigTransmitRequest:
-        Write something to the microcontroller and read its response.
-    sigDisplayTerminal:
+        entry has been activated by sending the list of strings as
+        returned by retrieve() given as the second argument.
+    sigTransmitRequest(object, str, list):
+        Write something to the microcontroller (second argument) after
+        selecting a menu entry (thrid argument) and read its response
+        (first argument).
+    sigDisplayTerminal(str, object):
         Display some information in a terminal. The first argument is
         a title string displayed on top. The second argument is either
         a list of strings. Then they are displayed line by line in
         typewriter fonts. Or a single string is provided. This is then
         expected to contain html formatting instructions.        
-    sigDisplayMessage:
+    sigDisplayMessage(object):
         Display a brief text in a message dialog box. The single argument
         is a string or a list of strings with the text to be displayed.
-    sigUpdate:
+    sigSDCardUpdate():
         Request to update infos about SD card usage.
+
     """
 
     sigReadRequest = Signal(object, str, list, list)
@@ -53,7 +71,7 @@ class Interactor(ABC):
     sigTransmitRequest = Signal(object, str, list)
     sigDisplayTerminal = Signal(str, object)
     sigDisplayMessage = Signal(object)
-    sigUpdate = Signal()
+    sigSDCardUpdate = Signal()
 
     @abstractmethod
     def setup(self, menu):
@@ -145,22 +163,26 @@ class Interactor(ABC):
 
         
 class InteractorQObject(type(Interactor), type(QObject)):
-    # this class is needed for multiple inheritance of ABC ...
+    """ Class needed for multiple inheritance of ABC with QObject.
+    """
     pass
 
         
 class InteractorQWidget(type(Interactor), type(QWidget)):
-    # this class is needed for multiple inheritance of ABC ...
+    """ Class needed for multiple inheritance of ABC with QWidget.
+    """
     pass
 
         
 class _InteractorQFrame(type(Interactor), type(QFrame)):
-    # this class is needed for multiple inheritance of ABC ...
+    """ Class needed for multiple inheritance of ABC with QFrame.
+    """
     pass
 
         
 class _InteractorQPushButton(type(Interactor), type(QPushButton)):
-    # this class is needed for multiple inheritance of ABC ...
+    """ Class needed for multiple inheritance of ABC with QPushButton.
+    """
     pass
 
 
@@ -226,7 +248,7 @@ class ActionButton(Interactor, QPushButton, metaclass=_InteractorQPushButton):
         self.update()
      
     def setup(self, menu):
-        """ Retrieve the buttons key from the menu.
+        """ Retrieve the button's key from the menu.
         """
         if self.key:
             self.start = self.retrieve(self.key, menu)
