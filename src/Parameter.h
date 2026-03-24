@@ -555,10 +555,10 @@ class BaseNumberParameter : public Parameter {
   virtual void instructions(char *str) const;
 
   /* Set minimum value a number can have. */
-  T setMinimum(T minimum);
+  void setMinimum(T minimum);
 
   /* Set maximum value a number can have. */
-  T setMaximum(T maximum);
+  void setMaximum(T maximum);
 
   /* Check whether val is in range. Return -2 if it is smaller than
      minimum, return -1 if it is larger than maximum, return 1 if it
@@ -1271,14 +1271,14 @@ void BaseNumberParameter<T>::instructions(char *str) const {
 
 
 template<class T>
-T BaseNumberParameter<T>::setMinimum(T minimum) {
+void BaseNumberParameter<T>::setMinimum(T minimum) {
   CheckMin = true;
   Minimum = minimum;
 }
 
 
 template<class T>
-T BaseNumberParameter<T>::setMaximum(T maximum) {
+void BaseNumberParameter<T>::setMaximum(T maximum) {
   CheckMax = true;
   Maximum = maximum;
 }
