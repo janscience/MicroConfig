@@ -158,7 +158,7 @@ class Communicator:
                     # parameter:
                     x = l.split(':')
                     name = x[0].strip()
-                    value = x[1].strip()
+                    value = ':'.join(x[1:]).strip()
                     menu[name] = [num, 'param', value]
                 else:
                     # action:
