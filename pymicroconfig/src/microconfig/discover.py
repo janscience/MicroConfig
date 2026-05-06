@@ -188,7 +188,6 @@ def discover_teensy(port):
 
     if port.vid is None and port.pid is None:
         return None
-    #if port.vid == 0x16C0 and port.pid in [0x0483, 0x048B, 0x048C, 0x04D5]:
     if port.manufacturer == 'Teensyduino':
         dev = find(idVendor=port.vid, idProduct=port.pid,
                    serial_number=port.serial_number)
@@ -198,6 +197,9 @@ def discover_teensy(port):
             return None
         else:
             return 'Teensy' + teensy_model[dev.bcdDevice]
+    elif port.vid == 0x16C0 and port.pid in [0x0483, 0x048B, 0x048C, 0x04D5]:
+        # on windows installing pyusb properly is a pain to explain...
+        return 'Teensy'
     else:
         return None
 
