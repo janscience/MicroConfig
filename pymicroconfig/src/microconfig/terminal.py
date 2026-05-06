@@ -51,12 +51,13 @@ class Terminal(QWidget):
             self.title.setText(title)
         self.done.setEnabled(True)
         if isinstance(stream, (tuple, list)):
-            text = ''
+            text = '<pre>\n'
             for s in stream:
                 text += s
                 text += '\n'
+            text += '</pre>'
             self.out.setText(text)
-            self.out.setFont(QFont('monospace'))
+            #self.out.setFont(QFont('monospace'))
         else:
             self.out.setText(stream)
             self.out.setFont(QFont('sans'))
