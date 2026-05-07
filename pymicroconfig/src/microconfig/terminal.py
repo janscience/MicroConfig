@@ -51,16 +51,19 @@ class Terminal(QWidget):
             self.title.setText(title)
         self.done.setEnabled(True)
         if isinstance(stream, (tuple, list)):
-            text = '<pre>\n'
+            text = ''
             for s in stream:
                 text += s
                 text += '\n'
-            text += '</pre>'
             self.out.setText(text)
-            #self.out.setFont(QFont('monospace'))
+            font = QFont('monospace')
+            font.setStyleHint(QFont.TypeWriter);
+            self.out.setFont(font)
         else:
             self.out.setText(stream)
-            self.out.setFont(QFont('sans'))
+            font = QFont('sans')
+            font.setStyleHint(QFont.SansSerif);
+            self.out.setFont(font)
         self.out.setMinimumSize(self.out.sizeHint())
         vsb = self.scroll.verticalScrollBar()
         vsb.setValue(vsb.maximum())

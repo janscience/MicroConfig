@@ -55,7 +55,9 @@ class MicroConfig(Communicator, QMainWindow):
         self.name = name
 
         self.logo = QLabel(self)
-        #self.logo.setFont(QFont('monospace'))
+        font = QFont('monospace')
+        font.setStyleHint(QFont.TypeWriter);
+        self.logo.setFont(font)
         self.softwareinfo = SoftwareInfo(self)
         logoboxw = QWidget(self)
         logobox = QHBoxLayout(logoboxw)
@@ -213,14 +215,13 @@ class MicroConfig(Communicator, QMainWindow):
         if title_start is not None and \
            title_end > 0:
             if title_mid is not None:
-                s = '<pre>\n'
+                s = ''
                 for l in self.startup_input[title_start + 1:title_mid]:
                     if len(l.strip()) == 0:
                         continue
                     if len(s) > 0:
                         s += '\n'
                     s += l
-                s += '</pre>'
                 self.logo.setText(s)
                 title_start = title_mid - 1
             self.softwareinfo.set(self.startup_input[title_start + 1:title_end])
