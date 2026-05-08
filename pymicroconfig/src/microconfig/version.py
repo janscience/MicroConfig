@@ -4,7 +4,7 @@
 __version__ = '1.0.0'
 """ Current version of the microconfig package as string 'x.y.z'. """
 
-__year__ = '2025'
+__year__ = '2026'
 """ Year of the current microconfig version as string. """
 
 __pdoc__ = {}

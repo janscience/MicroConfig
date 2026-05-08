@@ -59,7 +59,7 @@ ConfigurationMenu configuration_menu(config, SD);
 HelpAction help_act(config, "Help");
 ```
 
-Load the configuration file and execute the menu like this:
+Load the configuration from EEPROM and a file, and execute the menu like this:
 ```c
 void setup() {
   Serial.begin(9600);
@@ -129,6 +129,24 @@ automagically set by the StringPointerParameter.
 
 Nice and easy, isn't it?
 
+### GUI
+
+As described above you can interact with the MicroConfig menu via the
+serial stream yourself using, for example, the serial monitor of the
+[Arduino IDE](https://docs.arduino.cc/software/ide/), or the
+[serialmonitor](pymicroconfig/src/microconfig/serialmonitor.py)
+provided by the [pymicroconfig](pymicroconfig/) package (also part of
+the MicroConfig repository).
+
+In addition, the [pymicroconfig](pymicroconfig/) package provides the
+`microconfig` GUI for an even more comfortable interaction with the
+microcontroller.
+
+![mciroconfig GUI](pymicroconfig/docs/microconfig-menu.png)
+
+See the [documentation](pymicroconfig/) of the pymicroconfig package
+for a user guide and installation instructions.
+
 
 ## Interface
 
@@ -177,6 +195,51 @@ It provides
   GUI for setting configuration parameters on a microcontroller.
 
 See [pymicroconfig/](pymicroconfig) for more details.
+
+
+## Installation
+
+There are three options to install the
+[`MicroConfig`](https://github.com/janscience/MicroConfig) library:
+
+- Install the
+  [`MicroConfig`](https://github.com/janscience/MicroConfig) library
+  from the library manager of the [Arduino
+  IDE](https://docs.arduino.cc/software/ide/): Run the Arduino IDE,
+  select the library manager from the icons on the left or from the
+  menu (Tools-Manage libraries...). Type in `microconfig` at the top
+  and make sure that `Type` and `Topic` is set to `All`. The
+  MicroConfig library appears as the only search result. Simply hit
+  the `INSTALL` button.
+
+- Download the zip archive of the repository: Navigate to
+  https://github.com/janscience/MicroConfig in your favorite browser.
+  At the top right is a big, green `Code` button. Click it. A menu
+  opens and at the bottom you find `Download ZIP`. Click it and the
+  repository is downloaded into as zip file onto your computer.
+  Extract the content of the zip file into the Arduino libraries
+  folder.  After extraction, rename the folder `MicroConfig-main` to
+  `MicroConfig`.
+
+- Clone the respository into the Arduino libraries folder:
+  ```
+  cd Ardunio/libraries
+  git clone https://github.com/janscience/MicroConfig.git
+  ```
+  This is recommended when you often need to update to the latest
+  developments of the library and you do not want to wait for official
+  releases. Once you cloned the library you can update it by pulling it
+  ```
+  cd Ardunio/libraries/MicroConfig
+  git pull origin main
+  ```
+
+The Arduino libraries folder is located in
+`/home/{username}/Arduino/libraries/` (Linux) or
+`\Users\{username}\Documents\Arduino` (windows). If unsure, open the
+[Arduino IDE](https://docs.arduino.cc/software/ide/) and select
+`File-Preferences`. This shows you at the very top the sketchbook
+location. Simply add `libraries` to this path.
 
 
 ## Applications of the MicroConfig libraries
