@@ -97,14 +97,14 @@ Teensy:
 
 ![microconfig list](docs/microconfig-list.png)
 
-At the same time, another windows open (one for each detected Teensy)
+At the same time, another window opens (one for each detected Teensy)
 that may look like this:
 
 ![microconfig menu](docs/microconfig-menu.png)
 
 At the right side it presents you with the configuration menu it found
 on the microcontroller. You can edit it and any change will be
-immediately transfered to the microcontroller.
+immediately transferred to the microcontroller.
 
 At the bottom it tells you the name of the configuration file. If it
 exist on the microcontroller's SD card a green check mark is displayed
@@ -130,8 +130,8 @@ keyboard shortcuts with the `Alt`key:
   microconroller. A window opens that keeps showing the serial output
   of the microcontroller.
 
-You may enter `administration mode` by checking `Admin` or typing
-`Alt+A` at the bottom right. Then you get access to a few more actions,
+You may enter `administration mode` by checking `Admin` at the bottom
+right or typing `Alt+A`. Then you get access to a few more actions,
 and to some special configuration settings, like this:
 
 ![microconfig admin](docs/microconfig-admin.png)
