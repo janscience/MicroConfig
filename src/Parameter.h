@@ -102,6 +102,9 @@ class Parameter : public Action {
   /* List selection of valid values. */
   virtual void listSelection(Stream &stream) const {};
 
+  /* Change number of selection items to n. */
+  void setNSelection(size_t n);
+
   /* Return in str some instructions for interactive input,
      e.g. a valid range for numbers. Used for the prompt in execute().
      If detailed() provide more infos for a GUI. */

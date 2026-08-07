@@ -188,6 +188,11 @@ int Parameter::get(int addr, int &num, bool setvalue, Stream &stream) {
 }
 
 
+void Parameter::setNSelection(size_t n) {
+  NSelection = n;
+}
+
+
 void Parameter::instructions(char *str) const {
   *str = '\0';
   if (detailed()) {
