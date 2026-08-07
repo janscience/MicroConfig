@@ -192,7 +192,8 @@ class Action {
 
   /* Parse the string val and configure the action accordingly.
      SetValue must be enabled. If StreamOutput is enabled,
-     report the new value together with name on stream. */
+     report the new value together with name on stream.
+     name is the parent's Menu name. */
   virtual void set(const char *val, const char *name=0,
 		   Stream &stream=Serial) {};
   

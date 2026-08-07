@@ -29,6 +29,8 @@ class Config : public Menu {
   /* Initialize top level menu with name and roles. */
   Config(const char *name, unsigned int roles=ConfigRoles);
 
+  using Menu::setRoot;
+
   /* Recursively set the root menu of all children. */
   void setRoot();
 
@@ -80,6 +82,9 @@ class Config : public Menu {
      Report errors and success on stream.
      If sd is NULL read from default SD card provided via setConfigFile(). */
   void load(Stream &stream=Serial, SDClass *sd=0);
+
+  using Menu::put;
+  using Menu::get;
 
   /* Write configuration with role EEPROMPut to EEPROM memory.
      Report errors and success on stream.

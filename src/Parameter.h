@@ -568,7 +568,7 @@ class BaseNumberParameter : public Parameter {
   /* Return for val a properly formatted string of maximum size MaxVal
      with outUnit appended.
      If use_special, replace special value by special string. */
-  virtual void valueStr(T val, char *str, bool use_special=true) const;
+  virtual void formatValue(T val, char *str, bool use_special=true) const;
 
   
  protected:
@@ -642,7 +642,7 @@ class NumberParameter : public BaseNumberParameter<T> {
   
   /* Return for val a properly formatted string of maximum size MaxVal
      with outUnit appended. */
-  virtual void valueStr(T val, char *str, bool use_special=true) const { BaseNumberParameter<T>::valueStr(val, str, use_special); };
+  virtual void formatValue(T val, char *str, bool use_special=true) const { BaseNumberParameter<T>::formatValue(val, str, use_special); };
   
   
  protected:
@@ -706,7 +706,7 @@ class NumberPointerParameter : public BaseNumberParameter<T> {
   
   /* Return for val a properly formatted string of maximum size MaxVal
      with outUnit appended. */
-  virtual void valueStr(T val, char *str, bool use_special=true) const { BaseNumberParameter<T>::valueStr(val, str, use_special); };
+  virtual void formatValue(T val, char *str, bool use_special=true) const { BaseNumberParameter<T>::formatValue(val, str, use_special); };
   
   
  protected:
@@ -1225,7 +1225,7 @@ template<class T>
 void BaseNumberParameter<T>::listSelection(Stream &stream) const {
   char str[MaxVal];
   for (size_t k=0; k<NSelection; k++) {
-    valueStr(Selection[k], str);
+    formatValue(Selection[k], str);
     stream.printf("  - %s\n", str);
   }
 }
@@ -1242,20 +1242,20 @@ void BaseNumberParameter<T>::instructions(char *str) const {
   char max_str[MaxVal];
   if (NSelection == 0) {
     if (CheckMin && CheckMax) {
-      valueStr(Minimum, min_str, false);    
-      valueStr(Maximum, max_str, false);
+      formatValue(Minimum, min_str, false);    
+      formatValue(Maximum, max_str, false);
       if (strlen(str) > 0)
 	strcat(str, ", ");
       sprintf(str + strlen(str), "between %s and %s", min_str, max_str);
     }
     else if (CheckMin) {
-      valueStr(Minimum, min_str, false);    
+      formatValue(Minimum, min_str, false);    
       if (strlen(str) > 0)
 	strcat(str, ", ");
       sprintf(str + strlen(str), "greater than or equal to %s", min_str);
     }
     else if (CheckMax) {
-      valueStr(Maximum, max_str, false);    
+      formatValue(Maximum, max_str, false);    
       if (strlen(str) > 0)
 	strcat(str, ", ");
       sprintf(str + strlen(str), "less than or equal to %s", max_str);
@@ -1264,7 +1264,7 @@ void BaseNumberParameter<T>::instructions(char *str) const {
   if (SpecialStr != NULL && strlen(SpecialStr) > 0) {
     if (strlen(str) > 0)
       strcat(str, ", ");
-    valueStr(SpecialValue, max_str, false);
+    formatValue(SpecialValue, max_str, false);
     sprintf(str + strlen(str), "or \"%s\" [%s]", SpecialStr, max_str);
   }
 }
@@ -1295,7 +1295,7 @@ int BaseNumberParameter<T>::checkMinMax(float val) {
 
 
 template<class T>
-void BaseNumberParameter<T>::valueStr(T val, char *str, bool use_special) const {
+void BaseNumberParameter<T>::formatValue(T val, char *str, bool use_special) const {
   if (this->Unit != NULL && strlen(this->Unit) > 0) {
     float value = this->changeUnit((float)val, this->Unit, this->OutUnit);
     if (use_special && SpecialStr != NULL && strlen(SpecialStr) > 0 &&
@@ -1396,9 +1396,10 @@ bool NumberParameter<T>::parseValue(char *val, bool selection) {
   char unit[this->MaxUnit] = "";
   if (strlen(up) == 0 && strlen(this->OutUnit) > 0)
     strncpy(unit, this->OutUnit, this->MaxUnit);
-  else
+  else {
     strncpy(unit, up, this->MaxUnit);
-  unit[this->MaxUnit-1] = '\0';
+    unit[this->MaxUnit-1] = '\0';
+  }
   float nv = this->changeUnit(num, unit, this->Unit);
   if (this->checkSelection(nv) < 0)
     return false;
@@ -1411,7 +1412,7 @@ bool NumberParameter<T>::parseValue(char *val, bool selection) {
 
 template<class T>
 void NumberParameter<T>::valueStr(char *str) const {
-  valueStr(Value, str);
+  formatValue(Value, str);
 }
 
 
@@ -1529,7 +1530,7 @@ bool NumberPointerParameter<T>::parseValue(char *val, bool selection) {
 
 template<class T>
 void NumberPointerParameter<T>::valueStr(char *str) const {
-  valueStr(*Value, str);
+  formatValue(*Value, str);
 }
 
 
