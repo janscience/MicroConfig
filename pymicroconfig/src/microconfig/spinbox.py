@@ -112,5 +112,14 @@ class SpinBox(QAbstractSpinBox):
         self.textChanged.emit(text)
 
     def stepBy(self, steps):
-        self.setValue(self._value + steps)
+        fac = 1
+        if self._decimals is not None and self._decimals > 0:
+            fac = 10**(-self._decimals)
+        step = steps*fac
+        value = self._value + step
+        if self._minimum is not None and value <= self._minimum:
+            value = self._minimum
+        if self._maximum is not None and value >= self._maximum:
+            value = self._maximum
+        self.setValue(value)
 

@@ -109,7 +109,15 @@ class Parameter(Interactor, QObject, metaclass=InteractorQObject):
                 special = special[special.find('[') + 1:special.find(']')]
                 if self.unit:
                     special = special[:-len(self.unit)]
-                self.special_val = int(special)
+                try:
+                    self.special_val = int(special)
+                except ValueError:
+                    print(f"WARNING for parameter {self.name}: only integers can be special values --- ignored.")
+                    self.special_val = None
+                    self.special_str = None
+                    if self.num_value is None:
+                        self.num_value = float(special)
+                        self.out_unit = self.unit
         if self.type_str in ['float', 'integer'] and self.num_value is None:
             if self.value == self.special_str:
                 self.num_value = self.special_val
