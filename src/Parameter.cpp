@@ -76,7 +76,7 @@ void Parameter::set(const char *val, const char *name, Stream &stream) {
   size_t kn = 0;
   if (name != 0)
     kn = strlen(name);
-  char keyname[kn + strlen(this->name()) + 1];
+  char keyname[kn + strlen(this->name()) + 2];
   keyname[0] = '\0';
   if (kn > 0) {
     strcat(keyname, name);
