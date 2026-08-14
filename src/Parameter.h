@@ -1428,8 +1428,13 @@ int NumberParameter<T>::putValue(int addr) const {
   
 template<class T>
 int NumberParameter<T>::getValue(int addr, bool setvalue) {
-  if (setvalue)
+  if (setvalue) {
     EEPROM.get(addr, Value);
+    if (this->CheckMin && Value < float(this->Minimum))
+      Value = this->Minimum;
+    if (this->CheckMax && Value > float(this->Maximum))
+      Value = this->Maximum;
+  }
   return addr += sizeof(T);
 }
 
@@ -1546,8 +1551,13 @@ int NumberPointerParameter<T>::putValue(int addr) const {
   
 template<class T>
 int NumberPointerParameter<T>::getValue(int addr, bool setvalue) {
-  if (setvalue)
+  if (setvalue) {
     EEPROM.get(addr, *Value);
+    if (this->CheckMin && *Value < float(this->Minimum))
+      *Value = this->Minimum;
+    if (this->CheckMax && *Value > float(this->Maximum))
+      *Value = this->Maximum;
+  }
   return addr += sizeof(T);
 }
 
