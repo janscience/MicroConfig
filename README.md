@@ -12,7 +12,7 @@ C++ code.
 ## Features
 
 - Interactive configuration and execution via serial streams.
-- Store and retrieve configuration from EEPROM.
+- Store and retrieve configuration from EEPROM (internal and external).
 - Read and write YAML configuration file on SD card.
 - Transfer configuration to and from host computer.
 - Configures key-value pairs, with values being strings, enums, booleans, integer types, or floats.
@@ -159,6 +159,10 @@ for a user guide and installation instructions.
 - [Parameter](src/Parameter.h): Actions with configurable name-value pairs of various types.
 - [Menu](src/Menu.h): A menu of actions and parameters.
 - [Config](src/Config.h): Root (top-level) Menu with configuration file.
+
+### Storage
+
+- [Storage](src/Storage.h): Interface to linear storage memory, like EEPROM.
 
 ### Message, help, and configuration menu
 

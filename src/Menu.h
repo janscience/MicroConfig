@@ -16,11 +16,11 @@ class Menu : public Action {
  public:
 
   /* Initialize top level menu with name and roles. 
-     FileInput and EEPROMIO roles are disabled. */
+     FileInput and StorageIO roles are disabled. */
   Menu(const char *name, unsigned int roles=MenuRoles);
 
   /* Initialize menu with name and roles and add it to menu. 
-     FileInput and EEPROMIO roles are disabled. */
+     FileInput and StorageIO roles are disabled. */
   Menu(Menu &menu, const char *name, unsigned int roles=MenuRoles);
 
   /* Destructor. */
@@ -120,24 +120,24 @@ class Menu : public Action {
   virtual void set(const char *val, const char *name,
 		   Stream &stream=Serial);
 
-  /* Write configuration with role EEPROMPut to addr in EEPROM memory.
+  /* Write configuration with role StoragePut to addr in storage memory.
      num is the current index for numbering actions.
      It is incremented by each of the children storing values in
-     EEPROM.
-     Returns EEPROM address behind this configuration, -1 on error.
+     storage.
+     Returns address behind this configuration, -1 on error.
      Report errors and success on stream. */
-  virtual int put(int addr, int &num, Stream &stream=Serial) const;
+  virtual int put(int addr, int &num,
+		  Storage &storage, Stream &stream=Serial) const;
   
-  /* Read configuration with role EEPROMGet from addr in EEPROM memory.
+  /* Read configuration with role StorageGet from addr in storage memory.
      num is the current index for numbering actions.
      It is incremented by each of the children storing values in
-     EEPROM.
-     Only if setvalue is true set the actions' values to EEPROM
-     content.
-     Returns EEPROM address behind this configuration, -1 on error.
+     storage.
+     Only if setvalue is true set the action's value to content from storage.
+     Returns address behind this configuration, -1 on error.
      Report errors and success on stream. */
   virtual int get(int addr, int &num, bool setvalue,
-		  Stream &stream=Serial);
+		  Storage &storage, Stream &stream=Serial);
 
 
 protected:

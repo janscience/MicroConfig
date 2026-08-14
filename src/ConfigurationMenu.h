@@ -8,6 +8,7 @@
 
 
 #include <SD.h>
+#include <Storage.h>
 #include <Action.h>
 #include <Menu.h>
 
@@ -81,24 +82,37 @@ class RemoveConfigAction : public SDClassAction {
 };
 
 
-class PutConfigAction : public ReportConfigAction {
+class StorageAction : public Action {
+
+ public:
+
+  /* Initialize and add to menu. */
+  StorageAction(Menu &menu, const char *name, Storage &storage);
+
+ protected:
+
+  Storage &Store; 
+};
+
+
+class PutConfigAction : public StorageAction {
 
  public:
   
-  using ReportConfigAction::ReportConfigAction;
+  using StorageAction::StorageAction;
 
-  /* Write configuration settings to EEPROM. */
+  /* Write configuration settings to stroage. */
   virtual void execute(Stream &stream=Serial);
 };
 
 
-class GetConfigAction : public ReportConfigAction {
+class GetConfigAction : public StorageAction {
 
  public:
   
-  using ReportConfigAction::ReportConfigAction;
+  using StorageAction::StorageAction;
 
-  /* Read configuration settings from EEPROM. */
+  /* Read configuration settings from storage. */
   virtual void execute(Stream &stream=Serial);
 };
 
@@ -107,7 +121,7 @@ class ConfigurationMenu : public Menu {
 
 public:
 
-  ConfigurationMenu(Menu &menu, SDClass &sd);
+  ConfigurationMenu(Menu &menu, SDClass &sd, Storage &storage);
 
   ReportConfigAction ReportAct;
   SaveConfigAction SaveAct;

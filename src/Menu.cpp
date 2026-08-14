@@ -24,7 +24,7 @@ Menu::Menu(const char *name, unsigned int roles) :
   GoHome(false) {
   ActType = MenuType;
   disableSupported(FileInput);
-  disableSupported(EEPROMIO);
+  disableSupported(StorageIO);
 }
 
 
@@ -34,7 +34,7 @@ Menu::Menu(Menu &menu, const char *name, unsigned int roles) :
   GoHome(false) {
   ActType = MenuType;
   disableSupported(FileInput);
-  disableSupported(EEPROMIO);
+  disableSupported(StorageIO);
 }
 
 
@@ -592,9 +592,10 @@ void Menu::set(const char *val, const char *name,
 }
 
 
-int Menu::put(int addr, int &num, Stream &stream) const {
+int Menu::put(int addr, int &num,
+	      Storage &storage, Stream &stream) const {
   for (size_t j=0; j<NActions; j++) {
-    addr = Actions[j]->put(addr, num, stream);
+    addr = Actions[j]->put(addr, num, storage, stream);
     if (addr < 0)
       return addr;
   }
@@ -602,9 +603,10 @@ int Menu::put(int addr, int &num, Stream &stream) const {
 }
 
 
-int Menu::get(int addr, int &num, bool setvalue, Stream &stream) {
+int Menu::get(int addr, int &num, bool setvalue,
+	      Storage &storage, Stream &stream) {
   for (size_t j=0; j<NActions; j++) {
-    addr = Actions[j]->get(addr, num, setvalue, stream);
+    addr = Actions[j]->get(addr, num, setvalue, storage, stream);
     if (addr < 0)
       return addr;
   }

@@ -89,11 +89,17 @@ void RemoveConfigAction::execute(Stream &stream) {
 }
 
 
+StorageAction::StorageAction(Menu &menu, const char *name, Storage &storage) : 
+  Action(menu, name),
+  Store(storage) {
+}
+
+
 void PutConfigAction::execute(Stream &stream) {
   bool save = Action::yesno("Do you really want to write the configuration settings to EEPROM?",
 			    true, echo(), stream);
   if (save)
-    root()->put(stream);
+    root()->put(Store, stream);
   stream.println();
 }
 
@@ -103,19 +109,20 @@ void GetConfigAction::execute(Stream &stream) {
   bool r = Action::yesno("Do you really want to reload the configuration from EEPROM?",
 		      true, echo(), stream);
   if (r)
-    root()->get(stream);
+    root()->get(Store, stream);
   stream.println();
 }
 
 
-ConfigurationMenu::ConfigurationMenu(Menu &menu, SDClass &sd) :
+ConfigurationMenu::ConfigurationMenu(Menu &menu, SDClass &sd,
+				     Storage &storage) :
   Menu(menu, "Configuration", Action::StreamInput),
   ReportAct(*this, "Print configuration"),
   SaveAct(*this,"Save configuration file", sd),
   LoadAct(*this, "Load configuration file", sd),
   RemoveAct(*this, "Erase configuration file", sd),
-  PutAct(*this,"Put configuration to EEPROM"),
-  GetAct(*this, "Get configuration from EEPROM"),
+  PutAct(*this,"Put configuration to EEPROM", storage),
+  GetAct(*this, "Get configuration from EEPROM", storage),
   ReadAct(*this, "Read configuration from stream") {
 }
 

@@ -12,6 +12,7 @@
 
 class Menu;
 class Config;
+class Storage;
 
 
 class Action {
@@ -20,24 +21,24 @@ class Action {
 
   // roles an action supports:
   enum Role {
-    SetValue = 1,     // set value from a string using set() function.
-    FileOutput = 2,   // write to configuration file using write() function.
-    FileInput = 4,    // read from configuration file using set() function.
+    SetValue = 1,       // set value from a string using set() function.
+    FileOutput = 2,     // write to configuration file using write() function.
+    FileInput = 4,      // read from configuration file using set() function.
     FileIO = FileInput | FileOutput,
-    StreamOutput = 8, // report infos on stream using write() function.
-    StreamInput = 16, // interactive action supporting execute() function.
+    StreamOutput = 8,   // report infos on stream using write() function.
+    StreamInput = 16,   // interactive action supporting execute() function.
     StreamIO = StreamInput | StreamOutput,
-    Report = 32,      // write infos to a file using write() function.
-    EEPROMPut = 64,   // write to EEPROM using put() function.
-    EEPROMGet = 128,  // read from EEPROM using get() function.
-    EEPROMIO = EEPROMPut | EEPROMGet,
+    Report = 32,        // write infos to a file using write() function.
+    StoragePut = 64,    // write to Storage using put() function.
+    StorageGet = 128,   // read from Storage using get() function.
+    StorageIO = StoragePut | StorageGet,
     ActionRoles = StreamInput,         // Action that can execute
     ReportRoles = StreamIO | Report,   // Action that can execute and report
-    ParameterRoles = SetValue | FileIO | StreamIO | EEPROMIO | Report,
+    ParameterRoles = SetValue | FileIO | StreamIO | StorageIO | Report,
     ConstParameterRoles = StreamOutput | Report,
     MenuRoles = FileIO | StreamIO | Report,
     ConfigRoles = StreamIO,
-    AllRoles = FileIO | StreamIO | EEPROMGet | Report  // EEPROMPut must no be touched to keep EEPROM memory intact when disabling or enabling actions
+    AllRoles = FileIO | StreamIO | StorageGet | Report  // StoragePut must no be touched to keep Storage memory intact when disabling or enabling actions
   };
 
   enum Modes {
@@ -197,22 +198,24 @@ class Action {
   virtual void set(const char *val, const char *name=0,
 		   Stream &stream=Serial) {};
   
-  /* Write configuration with role EEPROMPut to addr in EEPROM memory.
+  /* Write configuration with role StoragePut to addr in storage memory.
      num is the current index of this Action.
-     It is incremented when this Action stores values in EEPROM.
+     It is incremented when this Action actually stores values in storage.
      Report errors and success on stream.
-     Returns EEPROM address behind this configuration, -1 on error.
+     Returns address behind this configuration, -1 on error.
      Default implementation returns addr. */
-  virtual int put(int addr, int &num, Stream &stream=Serial) const;
+  virtual int put(int addr, int &num, Storage &storage,
+		  Stream &stream=Serial) const;
   
-  /* Read configuration with role EEPROMGet from addr in EEPROM memory.
+  /* Read configuration with role StorageGet from addr in storage memory.
      num is the current index of this Action.
-     It is incremented when this Action stores values in EEPROM.
-     Only if setvalue is true set the actions value to EEPROM content.
+     It is incremented when this Action actually stores values in storage.
+     Only if setvalue is true set the action's value to content from storage.
      Report errors and success on stream.
-     Returns EEPROM address behind this configuration, -1 on error.
+     Returns address behind this configuration, -1 on error.
      Default implementation returns addr. */
-  virtual int get(int addr, int &num, bool setvalue, Stream &stream=Serial);
+  virtual int get(int addr, int &num, bool setvalue,
+		  Storage &storage, Stream &stream=Serial);
 
   
  protected:

@@ -86,19 +86,19 @@ class Config : public Menu {
   using Menu::put;
   using Menu::get;
 
-  /* Write configuration with role EEPROMPut to EEPROM memory.
+  /* Write configuration with role StoragePut to storage memory.
      Report errors and success on stream.
      Return the number of written actions,
      0 if there is no configurable action,
-     and -1 on error, i.e. EEPROM is too small. */
-  int put(Stream &stream=Serial) const;
+     and -1 on error, i.e. storage is too small. */
+  int put(Storage &storage, Stream &stream=Serial) const;
   
-  /* Read configuration with role EEPROMGet from EEPROM memory.
+  /* Read configuration with role StorageGet from storage memory.
      Report errors and success on stream.
      Return the number of configured actions,
      0 if there is no configurable action,
-     and -1 on error, i.e. if EEPROM was corrupted. */
-  int get(Stream &stream=Serial);
+     and -1 on error, i.e. if storage was corrupted. */
+  int get(Storage &storage, Stream &stream=Serial);
 
 
 protected:

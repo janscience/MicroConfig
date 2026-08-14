@@ -120,47 +120,49 @@ void Parameter::makeIdentifier(int num, char ident[NIdent]) const {
 }
 
 
-int Parameter::put(int addr, int &num, Stream &stream) const {
-  if (disabled(EEPROMPut) || name() == 0 || strlen(name()) == 0)
+int Parameter::put(int addr, int &num,
+		   Storage &storage, Stream &stream) const {
+  if (disabled(StoragePut) || name() == 0 || strlen(name()) == 0)
     return addr;
   // write identifier:
   char ident[NIdent];
   makeIdentifier(num, ident);
-  EEPROM.put(addr, ident);
+  storage.put(addr, ident);
   addr += NIdent;
   // write value:
-  int addr1 = putValue(addr);
+  int addr1 = putValue(addr, storage);
   num++;
-  if (addr1 >= EEPROM.length())
+  if (addr1 >= storage.length())
     return -1;
   char s[MaxVal];
   valueStr(s);
   stream.printf("Wrote %s with value \"%s\" ", name(), s);
-  stream.printf("to EEPROM at address %04x\n", addr);
+  stream.printf("to storage at address %04x\n", addr);
   return addr1;
 }
 
 
-int Parameter::get(int addr, int &num, bool setvalue, Stream &stream) {
-  if (disabled(EEPROMPut) || name() == 0 || strlen(name()) == 0)
+int Parameter::get(int addr, int &num, bool setvalue,
+		   Storage &storage, Stream &stream) {
+  if (disabled(StoragePut) || name() == 0 || strlen(name()) == 0)
     return addr;
-  if (disabled(EEPROMGet) || disabled(SetValue))
+  if (disabled(StorageGet) || disabled(SetValue))
     setvalue = false;
   if (setvalue) {
     // check identifier:
     char p_ident[NIdent];
     makeIdentifier(num, p_ident);
     char e_ident[NIdent];
-    EEPROM.get(addr, e_ident);
+    storage.get(addr, e_ident);
     addr += NIdent;
     if (memcmp(p_ident, e_ident, NIdent) != 0) {
       if (enabled(StreamOutput))
-	stream.printf("Failed to read value for %s from EEPROM memory.\n",
+	stream.printf("Failed to read value for %s from storage memory.\n",
 		      name());
       return -1;
     }
     // read value:
-    int addr1 = getValue(addr, true);
+    int addr1 = getValue(addr, true, storage);
     num++;
     if (enabled(StreamOutput)) {
       size_t kn = strlen(name()) + 1;
@@ -175,13 +177,13 @@ int Parameter::get(int addr, int &num, bool setvalue, Stream &stream) {
       strcat(keyname, name());
       char pval[MaxVal];
       valueStr(pval);
-      stream.printf("%*sset %-25s to %-25s from EEPROM address %04x\n",
+      stream.printf("%*sset %-25s to %-25s from storage address %04x\n",
 		    indentation(), "", keyname, pval, addr);
     }
     return addr1;
   }
   else {
-    addr = getValue(addr, false);
+    addr = getValue(addr, false, storage);
     num++;
     return addr + NIdent;
   }

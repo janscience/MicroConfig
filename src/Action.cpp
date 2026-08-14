@@ -1,5 +1,6 @@
 #include <Menu.h>
 #include <Config.h>
+#include <Storage.h>
 #include <Action.h>
 
 
@@ -158,12 +159,14 @@ void Action::execute(Stream &stream) {
 }
 
 
-int Action::put(int addr, int &num, Stream &stream) const {
+int Action::put(int addr, int &num,
+		Storage &storage, Stream &stream) const {
   return addr;
 }
 
 
-int Action::get(int addr, int &num, bool setvalue, Stream &stream) {
+int Action::get(int addr, int &num, bool setvalue,
+		Storage &storage, Stream &stream) {
   return addr;
 }
 
