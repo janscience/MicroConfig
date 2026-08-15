@@ -1,13 +1,20 @@
 /*
   Storage - Interface to linear storage memory, like EEPROM.
   Created by Jan Benda, August 14, 2026.
+
+  The Storage class is used to access linear storage memories, like EEPROM,
+  for storing a configuration.
+  
+  This default implementation provides access to the internal EEPROM
+  as provided by the global EEPROM variable.
+
+  When reimplementing this class for another EEPROM memory, for example,
+  one that is accesible via I2C bus, then reimplement the length(),
+  read(), and update() functions.
 */
 
 #ifndef Storage_h
 #define Storage_h
-
-
-#include <EEPROM.h>
 
 
 class Storage {
@@ -17,8 +24,8 @@ class Storage {
   // Constructor using internal EEPROM.
   Storage();
 
-  // Size of the storage in bytes.
-  uint16_t length();
+  // Size of storage in bytes.
+  virtual uint16_t length();
 
   // Read variable t at index idx.
   template<typename T>
@@ -31,18 +38,29 @@ class Storage {
   // Compute CRC sum.
   uint32_t crc(int addr0, int addr1);
 
+
+protected:
+
+  // Read len bytes from storage at idx into buffer at address dest.
+  virtual void read(int idx, uint8_t *dest, size_t len);
+  
+  // Write a len bytes from buffer at address src to storage at idx.
+  virtual void update(int idx, const uint8_t *src, size_t len);
+
 };
 
 
 template<typename T>
 T &Storage::get(int idx, T &t) {
-  return EEPROM.get(idx, t);
+  read(idx, (uint8_t *) &t, sizeof(T));
+  return t;
 }
 
 
 template<typename T>
 const T &Storage::put(int idx, const T &t) {
-  return EEPROM.put(idx, t);
+  update(idx, (const uint8_t *) &t, sizeof(T));
+  return t;
 }
 
 #endif

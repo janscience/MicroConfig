@@ -1,6 +1,7 @@
 #include <SD.h>
 #include <MicroConfig.h>
 
+Storage storage;                              // access to default EEPROM
 Config config("micro.cfg", &SD);              // main menu with configuration file on SD card
 
 Menu settings(config, "Settings");            // settings menu
@@ -48,7 +49,7 @@ EnumParameter<SAMPLING_SPEED> speed(aisettings, "SamplingSpeed", MED_SPEED,
 		                                3);               // number of values in the arrays
 
 
-ConfigurationMenu configuration_menu(config, SD);  // interactively report, save, load and remove configuration file
+ConfigurationMenu configuration_menu(config, SD, storage);  // interactively report, save, load and remove configuration file or put to are get configuration from EEPROM.
 FirmwareMenu firmware_menu(config, SD);    // menu for uploading hex files from SD card
 HelpAction help_act(config, "Help");       // action showing how to use the menu
 
@@ -71,7 +72,7 @@ void setup() {
   // modify values:
   message.setText("Just another demonstration!");          // change the text printed out
   info.setValue("color", "green");                         // change the "color" value
-  config.get();                  // get configuration from EEPROM
+  config.get(storage);           // get configuration from EEPROM
   config.load();                 // load configuration file from SD card
   if (Serial)
     config.execute();            // execute the main menu, default 10s timeout

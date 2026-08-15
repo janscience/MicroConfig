@@ -12,6 +12,8 @@
 #include <Menu.h>
 #include <Config.h>
 
+#include <Storage.h>
+
 #include <MessageAction.h>
 #include <InfoAction.h>
 #include <HelpAction.h>
