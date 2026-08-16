@@ -114,6 +114,48 @@ void GetConfigAction::execute(Stream &stream) {
 }
 
 
+void StorageClearAction::execute(Stream &stream) {
+  if (Action::yesno("Do you really want to clear the full EEPROM memory?", false, echo(), stream)) {
+    uint8_t buffer[64];
+    memset(buffer, 0xff, 64);
+    for (unsigned int i=0; i < Store.length(); i+=64)
+      Store.put(i, buffer);
+    stream.printf("Wrote 0xFF to all %u EEPROM memory cells.\n",
+		  Store.length());
+    stream.println();
+  }
+}
+
+
+void StorageHexdumpAction::execute(Stream &stream) {
+  unsigned int i=0;
+  while (i < Store.length()) {
+    stream.printf("%04x  ", i);
+    uint8_t buffer[16];
+    Store.get(i, buffer);
+    for (unsigned int j=0; j < 2; j++) {
+      for (unsigned int k=0; k < 8; k++) {
+	if (i + 8*j + k < Store.length())
+	  stream.printf("%02x ", buffer[8*j + k]);
+	else
+	  stream.print("   ");
+      }
+      stream.print(" ");
+    }
+    stream.printf("|");
+    for (unsigned int j=0; j < 16 && i < Store.length(); j++) {
+      uint8_t c = buffer[j];
+      if (c < 0x20 || c >= 0x7f)
+	c = '.';
+      stream.printf("%c", c);
+      i++;
+    }
+    stream.print("|\n");
+  }
+  stream.println();
+}
+
+
 ConfigurationMenu::ConfigurationMenu(Menu &menu, SDClass &sd,
 				     Storage &storage) :
   Menu(menu, "Configuration", Action::StreamInput),
@@ -123,6 +165,8 @@ ConfigurationMenu::ConfigurationMenu(Menu &menu, SDClass &sd,
   RemoveAct(*this, "Erase configuration file", sd),
   PutAct(*this,"Put configuration to EEPROM", storage),
   GetAct(*this, "Get configuration from EEPROM", storage),
+  ClearAct(*this, "Clear EEPROM memory", storage),
+  HexdumpAct(*this, "EEPROM memory content", storage),
   ReadAct(*this, "Read configuration from stream") {
 }
 

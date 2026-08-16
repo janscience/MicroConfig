@@ -117,6 +117,28 @@ class GetConfigAction : public StorageAction {
 };
 
 
+class StorageClearAction : public StorageAction {
+
+ public:
+
+  using StorageAction::StorageAction;
+  
+  /* Write 0xFF to all storage memory. */
+  virtual void execute(Stream &stream=Serial);
+};
+
+
+class StorageHexdumpAction : public StorageAction {
+
+ public:
+
+  using StorageAction::StorageAction;
+
+  /* Hexdump of storage memory. */
+  virtual void execute(Stream &stream=Serial);
+};
+
+
 class ConfigurationMenu : public Menu {
 
 public:
@@ -129,6 +151,8 @@ public:
   RemoveConfigAction RemoveAct;
   PutConfigAction PutAct;
   GetConfigAction GetAct;
+  StorageClearAction ClearAct;
+  StorageHexdumpAction HexdumpAct;
   ReadConfigAction ReadAct;
   
 };
