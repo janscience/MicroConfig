@@ -6,7 +6,8 @@
   for storing a configuration.
   
   This default implementation provides access to the internal EEPROM
-  as provided by the global EEPROM variable.
+  as provided by the global EEPROM variable. An instance is made available
+  as EEPROMStorage.
 
   When reimplementing this class for another EEPROM memory, for example,
   one that is accesible via I2C bus, then reimplement the length(),
@@ -48,6 +49,9 @@ protected:
   virtual void update(int idx, const uint8_t *src, size_t len);
 
 };
+
+
+static Storage EEPROMStorage __attribute__ ((unused));
 
 
 template<typename T>

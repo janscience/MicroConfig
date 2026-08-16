@@ -87,7 +87,7 @@ class StorageAction : public Action {
  public:
 
   /* Initialize and add to menu. */
-  StorageAction(Menu &menu, const char *name, Storage &storage);
+  StorageAction(Menu &menu, const char *name, Storage &storage=EEPROMStorage);
 
  protected:
 
@@ -143,7 +143,7 @@ class ConfigurationMenu : public Menu {
 
 public:
 
-  ConfigurationMenu(Menu &menu, SDClass &sd, Storage &storage);
+  ConfigurationMenu(Menu &menu, SDClass &sd, Storage &storage=EEPROMStorage);
 
   ReportConfigAction ReportAct;
   SaveConfigAction SaveAct;

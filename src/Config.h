@@ -91,14 +91,14 @@ class Config : public Menu {
      Return the number of written actions,
      0 if there is no configurable action,
      and -1 on error, i.e. storage is too small. */
-  int put(Storage &storage, Stream &stream=Serial) const;
+  int put(Storage &storage=EEPROMStorage, Stream &stream=Serial) const;
   
   /* Read configuration with role StorageGet from storage memory.
      Report errors and success on stream.
      Return the number of configured actions,
      0 if there is no configurable action,
      and -1 on error, i.e. if storage was corrupted. */
-  int get(Storage &storage, Stream &stream=Serial);
+  int get(Storage &storage=EEPROMStorage, Stream &stream=Serial);
 
 
 protected:
