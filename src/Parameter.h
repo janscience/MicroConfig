@@ -59,6 +59,15 @@ class Parameter : public Action {
      and add it to menu. */
   Parameter(Menu &menu, const char *name, size_t n=0, Action::Modes mode=Action::User);
 
+  /* Returns the unique identifier of this parameter
+     or a number smaller than or equal to zero
+     if identifier was not set yet. */
+  virtual int identifier() const;
+  
+  /* Provide a unique identifier for this parameter.
+     Increments id and uses this as the identifier for this parameter. */
+  virtual int setIdentifier(int id);
+
   /* Write the parameter's name within width characters
      followed by its value to stream for display as a menu entry. */
   virtual void writeEntry(Stream &stream=Serial, size_t width=0) const;
@@ -88,6 +97,15 @@ class Parameter : public Action {
      Returns address behind this configuration, -1 on error. */
   virtual int get(int addr, int &num, bool setvalue,
 		  Storage &storage, Stream &stream=Serial);
+
+  /* Transmit parameter using storage.
+     Returns a negative number on error, zero if nothing can be
+     transmitted, or a positive number, on success.*/
+  virtual int transmit(Storage &storage, Stream &stream=Serial) const;
+  
+  /* Receive value from storage and update this parameter's value.
+     Returns zero on error or the parameter's identifier on success. */
+  virtual int receive(Storage &storage, Stream &stream=Serial);
 
   /* Parse the string val and set the value of this parameter accordingly.
      If selection, then val is the input in response to an offered
@@ -133,6 +151,8 @@ class Parameter : public Action {
      Only if setvalue is true set the action's value to content from Storage.
      Returns address behind this value, -1 on error. */
   virtual int getValue(int addr, bool setvalue, Storage &storage) { return addr; };
+
+  int ID;
 
   size_t NSelection;
   

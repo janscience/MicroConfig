@@ -43,6 +43,11 @@ void Config::setRoot() {
 }
 
 
+void Config::setIdentifier() {
+  Menu::setIdentifier(0);
+}
+
+
 const char *Config::configFile() const {
   return ConfigFile;
 }

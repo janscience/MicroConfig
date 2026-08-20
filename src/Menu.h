@@ -29,8 +29,11 @@ class Menu : public Action {
   /* Add an action to this Menu. Sets parent and root of action. */
   void add(Action *action);
 
-  /* Set the root menu of this action and all its children. */
+  /* Recursively set the root menu of this action and all its children. */
   virtual void setRoot(Config *root);
+  
+  /* Recursively set unique identifiers for the children of this menu. */
+  virtual int setIdentifier(int id);
 
   /* Add a non-editable string parameter to this Menu. */
   ConstStringParameter *addConstString(const char *name,
@@ -86,6 +89,9 @@ class Menu : public Action {
   /* Return the Action matching name. */
   virtual Action *action(const char *name);
 
+  /* Return the Action whose identifier matches id. */
+  virtual Action *action(int id);
+
   /* Enable the specified roles for this menu, if supported. */
   void enable(unsigned int roles=AllRoles);
 
@@ -139,6 +145,16 @@ class Menu : public Action {
   virtual int get(int addr, int &num, bool setvalue,
 		  Storage &storage, Stream &stream=Serial);
 
+  /* Recursively transmit configuration of all children using storage.
+     Returns a negative number on error, zero if nothing was
+     transmitted, or the number of transmitted actions on success.*/
+  virtual int transmit(Storage &storage, Stream &stream=Serial) const;
+
+  /* Receive identifier and value from storage and update the
+     corresponding action's value accordingly.
+     Returns zero on error or the identifier of the updated action on
+     success.*/
+  virtual int receive(Storage &storage, Stream &stream=Serial);
 
 protected:
 

@@ -66,6 +66,13 @@ void Menu::setRoot(Config *root) {
 }
 
 
+int Menu::setIdentifier(int id) {
+  for (size_t j=0; j<NActions; j++)
+    id = Actions[j]->setIdentifier(id);
+  return id;
+}
+
+
 ConstStringParameter *Menu::addConstString(const char *name,
 					   const char *str,
 					   Action::Modes mode) {
@@ -216,6 +223,19 @@ Action *Menu::action(const char *name) {
       else
 	return Actions[j];
     }
+  }
+  return NULL;
+}
+
+
+Action *Menu::action(int id) {
+  if (id <= 0)
+    return NULL;
+  for (size_t j=0; j<NActions; j++) {
+    if (Actions[j]->identifier() == id)
+      return Actions[j];
+    else
+      return Actions[j]->action(id);
   }
   return NULL;
 }
@@ -611,5 +631,41 @@ int Menu::get(int addr, int &num, bool setvalue,
       return addr;
   }
   return addr;
+}
+
+
+int Menu::transmit(Storage &storage, Stream &stream) const {
+  int error = 0;
+  int count = 0;
+  for (size_t j=0; j<NActions; j++) {
+    int r = Actions[j]->transmit(storage, stream);
+    if (r > 0)
+      count++;
+    if (r < 0)
+      error = r;
+  }
+  return count > 0 ? count : error;
+}
+
+
+int Menu::receive(Storage &storage, Stream &stream) {
+  int id = 0;
+  if (enabled(StreamOutput))
+    stream.print("get configuration id");
+  storage.get(0, id);
+  if (id <= 0) {
+    if (enabled(StreamOutput))
+      stream.println(": failed");
+    return 0;
+  }
+  if (enabled(StreamOutput))
+    stream.printf(": %2d", id);
+  Action *act = action(id);
+  if (act == NULL) {
+    if (enabled(StreamOutput))
+      stream.println(" is invalid\n");
+    return 0;
+  }
+  return act->receive(storage, stream);
 }
 

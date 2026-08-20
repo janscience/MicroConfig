@@ -20,7 +20,7 @@ class Action {
  public:
 
   // roles an action supports:
-  enum Role {
+  enum Role : int {
     SetValue = 1,       // set value from a string using set() function.
     FileOutput = 2,     // write to configuration file using write() function.
     FileInput = 4,      // read from configuration file using set() function.
@@ -32,13 +32,16 @@ class Action {
     StoragePut = 64,    // write to Storage using put() function.
     StorageGet = 128,   // read from Storage using get() function.
     StorageIO = StoragePut | StorageGet,
+    BusTransmit = 256,   // transmit via bus using transmit() function.
+    BusReceive = 512,    // receive from bus using get() function.
+    BusIO = BusTransmit | BusReceive,
     ActionRoles = StreamInput,         // Action that can execute
     ReportRoles = StreamIO | Report,   // Action that can execute and report
-    ParameterRoles = SetValue | FileIO | StreamIO | StorageIO | Report,
+    ParameterRoles = SetValue | FileIO | StreamIO | StorageIO | BusIO | Report,
     ConstParameterRoles = StreamOutput | Report,
     MenuRoles = FileIO | StreamIO | Report,
     ConfigRoles = StreamIO,
-    AllRoles = FileIO | StreamIO | StorageGet | Report  // StoragePut must no be touched to keep Storage memory intact when disabling or enabling actions
+    AllRoles = FileIO | StreamIO | StorageGet | BusIO | Report  // StoragePut must no be touched to keep Storage memory intact when disabling or enabling actions
   };
 
   enum Modes {
@@ -116,6 +119,9 @@ class Action {
 
   /* Return this Action if name matches its name. */
   virtual Action *action(const char *name);
+  
+  /* Return the Action whose identifier matches id. */
+  virtual Action *action(int id);
 
   /* True if some of the specified roles are enabled. */
   bool enabled(unsigned int roles=AllRoles) const;
@@ -140,6 +146,16 @@ class Action {
 
   /* Set supported roles and current roles to roles. */
   void setRoles(unsigned int roles=AllRoles);
+
+  /* Returns the unique identifier of this action
+     or zero if identifier does not exist (default). */
+  virtual int identifier() const;
+
+  /* Provide a unique identifier for this action.
+     id is the last used identifier.
+     Should return the set identifier.
+     Default implementation does not use an identifier and returns id. */
+  virtual int setIdentifier(int id);
 
   /* Return modes supported by this action. */
   Modes mode() const { return Mode; };
@@ -216,6 +232,17 @@ class Action {
      Default implementation returns addr. */
   virtual int get(int addr, int &num, bool setvalue,
 		  Storage &storage, Stream &stream=Serial);
+
+  /* Transmit configuration using storage.
+     Returns a negative number on error, 0 if this action does not
+     transmit anything (default implementation), and a positive number
+     if this action successfully transmitted its content.*/
+  virtual int transmit(Storage &storage, Stream &stream=Serial) const;
+  
+  /* Receive value from storage and update this action.
+     Returns zero on error or the action's identifier on success.
+     Does nothing and return zero if action does not accept values (default). */
+  virtual int receive(Storage &storage, Stream &stream=Serial);
 
   
  protected:

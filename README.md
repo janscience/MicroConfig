@@ -15,6 +15,7 @@ C++ code.
 - Store and retrieve configuration from EEPROM (internal and external).
 - Read and write YAML configuration file on SD card.
 - Transfer configuration to and from host computer.
+- Transmit and receive configuration values via a bus.
 - Configures key-value pairs, with values being strings, enums, booleans, integer types, or floats.
 - Numerical types with units and unit conversion.
 - Two levels of access to configurable parameters: user and admin mode.
@@ -30,8 +31,6 @@ C++ code.
       GUI](https://github.com/janscience/TeeGrid/blob/main/utils/loggerconf.py)
       to the microconfig package.
 - [ ] In unit conversion do not only check the prefix but also the unit itself.
-- [ ] Support transfer of configuration to another micro controller via
-      a serial stream.
 
 
 ## Usage

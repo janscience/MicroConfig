@@ -34,6 +34,11 @@ class Config : public Menu {
   /* Recursively set the root menu of all children. */
   void setRoot();
 
+  using Menu::setIdentifier;
+  
+  /* Recursively set the identifier of all children. */
+  void setIdentifier();
+
   /* Name of the configuration file or NULL if not set. */
   virtual const char *configFile() const;
 

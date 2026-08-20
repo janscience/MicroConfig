@@ -1,12 +1,27 @@
 #include <Menu.h>
+#include <Config.h>
 #include <Parameter.h>
 
 
 Parameter::Parameter(Menu &menu, const char *name, size_t n, Modes mode) :
   Action(menu, name, ParameterRoles, mode),
+  ID(-1),
   NSelection(n) {
   ActType = ParameterType;
   TypeStr[0] = '\0';
+}
+
+
+int Parameter::identifier() const {
+  if ((ID < 0) && (Root != NULL))
+    Root->setIdentifier();
+  return ID;
+}
+
+
+int Parameter::setIdentifier(int id) {
+  ID = ++id;
+  return ID;
 }
 
 
@@ -187,6 +202,57 @@ int Parameter::get(int addr, int &num, bool setvalue,
     num++;
     return addr + NIdent;
   }
+}
+
+
+int Parameter::transmit(Storage &storage, Stream &stream) const {
+  if (disabled(BusTransmit))
+    return 0;
+  if ((ID < 0) && (Root != NULL))
+    Root->setIdentifier();
+  char s[MaxVal];
+  valueStr(s);
+  if (enabled(StreamOutput)) {
+    stream.printf("transmit %s with value \"%s\" ", name(), s);
+    stream.printf("to storage with identifier %d", ID);
+  }
+  if (storage.put(0, ID) < 0) {
+    if (enabled(StreamOutput))
+      stream.printf(": transmission of identifier failed\n");
+    return -1;
+  }
+  if (putValue(1, storage) < 0) {
+    if (enabled(StreamOutput))
+      stream.printf(": transmission of value failed\n");
+    return -1;
+  }
+  if (enabled(StreamOutput))
+    stream.println();
+  return ID;
+}
+
+
+int Parameter::receive(Storage &storage, Stream &stream) {
+  if (disabled(BusReceive))
+    return 0;
+  // read value:
+  getValue(1, true, storage);
+  if (enabled(StreamOutput)) {
+    size_t kn = strlen(name()) + 1;
+    if (parent() != 0 && strlen(parent()->name()) > 0)
+      kn += strlen(parent()->name()) + 1;
+    char keyname[kn];
+    keyname[0] = '\0';
+    if (parent() != 0 && strlen(parent()->name()) > 0) {
+      strcpy(keyname, parent()->name());
+      strcat(keyname, ">");
+    }
+    strcat(keyname, name());
+    char pval[MaxVal];
+    valueStr(pval);
+    stream.printf(" -> set %-25s to %-25s\n", keyname, pval);
+  }
+  return ID;
 }
 
 

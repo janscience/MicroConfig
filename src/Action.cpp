@@ -80,6 +80,11 @@ Action *Action::action(const char *name) {
 }
 
 
+Action *Action::action(int id) {
+  return NULL;
+}
+
+
 bool Action::enabled(unsigned int roles) const {
   roles &= SupportedRoles;
   if (roles == 0)
@@ -115,6 +120,16 @@ void Action::disableSupported(unsigned int roles) {
 void Action::setRoles(unsigned int roles) {
   SupportedRoles = roles;
   Roles = roles;
+}
+
+
+int Action::identifier() const {
+  return 0;
+}
+
+
+int Action::setIdentifier(int id) {
+  return id;
 }
 
 
@@ -168,5 +183,15 @@ int Action::put(int addr, int &num,
 int Action::get(int addr, int &num, bool setvalue,
 		Storage &storage, Stream &stream) {
   return addr;
+}
+
+
+int Action::transmit(Storage &storage, Stream &stream) const {
+  return 0;
+}
+
+
+int Action::receive(Storage &storage, Stream &stream) {
+  return 0;
 }
 
