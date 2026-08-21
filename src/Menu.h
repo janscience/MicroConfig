@@ -127,22 +127,15 @@ class Menu : public Action {
 		   Stream &stream=Serial);
 
   /* Write configuration with role StoragePut to addr in storage memory.
-     num is the current index for numbering actions.
-     It is incremented by each of the children storing values in
-     storage.
      Returns address behind this configuration, -1 on error.
      Report errors and success on stream. */
-  virtual int put(int addr, int &num,
-		  Storage &storage, Stream &stream=Serial) const;
+  virtual int put(int addr, Storage &storage, Stream &stream=Serial) const;
   
   /* Read configuration with role StorageGet from addr in storage memory.
-     num is the current index for numbering actions.
-     It is incremented by each of the children storing values in
-     storage.
      Only if setvalue is true set the action's value to content from storage.
      Returns address behind this configuration, -1 on error.
      Report errors and success on stream. */
-  virtual int get(int addr, int &num, bool setvalue,
+  virtual int get(int addr, bool setvalue,
 		  Storage &storage, Stream &stream=Serial);
 
   /* Recursively transmit configuration of all children using storage.

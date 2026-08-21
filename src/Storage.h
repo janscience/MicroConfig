@@ -29,14 +29,14 @@ class Storage {
   virtual uint16_t length();
 
   // Read variable t at index idx.
-  // Return number of bytes actually read, negative number on error.
+  // Return true on success.
   template<typename T>
-    int get(int idx, T &t);
+    bool get(int idx, T &t);
   
   // Write variable t to index idx.
-  // Return number of bytes actually written, negative number on error..
+  // Return true on success.
   template<typename T>
-    int put(int idx, const T &t);
+    bool put(int idx, const T &t);
 
   // Compute CRC sum.
   uint32_t crc(int addr0, int addr1);
@@ -59,16 +59,16 @@ static Storage EEPROMStorage __attribute__ ((unused));
 
 
 template<typename T>
-int Storage::get(int idx, T &t) {
+bool Storage::get(int idx, T &t) {
   int r = read(idx, (uint8_t *) &t, sizeof(T));
-  return r;
+  return (r == sizeof(T));
 }
 
 
 template<typename T>
-int Storage::put(int idx, const T &t) {
+bool Storage::put(int idx, const T &t) {
   int r = update(idx, (const uint8_t *) &t, sizeof(T));
-  return r;
+  return (r == sizeof(T));
 }
 
 #endif

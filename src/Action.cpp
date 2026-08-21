@@ -174,13 +174,12 @@ void Action::execute(Stream &stream) {
 }
 
 
-int Action::put(int addr, int &num,
-		Storage &storage, Stream &stream) const {
+int Action::put(int addr, Storage &storage, Stream &stream) const {
   return addr;
 }
 
 
-int Action::get(int addr, int &num, bool setvalue,
+int Action::get(int addr, bool setvalue,
 		Storage &storage, Stream &stream) {
   return addr;
 }

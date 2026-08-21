@@ -121,33 +121,33 @@ void Parameter::set(const char *val, const char *name, Stream &stream) {
 }
 
 
-void Parameter::makeIdentifier(int num, char ident[NIdent]) const {
+void Parameter::makeIdentifier(char ident[NIdent]) const {
   size_t i = strlen(name());
   i /= 2;
   if (i == 0)
     i = 1;
   if (i >= strlen(name()))
     i = strlen(name()) - 1;
-  ident[0] = uint8_t(num);
+  ident[0] = uint8_t(identifier());
   ident[1] = name()[0];
   ident[2] = name()[i];
   ident[3] = name()[strlen(name()) - 1];
 }
 
 
-int Parameter::put(int addr, int &num,
-		   Storage &storage, Stream &stream) const {
+int Parameter::put(int addr, Storage &storage, Stream &stream) const {
   if (disabled(StoragePut) || name() == 0 || strlen(name()) == 0)
     return addr;
   // write identifier:
+  if ((ID < 0) && (Root != NULL))
+    Root->setIdentifier();
   char ident[NIdent];
-  makeIdentifier(num, ident);
-  if (storage.put(addr, ident) <= 0)
+  makeIdentifier(ident);
+  if (!storage.put(addr, ident))
     return -1;
   addr += NIdent;
   // write value:
   int addr1 = putValue(addr, storage);
-  num++;
   if (addr1 < 0 || addr1 >= storage.length())
     return -1;
   char s[MaxVal];
@@ -158,7 +158,7 @@ int Parameter::put(int addr, int &num,
 }
 
 
-int Parameter::get(int addr, int &num, bool setvalue,
+int Parameter::get(int addr, bool setvalue,
 		   Storage &storage, Stream &stream) {
   if (disabled(StoragePut) || name() == 0 || strlen(name()) == 0)
     return addr;
@@ -166,20 +166,20 @@ int Parameter::get(int addr, int &num, bool setvalue,
     setvalue = false;
   if (setvalue) {
     // check identifier:
+    if ((ID < 0) && (Root != NULL))
+      Root->setIdentifier();
     char p_ident[NIdent];
-    makeIdentifier(num, p_ident);
+    makeIdentifier(p_ident);
     char e_ident[NIdent];
-    storage.get(addr, e_ident);
-    addr += NIdent;
-    if (memcmp(p_ident, e_ident, NIdent) != 0) {
+    if (!storage.get(addr, e_ident) || memcmp(p_ident, e_ident, NIdent) != 0) {
       if (enabled(StreamOutput))
 	stream.printf("Failed to read value for %s from storage memory.\n",
 		      name());
       return -1;
     }
+    addr += NIdent;
     // read value:
     int addr1 = getValue(addr, true, storage);
-    num++;
     if (addr1 < 0)
       return -1;
     if (enabled(StreamOutput)) {
@@ -204,7 +204,6 @@ int Parameter::get(int addr, int &num, bool setvalue,
     addr = getValue(addr, false, storage);
     if (addr < 0)
       return -1;
-    num++;
     return addr + NIdent;
   }
 }
@@ -221,7 +220,7 @@ int Parameter::transmit(Storage &storage, Stream &stream) const {
     stream.printf("transmit \"%s\" (id %d) with value \"%s\" ",
 		  name(), identifier(), s);
   }
-  if (storage.put(1, ID) < 0) {
+  if (! storage.put(1, ID)) {
     if (enabled(StreamOutput))
       stream.printf(": transmission of identifier failed\n");
     return -1;

@@ -25,6 +25,7 @@ Menu::Menu(const char *name, unsigned int roles) :
   ActType = MenuType;
   disableSupported(FileInput);
   disableSupported(StorageIO);
+  disableSupported(BusIO);
 }
 
 
@@ -35,6 +36,7 @@ Menu::Menu(Menu &menu, const char *name, unsigned int roles) :
   ActType = MenuType;
   disableSupported(FileInput);
   disableSupported(StorageIO);
+  disableSupported(BusIO);
 }
 
 
@@ -615,10 +617,9 @@ void Menu::set(const char *val, const char *name,
 }
 
 
-int Menu::put(int addr, int &num,
-	      Storage &storage, Stream &stream) const {
+int Menu::put(int addr, Storage &storage, Stream &stream) const {
   for (size_t j=0; j<NActions; j++) {
-    addr = Actions[j]->put(addr, num, storage, stream);
+    addr = Actions[j]->put(addr, storage, stream);
     if (addr < 0)
       return addr;
   }
@@ -626,10 +627,10 @@ int Menu::put(int addr, int &num,
 }
 
 
-int Menu::get(int addr, int &num, bool setvalue,
+int Menu::get(int addr, bool setvalue,
 	      Storage &storage, Stream &stream) {
   for (size_t j=0; j<NActions; j++) {
-    addr = Actions[j]->get(addr, num, setvalue, storage, stream);
+    addr = Actions[j]->get(addr, setvalue, storage, stream);
     if (addr < 0)
       return addr;
   }
@@ -655,14 +656,14 @@ int Menu::receive(Storage &storage, Stream &stream) {
   int id = 0;
   if (enabled(StreamOutput))
     stream.print("get configuration id");
-  if (storage.get(1, id) < 0) {
+  if (!storage.get(1, id)) {
     if (enabled(StreamOutput))
-      stream.println(": timeout");
+      stream.println(": timeout/failure");
     return -1;
   }
   if (id <= 0) {
     if (enabled(StreamOutput))
-      stream.println(": failed");
+      stream.println(": failure");
     return -1;
   }
   if (enabled(StreamOutput))

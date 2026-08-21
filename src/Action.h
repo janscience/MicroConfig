@@ -215,31 +215,27 @@ class Action {
 		   Stream &stream=Serial) {};
   
   /* Write configuration with role StoragePut to addr in storage memory.
-     num is the current index of this Action.
-     It is incremented when this Action actually stores values in storage.
      Report errors and success on stream.
      Returns address behind this configuration, -1 on error.
      Default implementation returns addr. */
-  virtual int put(int addr, int &num, Storage &storage,
+  virtual int put(int addr, Storage &storage,
 		  Stream &stream=Serial) const;
   
   /* Read configuration with role StorageGet from addr in storage memory.
-     num is the current index of this Action.
-     It is incremented when this Action actually stores values in storage.
      Only if setvalue is true set the action's value to content from storage.
      Report errors and success on stream.
      Returns address behind this configuration, -1 on error.
      Default implementation returns addr. */
-  virtual int get(int addr, int &num, bool setvalue,
+  virtual int get(int addr, bool setvalue,
 		  Storage &storage, Stream &stream=Serial);
 
-  /* Transmit configuration using storage.
+  /* Transmit configuration with role BusTransmit using storage.
      Returns a negative number on error, 0 if this action does not
      transmit anything (default implementation), and a positive number
      if this action successfully transmitted its content.*/
   virtual int transmit(Storage &storage, Stream &stream=Serial) const;
   
-  /* Receive value from storage and update this action.
+  /* Receive value from storage with role BusReceive and update this action.
      Returns zero on error or the action's identifier on success.
      Does nothing and return zero if action does not accept values (default). */
   virtual int receive(Storage &storage, Stream &stream=Serial);

@@ -120,43 +120,40 @@ void Config::load(Stream &stream, SDClass *sd) {
 }
 
 
-int Config::put(Storage &storage, Stream &stream) const {
+bool Config::put(Storage &storage, Stream &stream) const {
   int start_addr = 0;
-  int num = 0;
-  int addr = Menu::put(start_addr, num, storage, stream);
+  int addr = Menu::put(start_addr, storage, stream);
   if (addr > start_addr) {
     uint32_t crc = storage.crc(start_addr, addr);
     storage.put(addr, crc);
-    return num;
+    return true;
   }
   else {
     if (addr < 0)
       stream.println("ERROR! Failed to write settings to storage memory.");
-    return addr == start_addr ? 0 : -1;
+    return false;
   }
 }
 
 
-int Config::get(Storage &storage, Stream &stream) {
+bool Config::get(Storage &storage, Stream &stream) {
   int start_addr = 0;
-  int num = 0;
-  int addr = Menu::get(start_addr, num, false, storage, stream);
+  int addr = Menu::get(start_addr, false, storage, stream);
   if (addr > start_addr) {
     uint32_t crc_data = storage.crc(start_addr, addr);
     uint32_t crc_read;
     storage.get(addr, crc_read);
     if (crc_data != crc_read) {
       stream.println("No valid configuration in storage.");
-      return -1;
+      return false;
     }
     stream.println("Read configuration from storage ...");
-    num = 0;
-    addr = Menu::get(start_addr, num, true, storage, stream);
+    addr = Menu::get(start_addr, true, storage, stream);
     if (addr <= start_addr) {
       stream.println("ERROR! Failed to read settings from storage memory.");
-      return -1;
+      return false;
     }
-    return num;
+    return true;
   }
-  return addr == start_addr ? 0 : -1;
+  return false;
 }

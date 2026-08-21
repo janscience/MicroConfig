@@ -93,17 +93,13 @@ class Config : public Menu {
 
   /* Write configuration with role StoragePut to storage memory.
      Report errors and success on stream.
-     Return the number of written actions,
-     0 if there is no configurable action,
-     and -1 on error, i.e. storage is too small. */
-  int put(Storage &storage=EEPROMStorage, Stream &stream=Serial) const;
+     Return true on success. */
+  bool put(Storage &storage=EEPROMStorage, Stream &stream=Serial) const;
   
   /* Read configuration with role StorageGet from storage memory.
      Report errors and success on stream.
-     Return the number of configured actions,
-     0 if there is no configurable action,
-     and -1 on error, i.e. if storage was corrupted. */
-  int get(Storage &storage=EEPROMStorage, Stream &stream=Serial);
+     Return true on success. */
+  bool get(Storage &storage=EEPROMStorage, Stream &stream=Serial);
 
 
 protected:
