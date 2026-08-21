@@ -818,15 +818,19 @@ void StringParameter<N>::valueStr(char *str) const {
 
 template<int N>
 int StringParameter<N>::putValue(int addr, Storage &storage) const {
-  storage.put(addr, Value);
-  return addr += N;
+  if (storage.put(addr, Value) == N)
+    return addr += N;
+  else
+    return -1;
 }
 
   
 template<int N>
 int StringParameter<N>::getValue(int addr, bool setvalue, Storage &storage) {
-  if (setvalue)
-    storage.get(addr, Value);
+  if (setvalue) {
+    if (storage.get(addr, Value) != N)
+      return -1;
+  }
   return addr += N;
 }
 
@@ -896,16 +900,21 @@ void StringPointerParameter<N>::valueStr(char *str) const {
 
 template<int N>
 int StringPointerParameter<N>::putValue(int addr, Storage &storage) const {
-  storage.put(addr, *Value);
-  return addr += N;
+  if (storage.put(addr, *Value) == N)
+    return addr += N;
+  else
+    return -1;
+  
 }
 
   
 template<int N>
 int StringPointerParameter<N>::getValue(int addr, bool setvalue,
 					Storage &storage) {
-  if (setvalue)
-    storage.get(addr, *Value);
+  if (setvalue) {
+    if (storage.get(addr, *Value) != N)
+      return -1;
+  }
   return addr += N;
 }
 
@@ -1033,16 +1042,20 @@ void EnumParameter<T>::valueStr(char *str) const {
 
 template<class T>
 int EnumParameter<T>::putValue(int addr, Storage &storage) const {
-  storage.put(addr, Value);
-  return addr += sizeof(T);
+  if (storage.put(addr, Value) == sizeof(T))
+    return addr += sizeof(T);
+  else
+    return -1;
 }
 
   
 template<class T>
 int EnumParameter<T>::getValue(int addr, bool setvalue,
 			       Storage &storage) {
-  if (setvalue)
-    storage.get(addr, Value);
+  if (setvalue) {
+    if (storage.get(addr, Value) != sizeof(T))
+      return -1;
+  }
   return addr += sizeof(T);
 }
 
@@ -1121,16 +1134,20 @@ void EnumPointerParameter<T>::valueStr(char *str) const {
 
 template<class T>
 int EnumPointerParameter<T>::putValue(int addr, Storage &storage) const {
-  storage.put(addr, *Value);
-  return addr += sizeof(T);
+  if (storage.put(addr, *Value) == sizeof(T))
+    return addr += sizeof(T);
+  else
+    return -1;
 }
 
   
 template<class T>
 int EnumPointerParameter<T>::getValue(int addr, bool setvalue,
 				      Storage &storage) {
-  if (setvalue)
-    storage.get(addr, *Value);
+  if (setvalue) {
+    if (storage.get(addr, *Value) != sizeof(T))
+      return -1;
+  }
   return addr += sizeof(T);
 }
 
@@ -1444,15 +1461,18 @@ void NumberParameter<T>::valueStr(char *str) const {
 
 template<class T>
 int NumberParameter<T>::putValue(int addr, Storage &storage) const {
-  storage.put(addr, Value);
-  return addr += sizeof(T);
+  if (storage.put(addr, Value) == sizeof(T))
+    return addr += sizeof(T);
+  else
+    return -1;
 }
 
   
 template<class T>
 int NumberParameter<T>::getValue(int addr, bool setvalue, Storage &storage) {
   if (setvalue) {
-    storage.get(addr, Value);
+    if (storage.get(addr, Value) != sizeof(T))
+      return -1;
     if (this->CheckMin && Value < float(this->Minimum))
       Value = this->Minimum;
     if (this->CheckMax && Value > float(this->Maximum))
@@ -1567,8 +1587,10 @@ void NumberPointerParameter<T>::valueStr(char *str) const {
 
 template<class T>
 int NumberPointerParameter<T>::putValue(int addr, Storage &storage) const {
-  storage.put(addr, *Value);
-  return addr += sizeof(T);
+  if (storage.put(addr, *Value) == sizeof(T))
+    return addr += sizeof(T);
+  else
+    return -1;
 }
 
   
@@ -1576,7 +1598,8 @@ template<class T>
 int NumberPointerParameter<T>::getValue(int addr, bool setvalue,
 					Storage &storage) {
   if (setvalue) {
-    storage.get(addr, *Value);
+    if (storage.get(addr, *Value) != sizeof(T))
+      return -1;
     if (this->CheckMin && *Value < float(this->Minimum))
       *Value = this->Minimum;
     if (this->CheckMax && *Value > float(this->Maximum))

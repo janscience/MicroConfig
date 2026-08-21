@@ -234,8 +234,11 @@ Action *Menu::action(int id) {
   for (size_t j=0; j<NActions; j++) {
     if (Actions[j]->identifier() == id)
       return Actions[j];
-    else
-      return Actions[j]->action(id);
+    else {
+      Action *act = Actions[j]->action(id);
+      if (act != NULL)
+	return act;
+    }
   }
   return NULL;
 }
@@ -652,11 +655,15 @@ int Menu::receive(Storage &storage, Stream &stream) {
   int id = 0;
   if (enabled(StreamOutput))
     stream.print("get configuration id");
-  storage.get(0, id);
+  if (storage.get(1, id) < 0) {
+    if (enabled(StreamOutput))
+      stream.println(": timeout");
+    return -1;
+  }
   if (id <= 0) {
     if (enabled(StreamOutput))
       stream.println(": failed");
-    return 0;
+    return -1;
   }
   if (enabled(StreamOutput))
     stream.printf(": %2d", id);

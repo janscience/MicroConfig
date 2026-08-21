@@ -147,13 +147,13 @@ class Menu : public Action {
 
   /* Recursively transmit configuration of all children using storage.
      Returns a negative number on error, zero if nothing was
-     transmitted, or the number of transmitted actions on success.*/
+     transmitted, or the number of transmitted actions on success. */
   virtual int transmit(Storage &storage, Stream &stream=Serial) const;
 
   /* Receive identifier and value from storage and update the
      corresponding action's value accordingly.
      Returns zero on error or the identifier of the updated action on
-     success.*/
+     success. */
   virtual int receive(Storage &storage, Stream &stream=Serial);
 
 protected:

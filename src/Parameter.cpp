@@ -142,12 +142,13 @@ int Parameter::put(int addr, int &num,
   // write identifier:
   char ident[NIdent];
   makeIdentifier(num, ident);
-  storage.put(addr, ident);
+  if (storage.put(addr, ident) <= 0)
+    return -1;
   addr += NIdent;
   // write value:
   int addr1 = putValue(addr, storage);
   num++;
-  if (addr1 >= storage.length())
+  if (addr1 < 0 || addr1 >= storage.length())
     return -1;
   char s[MaxVal];
   valueStr(s);
@@ -179,6 +180,8 @@ int Parameter::get(int addr, int &num, bool setvalue,
     // read value:
     int addr1 = getValue(addr, true, storage);
     num++;
+    if (addr1 < 0)
+      return -1;
     if (enabled(StreamOutput)) {
       size_t kn = strlen(name()) + 1;
       if (parent() != 0 && strlen(parent()->name()) > 0)
@@ -199,6 +202,8 @@ int Parameter::get(int addr, int &num, bool setvalue,
   }
   else {
     addr = getValue(addr, false, storage);
+    if (addr < 0)
+      return -1;
     num++;
     return addr + NIdent;
   }
@@ -213,21 +218,23 @@ int Parameter::transmit(Storage &storage, Stream &stream) const {
   char s[MaxVal];
   valueStr(s);
   if (enabled(StreamOutput)) {
-    stream.printf("transmit %s with value \"%s\" ", name(), s);
-    stream.printf("to storage with identifier %d", ID);
+    stream.printf("transmit \"%s\" (id %d) with value \"%s\" ",
+		  name(), identifier(), s);
   }
-  if (storage.put(0, ID) < 0) {
+  if (storage.put(1, ID) < 0) {
     if (enabled(StreamOutput))
       stream.printf(": transmission of identifier failed\n");
     return -1;
   }
-  if (putValue(1, storage) < 0) {
+  delay(100);
+  if (putValue(2, storage) < 0) {
     if (enabled(StreamOutput))
       stream.printf(": transmission of value failed\n");
     return -1;
   }
   if (enabled(StreamOutput))
     stream.println();
+  delay(100);
   return ID;
 }
 
@@ -236,7 +243,8 @@ int Parameter::receive(Storage &storage, Stream &stream) {
   if (disabled(BusReceive))
     return 0;
   // read value:
-  getValue(1, true, storage);
+  if (getValue(2, true, storage) < 0)
+    return -1;
   if (enabled(StreamOutput)) {
     size_t kn = strlen(name()) + 1;
     if (parent() != 0 && strlen(parent()->name()) > 0)

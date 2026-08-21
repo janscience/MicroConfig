@@ -11,15 +11,19 @@ uint16_t Storage::length() {
 }
 
 
-void Storage::read(int idx, uint8_t *dest, size_t len) {
+int Storage::read(unsigned int idx, uint8_t *dest, size_t len) {
+  size_t n = len;
   while (len--)
     *dest++ = EEPROM.read(idx++);
+  return n;
 }
 
   
-void Storage::update(int idx, const uint8_t *src, size_t len) {
+int Storage::update(unsigned int idx, const uint8_t *src, size_t len) {
+  size_t n = len;
   while (len--)
     EEPROM.update(idx++, *src++);
+  return n;
 }
 
 
