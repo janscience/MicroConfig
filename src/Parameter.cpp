@@ -220,13 +220,19 @@ int Parameter::transmit(Storage &storage, Stream &stream) const {
     stream.printf("transmit \"%s\" (id %d) with value \"%s\" ",
 		  name(), identifier(), s);
   }
-  if (! storage.put(1, ID)) {
+  if (! storage.put(1, true)) {
+    if (enabled(StreamOutput))
+      stream.printf(": transmission of mode failed\n");
+    return -1;
+  }
+  delay(100);
+  if (! storage.put(2, ID)) {
     if (enabled(StreamOutput))
       stream.printf(": transmission of identifier failed\n");
     return -1;
   }
   delay(100);
-  if (putValue(2, storage) < 0) {
+  if (putValue(3, storage) < 0) {
     if (enabled(StreamOutput))
       stream.printf(": transmission of value failed\n");
     return -1;
@@ -242,7 +248,7 @@ int Parameter::receive(Storage &storage, Stream &stream) {
   if (disabled(BusReceive))
     return 0;
   // read value:
-  if (getValue(2, true, storage) < 0)
+  if (getValue(3, true, storage) < 0)
     return -1;
   if (enabled(StreamOutput)) {
     size_t kn = strlen(name()) + 1;

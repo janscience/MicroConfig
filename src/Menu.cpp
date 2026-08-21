@@ -61,6 +61,16 @@ void Menu::add(Action *act) {
 }
 
 
+size_t Menu::size() const {
+  return NActions;
+}
+
+  
+Action *Menu::operator[](size_t idx) {
+  return Actions[idx];
+}
+
+
 void Menu::setRoot(Config *root) {
   Root = root;
   for (size_t j=0; j<NActions; j++)
@@ -655,8 +665,23 @@ int Menu::transmit(Storage &storage, Stream &stream) const {
 int Menu::receive(Storage &storage, Stream &stream) {
   int id = 0;
   if (enabled(StreamOutput))
-    stream.print("get configuration id");
-  if (!storage.get(1, id)) {
+    stream.print("get mode");
+  bool mode = false;
+  if (!storage.get(1, mode)) {
+    if (enabled(StreamOutput))
+      stream.println(": timeout/failure");
+    return -1;
+  }
+  if (enabled(StreamOutput))
+    stream.printf(": %d", mode);
+  if (!mode) {
+    if (enabled(StreamOutput))
+      stream.println(" stop");
+    return 0;
+  }
+  if (enabled(StreamOutput))
+    stream.print(", get configuration id");
+  if (!storage.get(2, id)) {
     if (enabled(StreamOutput))
       stream.println(": timeout/failure");
     return -1;

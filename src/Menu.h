@@ -29,6 +29,12 @@ class Menu : public Action {
   /* Add an action to this Menu. Sets parent and root of action. */
   void add(Action *action);
 
+  /* Retrun the number of actions contained in this menu. */
+  size_t size() const;
+  
+  /* Return the Action at index idx. */
+  Action *operator[](size_t idx);
+
   /* Recursively set the root menu of this action and all its children. */
   virtual void setRoot(Config *root);
   
@@ -145,8 +151,8 @@ class Menu : public Action {
 
   /* Receive identifier and value from storage and update the
      corresponding action's value accordingly.
-     Returns zero on error or the identifier of the updated action on
-     success. */
+     Returns a negative number on error, zero on stop,
+     or the identifier of the updated action on success. */
   virtual int receive(Storage &storage, Stream &stream=Serial);
 
 protected:

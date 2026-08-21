@@ -236,7 +236,8 @@ class Action {
   virtual int transmit(Storage &storage, Stream &stream=Serial) const;
   
   /* Receive value from storage with role BusReceive and update this action.
-     Returns zero on error or the action's identifier on success.
+     Returns a negative number on error or a stop condition,
+     or the action's identifier on success.
      Does nothing and return zero if action does not accept values (default). */
   virtual int receive(Storage &storage, Stream &stream=Serial);
 
