@@ -18,6 +18,9 @@
 #define Storage_h
 
 
+#include <Arduino.h>
+
+
 class Storage {
 
  public:

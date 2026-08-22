@@ -649,21 +649,19 @@ int Menu::get(int addr, bool setvalue,
 
 
 int Menu::transmit(Storage &storage, Stream &stream) const {
-  int error = 0;
   int count = 0;
   for (size_t j=0; j<NActions; j++) {
     int r = Actions[j]->transmit(storage, stream);
     if (r > 0)
       count++;
     if (r < 0)
-      error = r;
+      return r;
   }
-  return count > 0 ? count : error;
+  return count;
 }
 
 
 int Menu::receive(Storage &storage, Stream &stream) {
-  int id = 0;
   if (enabled(StreamOutput))
     stream.print("get mode");
   bool mode = false;
@@ -681,6 +679,7 @@ int Menu::receive(Storage &storage, Stream &stream) {
   }
   if (enabled(StreamOutput))
     stream.print(", get configuration id");
+  int id = 0;
   if (!storage.get(2, id)) {
     if (enabled(StreamOutput))
       stream.println(": timeout/failure");
@@ -688,7 +687,7 @@ int Menu::receive(Storage &storage, Stream &stream) {
   }
   if (id <= 0) {
     if (enabled(StreamOutput))
-      stream.println(": failure");
+      stream.println(": invalid");
     return -1;
   }
   if (enabled(StreamOutput))
